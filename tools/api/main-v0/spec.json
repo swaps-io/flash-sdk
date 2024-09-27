@@ -1,0 +1,2640 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Flash API (v0)",
+        "description": "Main API of Flash project (v0)",
+        "version": "v0.1.0"
+    },
+    "paths": {
+        "/api/v0/allowance": {
+            "get": {
+                "tags": [
+                    "Approve"
+                ],
+                "summary": "Get allowance",
+                "description": "Returns token allowance",
+                "operationId": "get_allowance",
+                "parameters": [
+                    {
+                        "name": "chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Chain Id"
+                        }
+                    },
+                    {
+                        "name": "token_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Token Address"
+                        }
+                    },
+                    {
+                        "name": "actor_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Actor Address"
+                        }
+                    },
+                    {
+                        "name": "contract_address",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Contract Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AllowanceInfo"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/approve": {
+            "get": {
+                "tags": [
+                    "Approve"
+                ],
+                "summary": "Get approve",
+                "description": "Returns call data to approve token",
+                "operationId": "get_approve",
+                "parameters": [
+                    {
+                        "name": "chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Chain Id"
+                        }
+                    },
+                    {
+                        "name": "token_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Token Address"
+                        }
+                    },
+                    {
+                        "name": "actor_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Actor Address"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Amount"
+                        }
+                    },
+                    {
+                        "name": "p2_contract",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false,
+                            "title": "P2 Contract"
+                        }
+                    },
+                    {
+                        "name": "contract_address",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Contract Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionData"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/permit/data": {
+            "get": {
+                "tags": [
+                    "Permit"
+                ],
+                "summary": "Get permit data",
+                "description": "Returns token permit data to sign",
+                "operationId": "get_permit_data",
+                "parameters": [
+                    {
+                        "name": "chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Chain Id"
+                        }
+                    },
+                    {
+                        "name": "token_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Token Address"
+                        }
+                    },
+                    {
+                        "name": "actor_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Actor Address"
+                        }
+                    },
+                    {
+                        "name": "mode",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/PermitMode"
+                                }
+                            ],
+                            "default": "permit2",
+                            "title": "Mode"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Amount"
+                        }
+                    },
+                    {
+                        "name": "contract_address",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Contract Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermitData"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/permit/transaction": {
+            "get": {
+                "tags": [
+                    "Permit"
+                ],
+                "summary": "Gets permit transaction",
+                "description": "Returns tokens permit signature",
+                "operationId": "get_permit_transaction",
+                "parameters": [
+                    {
+                        "name": "chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Chain Id"
+                        }
+                    },
+                    {
+                        "name": "token_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Token Address"
+                        }
+                    },
+                    {
+                        "name": "actor_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Actor Address"
+                        }
+                    },
+                    {
+                        "name": "mode",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/PermitMode"
+                                }
+                            ],
+                            "default": "permit2",
+                            "title": "Mode"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Amount"
+                        }
+                    },
+                    {
+                        "name": "contract_address",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Contract Address"
+                        }
+                    },
+                    {
+                        "name": "deadline",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "title": "Deadline"
+                        }
+                    },
+                    {
+                        "name": "permit_signature",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Permit Signature"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PermitTransaction"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/quote": {
+            "get": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get quote",
+                "description": "Returns quote",
+                "operationId": "get_quote",
+                "parameters": [
+                    {
+                        "name": "deploy_smart_to_chains",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "default": [],
+                            "title": "Deploy Smart To Chains"
+                        }
+                    },
+                    {
+                        "name": "from_chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "From Chain Id"
+                        }
+                    },
+                    {
+                        "name": "to_chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "To Chain Id"
+                        }
+                    },
+                    {
+                        "name": "from_token_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "From Token Address"
+                        }
+                    },
+                    {
+                        "name": "to_token_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "To Token Address"
+                        }
+                    },
+                    {
+                        "name": "from_amount",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "From Amount"
+                        }
+                    },
+                    {
+                        "name": "to_amount",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "To Amount"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Quote"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps": {
+            "post": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Create swap",
+                "description": "Creates swap",
+                "operationId": "create_swap",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSwap"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Swap"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps/{swap_hash}": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Get swap",
+                "description": "Returns swap",
+                "operationId": "get_swap",
+                "parameters": [
+                    {
+                        "name": "swap_hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Swap Hash"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Swap"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps/{swap_hash}/data": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Get swap data",
+                "description": "Returns swap data",
+                "operationId": "get_swap_data",
+                "parameters": [
+                    {
+                        "name": "swap_hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Swap Hash"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SwapData"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps/{swap_hash}/submit": {
+            "post": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Confirm swap",
+                "description": "Sends signed order to MM",
+                "operationId": "submit_swap",
+                "parameters": [
+                    {
+                        "name": "swap_hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Swap Hash"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SubmitSwap"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Swap"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps/{swap_hash}/liq_send": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Liquidate swap",
+                "description": "Returns call data to liquidate swap",
+                "operationId": "liq_send",
+                "parameters": [
+                    {
+                        "name": "swap_hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Swap Hash"
+                        }
+                    },
+                    {
+                        "name": "liquidator",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Liquidator"
+                        }
+                    },
+                    {
+                        "name": "permit_transaction",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Permit Transaction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionData"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps/{swap_hash}/report_no_send": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Prepare swap withdraw",
+                "description": "Returns call data to report no-send",
+                "operationId": "report_no_send",
+                "parameters": [
+                    {
+                        "name": "swap_hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Swap Hash"
+                        }
+                    },
+                    {
+                        "name": "reporter",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Reporter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionData"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps/{swap_hash}/slash": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Slash swap",
+                "description": "Returns call data to slash swap",
+                "operationId": "slash",
+                "parameters": [
+                    {
+                        "name": "swap_hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Swap Hash"
+                        }
+                    },
+                    {
+                        "name": "reporter",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Reporter"
+                        }
+                    },
+                    {
+                        "name": "from_proof",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "From Proof"
+                        }
+                    },
+                    {
+                        "name": "to_proof",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "To Proof"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionData"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps/{swap_hash}/liq_slash": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Liq slash swap",
+                "description": "Returns call data to liq slash swap",
+                "operationId": "liq_slash",
+                "parameters": [
+                    {
+                        "name": "swap_hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Swap Hash"
+                        }
+                    },
+                    {
+                        "name": "from_proof",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "From Proof"
+                        }
+                    },
+                    {
+                        "name": "to_proof",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "To Proof"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionData"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps/{swap_hash}/confirm": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Confirm swap",
+                "description": "Returns call data to confirm swap",
+                "operationId": "confirm_swap",
+                "parameters": [
+                    {
+                        "name": "swap_hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Swap Hash"
+                        }
+                    },
+                    {
+                        "name": "from_proof",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "From Proof"
+                        }
+                    },
+                    {
+                        "name": "to_proof",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "To Proof"
+                        }
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionData"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/states": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Get swap states",
+                "description": "Returns states for the requests swap hashes",
+                "operationId": "get_states",
+                "parameters": [
+                    {
+                        "name": "hashes",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string"
+                            },
+                            "title": "Hashes"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SwapStates"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/users/{address}/swaps": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Get user swaps",
+                "description": "Returns user swaps",
+                "operationId": "get_user_swaps",
+                "parameters": [
+                    {
+                        "name": "address",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SwapList"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/resolvers": {
+            "get": {
+                "tags": [
+                    "Resolver"
+                ],
+                "summary": "Get resolvers",
+                "description": "Returns resolver list",
+                "operationId": "get_resolver_list",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResolverList"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/resolvers/{address}": {
+            "get": {
+                "tags": [
+                    "Resolver"
+                ],
+                "summary": "Get resolver",
+                "description": "Returns resolver by address",
+                "operationId": "get_resolver",
+                "parameters": [
+                    {
+                        "name": "address",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Resolver"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/resolvers/{address}/balance": {
+            "get": {
+                "tags": [
+                    "Resolver"
+                ],
+                "summary": "Get resolver balance",
+                "description": "Returns resolver balance",
+                "operationId": "get_balance",
+                "parameters": [
+                    {
+                        "name": "address",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Address"
+                        }
+                    },
+                    {
+                        "name": "chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Chain Id"
+                        }
+                    },
+                    {
+                        "name": "token_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Token Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BalanceInfo"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/resolvers/{address}/collateral": {
+            "get": {
+                "tags": [
+                    "Resolver"
+                ],
+                "summary": "Get resolver collateral",
+                "description": "Returns resolver collateral info",
+                "operationId": "get_collateral",
+                "parameters": [
+                    {
+                        "name": "address",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Address"
+                        }
+                    },
+                    {
+                        "name": "collateral_chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Collateral Chain Id"
+                        }
+                    },
+                    {
+                        "name": "distribution_chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Distribution Chain Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CollateralInfo"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/agreement/message": {
+            "get": {
+                "tags": [
+                    "Agreement"
+                ],
+                "summary": "Get agreement message",
+                "description": "Returns agreement message",
+                "operationId": "get_message",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AgreementMessage"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/agreement/users": {
+            "post": {
+                "tags": [
+                    "Agreement"
+                ],
+                "summary": "Create user",
+                "description": "Creates agreement user",
+                "operationId": "create_user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAgreementUser"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AgreementUser"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/agreement/users/{address}": {
+            "get": {
+                "tags": [
+                    "Agreement"
+                ],
+                "summary": "Get user",
+                "description": "Returns agreement user",
+                "operationId": "get_user",
+                "parameters": [
+                    {
+                        "name": "address",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AgreementUser"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/smart/deploy/pay-cryptos": {
+            "get": {
+                "tags": [
+                    "Smart Wallet"
+                ],
+                "summary": "Get smart wallet pay-cryptos",
+                "description": "Returns cryptos that can be used to pay for smart wallet deploy",
+                "operationId": "get_smart_wallet_pay_cryptos",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SmartWalletPayCryptos"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/smart/{owner_address}": {
+            "get": {
+                "tags": [
+                    "Smart Wallet"
+                ],
+                "summary": "Get smart wallet data",
+                "description": "Returns smart wallet data of the owner",
+                "operationId": "get_smart_wallet",
+                "parameters": [
+                    {
+                        "name": "owner_address",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Owner Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SmartWallet"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AgreementMessage": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message"
+                ],
+                "title": "AgreementMessage"
+            },
+            "AgreementUser": {
+                "properties": {
+                    "address": {
+                        "type": "string",
+                        "title": "Address"
+                    },
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "signature": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Signature"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "address",
+                    "message",
+                    "signature"
+                ],
+                "title": "AgreementUser"
+            },
+            "AllowanceInfo": {
+                "properties": {
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "token_address": {
+                        "type": "string",
+                        "title": "Token Address"
+                    },
+                    "actor_address": {
+                        "type": "string",
+                        "title": "Actor Address"
+                    },
+                    "contract_address": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Contract Address"
+                    },
+                    "allowance": {
+                        "type": "string",
+                        "title": "Allowance"
+                    },
+                    "allowance_p2": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Allowance P2"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "chain_id",
+                    "token_address",
+                    "actor_address",
+                    "contract_address",
+                    "allowance",
+                    "allowance_p2"
+                ],
+                "title": "AllowanceInfo"
+            },
+            "AmountSource": {
+                "type": "string",
+                "enum": [
+                    "from",
+                    "to"
+                ],
+                "title": "AmountSource"
+            },
+            "BalanceInfo": {
+                "properties": {
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "token_address": {
+                        "type": "string",
+                        "title": "Token Address"
+                    },
+                    "actor_address": {
+                        "type": "string",
+                        "title": "Actor Address"
+                    },
+                    "balance": {
+                        "type": "string",
+                        "title": "Balance"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "chain_id",
+                    "token_address",
+                    "actor_address",
+                    "balance"
+                ],
+                "title": "BalanceInfo"
+            },
+            "CollateralInfo": {
+                "properties": {
+                    "collateral_chain_id": {
+                        "type": "string",
+                        "title": "Collateral Chain Id"
+                    },
+                    "distribution_chain_id": {
+                        "type": "string",
+                        "title": "Distribution Chain Id"
+                    },
+                    "actor_address": {
+                        "type": "string",
+                        "title": "Actor Address"
+                    },
+                    "collateral_token_address": {
+                        "type": "string",
+                        "title": "Collateral Token Address"
+                    },
+                    "unlocked_amount": {
+                        "type": "string",
+                        "title": "Unlocked Amount"
+                    },
+                    "locked_amount": {
+                        "type": "string",
+                        "title": "Locked Amount"
+                    },
+                    "available_withdraw_amount": {
+                        "type": "string",
+                        "title": "Available Withdraw Amount"
+                    },
+                    "balance": {
+                        "type": "string",
+                        "title": "Balance"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "collateral_chain_id",
+                    "distribution_chain_id",
+                    "actor_address",
+                    "collateral_token_address",
+                    "unlocked_amount",
+                    "locked_amount",
+                    "available_withdraw_amount",
+                    "balance"
+                ],
+                "title": "CollateralInfo"
+            },
+            "CreateAgreementUser": {
+                "properties": {
+                    "address": {
+                        "type": "string",
+                        "pattern": "^(0x)[a-fA-F0-9]{40}$",
+                        "title": "Address"
+                    },
+                    "signature": {
+                        "type": "string",
+                        "title": "Signature"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "address",
+                    "signature"
+                ],
+                "title": "CreateAgreementUser"
+            },
+            "CreateSwap": {
+                "properties": {
+                    "from_chain_id": {
+                        "type": "string",
+                        "title": "From Chain Id"
+                    },
+                    "from_token_address": {
+                        "type": "string",
+                        "title": "From Token Address"
+                    },
+                    "from_amount": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Amount"
+                    },
+                    "to_amount": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "To Amount"
+                    },
+                    "from_actor": {
+                        "type": "string",
+                        "pattern": "^(0x)[a-fA-F0-9]{40}$",
+                        "title": "From Actor"
+                    },
+                    "from_actor_bitcoin": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor Bitcoin"
+                    },
+                    "from_actor_receiver": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^(0x)[a-fA-F0-9]{40}$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor Receiver"
+                    },
+                    "to_chain_id": {
+                        "type": "string",
+                        "title": "To Chain Id"
+                    },
+                    "to_token_address": {
+                        "type": "string",
+                        "title": "To Token Address"
+                    },
+                    "permit_transaction": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Permit Transaction"
+                    },
+                    "deploy_smart_to_chains": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Deploy Smart To Chains",
+                        "default": []
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "from_chain_id",
+                    "from_token_address",
+                    "from_actor",
+                    "to_chain_id",
+                    "to_token_address"
+                ],
+                "title": "CreateSwap"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "LiqSendTransaction": {
+                "properties": {
+                    "txid": {
+                        "type": "string",
+                        "title": "Txid"
+                    },
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "created_at": {
+                        "type": "integer",
+                        "title": "Created At"
+                    },
+                    "confirmed": {
+                        "type": "boolean",
+                        "title": "Confirmed"
+                    },
+                    "liquidator": {
+                        "type": "string",
+                        "title": "Liquidator"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "txid",
+                    "chain_id",
+                    "created_at",
+                    "confirmed",
+                    "liquidator"
+                ],
+                "title": "LiqSendTransaction"
+            },
+            "PermitData": {
+                "properties": {
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "token_address": {
+                        "type": "string",
+                        "title": "Token Address"
+                    },
+                    "actor_address": {
+                        "type": "string",
+                        "title": "Actor Address"
+                    },
+                    "contract_address": {
+                        "type": "string",
+                        "title": "Contract Address"
+                    },
+                    "amount": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Amount"
+                    },
+                    "deadline": {
+                        "type": "integer",
+                        "title": "Deadline"
+                    },
+                    "permit_data": {
+                        "type": "string",
+                        "title": "Permit Data"
+                    },
+                    "mode": {
+                        "$ref": "#/components/schemas/PermitMode"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "chain_id",
+                    "token_address",
+                    "actor_address",
+                    "contract_address",
+                    "amount",
+                    "deadline",
+                    "permit_data",
+                    "mode"
+                ],
+                "title": "PermitData"
+            },
+            "PermitMode": {
+                "type": "string",
+                "enum": [
+                    "permit",
+                    "permit2"
+                ],
+                "title": "PermitMode"
+            },
+            "PermitTransaction": {
+                "properties": {
+                    "transaction": {
+                        "type": "string",
+                        "title": "Transaction"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "transaction"
+                ],
+                "title": "PermitTransaction"
+            },
+            "Quote": {
+                "properties": {
+                    "from_chain_id": {
+                        "type": "string",
+                        "title": "From Chain Id"
+                    },
+                    "from_token_address": {
+                        "type": "string",
+                        "title": "From Token Address"
+                    },
+                    "from_amount": {
+                        "type": "string",
+                        "title": "From Amount"
+                    },
+                    "to_chain_id": {
+                        "type": "string",
+                        "title": "To Chain Id"
+                    },
+                    "to_token_address": {
+                        "type": "string",
+                        "title": "To Token Address"
+                    },
+                    "to_amount": {
+                        "type": "string",
+                        "title": "To Amount"
+                    },
+                    "collateral_chain_id": {
+                        "type": "string",
+                        "title": "Collateral Chain Id"
+                    },
+                    "collateral_amount": {
+                        "type": "string",
+                        "title": "Collateral Amount"
+                    },
+                    "time_estimate": {
+                        "type": "integer",
+                        "title": "Time Estimate"
+                    },
+                    "to_actor": {
+                        "type": "string",
+                        "title": "To Actor"
+                    },
+                    "time_to_lock_bitcoin": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Time To Lock Bitcoin"
+                    },
+                    "time_to_receive": {
+                        "type": "integer",
+                        "title": "Time To Receive"
+                    },
+                    "time_to_send": {
+                        "type": "integer",
+                        "title": "Time To Send"
+                    },
+                    "time_to_liq_send": {
+                        "type": "integer",
+                        "title": "Time To Liq Send"
+                    },
+                    "from_fee_estimate": {
+                        "type": "string",
+                        "title": "From Fee Estimate"
+                    },
+                    "to_fee_estimate": {
+                        "type": "string",
+                        "title": "To Fee Estimate"
+                    },
+                    "amount_source": {
+                        "$ref": "#/components/schemas/AmountSource"
+                    },
+                    "deploy_smart_to_chains": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Deploy Smart To Chains"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "from_chain_id",
+                    "from_token_address",
+                    "from_amount",
+                    "to_chain_id",
+                    "to_token_address",
+                    "to_amount",
+                    "collateral_chain_id",
+                    "collateral_amount",
+                    "time_estimate",
+                    "to_actor",
+                    "time_to_lock_bitcoin",
+                    "time_to_receive",
+                    "time_to_send",
+                    "time_to_liq_send",
+                    "from_fee_estimate",
+                    "to_fee_estimate",
+                    "amount_source"
+                ],
+                "title": "Quote"
+            },
+            "ReportNoSendTransaction": {
+                "properties": {
+                    "txid": {
+                        "type": "string",
+                        "title": "Txid"
+                    },
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "created_at": {
+                        "type": "integer",
+                        "title": "Created At"
+                    },
+                    "confirmed": {
+                        "type": "boolean",
+                        "title": "Confirmed"
+                    },
+                    "reporter": {
+                        "type": "string",
+                        "title": "Reporter"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "txid",
+                    "chain_id",
+                    "created_at",
+                    "confirmed",
+                    "reporter"
+                ],
+                "title": "ReportNoSendTransaction"
+            },
+            "Resolver": {
+                "properties": {
+                    "address": {
+                        "type": "string",
+                        "title": "Address"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "title": "Icon"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "address",
+                    "name",
+                    "icon"
+                ],
+                "title": "Resolver"
+            },
+            "ResolverList": {
+                "properties": {
+                    "resolvers": {
+                        "items": {
+                            "$ref": "#/components/schemas/Resolver"
+                        },
+                        "type": "array",
+                        "title": "Resolvers"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "resolvers"
+                ],
+                "title": "ResolverList"
+            },
+            "SlashTransaction": {
+                "properties": {
+                    "txid": {
+                        "type": "string",
+                        "title": "Txid"
+                    },
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "created_at": {
+                        "type": "integer",
+                        "title": "Created At"
+                    },
+                    "confirmed": {
+                        "type": "boolean",
+                        "title": "Confirmed"
+                    },
+                    "report_no_send_index": {
+                        "type": "integer",
+                        "title": "Report No Send Index"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "txid",
+                    "chain_id",
+                    "created_at",
+                    "confirmed",
+                    "report_no_send_index"
+                ],
+                "title": "SlashTransaction"
+            },
+            "SmartChain": {
+                "properties": {
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "smart_address": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Smart Address"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/SmartWalletState"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "chain_id",
+                    "smart_address",
+                    "state"
+                ],
+                "title": "SmartChain"
+            },
+            "SmartWallet": {
+                "properties": {
+                    "owner_address": {
+                        "type": "string",
+                        "title": "Owner Address"
+                    },
+                    "smart_chains": {
+                        "items": {
+                            "$ref": "#/components/schemas/SmartChain"
+                        },
+                        "type": "array",
+                        "title": "Smart Chains"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "owner_address",
+                    "smart_chains"
+                ],
+                "title": "SmartWallet"
+            },
+            "SmartWalletPayCryptos": {
+                "properties": {
+                    "crypto_ids": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Crypto Ids"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "crypto_ids"
+                ],
+                "title": "SmartWalletPayCryptos"
+            },
+            "SmartWalletState": {
+                "type": "string",
+                "enum": [
+                    "ready",
+                    "pending"
+                ],
+                "title": "SmartWalletState"
+            },
+            "SubmitSwap": {
+                "properties": {
+                    "signature": {
+                        "type": "string",
+                        "title": "Signature"
+                    },
+                    "raise_on_error": {
+                        "type": "boolean",
+                        "title": "Raise On Error",
+                        "default": false
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "signature"
+                ],
+                "title": "SubmitSwap"
+            },
+            "Swap": {
+                "properties": {
+                    "hash": {
+                        "type": "string",
+                        "title": "Hash"
+                    },
+                    "created_at": {
+                        "type": "integer",
+                        "title": "Created At"
+                    },
+                    "from_chain_id": {
+                        "type": "string",
+                        "title": "From Chain Id"
+                    },
+                    "from_token_address": {
+                        "type": "string",
+                        "title": "From Token Address"
+                    },
+                    "from_amount": {
+                        "type": "string",
+                        "title": "From Amount"
+                    },
+                    "from_actor": {
+                        "type": "string",
+                        "title": "From Actor"
+                    },
+                    "from_actor_bitcoin": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor Bitcoin"
+                    },
+                    "from_actor_receiver": {
+                        "type": "string",
+                        "title": "From Actor Receiver"
+                    },
+                    "to_chain_id": {
+                        "type": "string",
+                        "title": "To Chain Id"
+                    },
+                    "to_token_address": {
+                        "type": "string",
+                        "title": "To Token Address"
+                    },
+                    "to_amount": {
+                        "type": "string",
+                        "title": "To Amount"
+                    },
+                    "to_actor": {
+                        "type": "string",
+                        "title": "To Actor"
+                    },
+                    "to_actor_bitcoin": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "To Actor Bitcoin"
+                    },
+                    "collateral_chain_id": {
+                        "type": "string",
+                        "title": "Collateral Chain Id"
+                    },
+                    "collateral_amount": {
+                        "type": "string",
+                        "title": "Collateral Amount"
+                    },
+                    "collateral_rewardable": {
+                        "type": "string",
+                        "title": "Collateral Rewardable"
+                    },
+                    "time_estimate": {
+                        "type": "integer",
+                        "title": "Time Estimate"
+                    },
+                    "time_to_lock_bitcoin": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Time To Lock Bitcoin"
+                    },
+                    "time_to_receive": {
+                        "type": "integer",
+                        "title": "Time To Receive"
+                    },
+                    "time_to_send": {
+                        "type": "integer",
+                        "title": "Time To Send"
+                    },
+                    "time_to_liq_send": {
+                        "type": "integer",
+                        "title": "Time To Liq Send"
+                    },
+                    "deadline_lock_bitcoin": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Deadline Lock Bitcoin"
+                    },
+                    "deadline_receive": {
+                        "type": "integer",
+                        "title": "Deadline Receive"
+                    },
+                    "deadline_send": {
+                        "type": "integer",
+                        "title": "Deadline Send"
+                    },
+                    "deadline_liq_send": {
+                        "type": "integer",
+                        "title": "Deadline Liq Send"
+                    },
+                    "from_fee_estimate": {
+                        "type": "string",
+                        "title": "From Fee Estimate"
+                    },
+                    "to_fee_estimate": {
+                        "type": "string",
+                        "title": "To Fee Estimate"
+                    },
+                    "amount_source": {
+                        "$ref": "#/components/schemas/AmountSource"
+                    },
+                    "deploy_smart_to_chains": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Deploy Smart To Chains"
+                    },
+                    "nonce": {
+                        "type": "integer",
+                        "title": "Nonce"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/SwapState"
+                    },
+                    "tx_lock_bitcoin": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Transaction"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "tx_receive": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Transaction"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "tx_send": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Transaction"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "tx_liq_send": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LiqSendTransaction"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "tx_report_no_send": {
+                        "items": {
+                            "$ref": "#/components/schemas/ReportNoSendTransaction"
+                        },
+                        "type": "array",
+                        "title": "Tx Report No Send"
+                    },
+                    "tx_slash": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/SlashTransaction"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "hash",
+                    "created_at",
+                    "from_chain_id",
+                    "from_token_address",
+                    "from_amount",
+                    "from_actor",
+                    "from_actor_bitcoin",
+                    "from_actor_receiver",
+                    "to_chain_id",
+                    "to_token_address",
+                    "to_amount",
+                    "to_actor",
+                    "to_actor_bitcoin",
+                    "collateral_chain_id",
+                    "collateral_amount",
+                    "collateral_rewardable",
+                    "time_estimate",
+                    "time_to_lock_bitcoin",
+                    "time_to_receive",
+                    "time_to_send",
+                    "time_to_liq_send",
+                    "deadline_lock_bitcoin",
+                    "deadline_receive",
+                    "deadline_send",
+                    "deadline_liq_send",
+                    "from_fee_estimate",
+                    "to_fee_estimate",
+                    "amount_source",
+                    "nonce",
+                    "state",
+                    "tx_lock_bitcoin",
+                    "tx_receive",
+                    "tx_send",
+                    "tx_liq_send",
+                    "tx_report_no_send",
+                    "tx_slash"
+                ],
+                "title": "Swap"
+            },
+            "SwapData": {
+                "properties": {
+                    "hash": {
+                        "type": "string",
+                        "title": "Hash"
+                    },
+                    "data": {
+                        "type": "string",
+                        "title": "Data"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "hash",
+                    "data"
+                ],
+                "title": "SwapData"
+            },
+            "SwapList": {
+                "properties": {
+                    "swaps": {
+                        "items": {
+                            "$ref": "#/components/schemas/Swap"
+                        },
+                        "type": "array",
+                        "title": "Swaps"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "swaps"
+                ],
+                "title": "SwapList"
+            },
+            "SwapState": {
+                "type": "string",
+                "enum": [
+                    "awaiting_signature",
+                    "awaiting_bitcoin_lock",
+                    "awaiting_receive",
+                    "awaiting_send",
+                    "awaiting_liq_send",
+                    "cancelled_no_slash",
+                    "cancelled_awaiting_slash",
+                    "cancelled_slashed",
+                    "completed_sent",
+                    "completed_liq_sent"
+                ],
+                "title": "SwapState"
+            },
+            "SwapStates": {
+                "properties": {
+                    "states": {
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "type": "object",
+                        "title": "States"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "states"
+                ],
+                "title": "SwapStates"
+            },
+            "Transaction": {
+                "properties": {
+                    "txid": {
+                        "type": "string",
+                        "title": "Txid"
+                    },
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "created_at": {
+                        "type": "integer",
+                        "title": "Created At"
+                    },
+                    "confirmed": {
+                        "type": "boolean",
+                        "title": "Confirmed"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "txid",
+                    "chain_id",
+                    "created_at",
+                    "confirmed"
+                ],
+                "title": "Transaction"
+            },
+            "TransactionData": {
+                "properties": {
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "data": {
+                        "type": "string",
+                        "title": "Data"
+                    },
+                    "value": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Value"
+                    },
+                    "to_address": {
+                        "type": "string",
+                        "title": "To Address"
+                    },
+                    "from_address": {
+                        "type": "string",
+                        "title": "From Address"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "chain_id",
+                    "data",
+                    "value",
+                    "to_address",
+                    "from_address"
+                ],
+                "title": "TransactionData"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

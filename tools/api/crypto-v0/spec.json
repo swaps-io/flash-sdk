@@ -1,0 +1,377 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Crypto API (v0)",
+        "description": "API for crypto, chain and explorer lists (v0)",
+        "version": "v0.1.0"
+    },
+    "paths": {
+        "/api/v0/cryptos": {
+            "get": {
+                "tags": [
+                    "Crypto"
+                ],
+                "summary": "Get list of cryptos",
+                "description": "Returns list of cryptos",
+                "operationId": "get_cryptos",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CryptoList"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/chains": {
+            "get": {
+                "tags": [
+                    "Chain"
+                ],
+                "summary": "Get list of chains",
+                "description": "Returns list of chains",
+                "operationId": "get_chains",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChainList"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/explorers": {
+            "get": {
+                "tags": [
+                    "Explorer"
+                ],
+                "summary": "Get list of explorers",
+                "description": "Returns list of explorers",
+                "operationId": "get_explorers",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExplorerList"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/contracts": {
+            "get": {
+                "tags": [
+                    "Contracts"
+                ],
+                "summary": "Get contracts",
+                "description": "Returns contracts info",
+                "operationId": "get_contracts",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContractList"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Chain": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "title": "Icon"
+                    },
+                    "color": {
+                        "type": "string",
+                        "title": "Color"
+                    },
+                    "l2": {
+                        "type": "boolean",
+                        "title": "L2"
+                    },
+                    "l1": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "L1"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "icon",
+                    "color",
+                    "l2",
+                    "l1"
+                ],
+                "title": "Chain"
+            },
+            "ChainList": {
+                "properties": {
+                    "chains": {
+                        "items": {
+                            "$ref": "#/components/schemas/Chain"
+                        },
+                        "type": "array",
+                        "title": "Chains"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "chains"
+                ],
+                "title": "ChainList"
+            },
+            "ContractInfo": {
+                "properties": {
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "address": {
+                        "type": "string",
+                        "title": "Address"
+                    },
+                    "collateral_support": {
+                        "type": "boolean",
+                        "title": "Collateral Support"
+                    },
+                    "collateral_token_addresses": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Collateral Token Addresses"
+                    },
+                    "collateral_decimals": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Collateral Decimals"
+                    },
+                    "collateral_address": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Collateral Address"
+                    },
+                    "native_wrap_address": {
+                        "type": "string",
+                        "title": "Native Wrap Address"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "chain_id",
+                    "address",
+                    "collateral_support",
+                    "collateral_token_addresses",
+                    "collateral_decimals",
+                    "collateral_address",
+                    "native_wrap_address"
+                ],
+                "title": "ContractInfo"
+            },
+            "ContractList": {
+                "properties": {
+                    "contracts": {
+                        "items": {
+                            "$ref": "#/components/schemas/ContractInfo"
+                        },
+                        "type": "array",
+                        "title": "Contracts"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "contracts"
+                ],
+                "title": "ContractList"
+            },
+            "Crypto": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "symbol": {
+                        "type": "string",
+                        "title": "Symbol"
+                    },
+                    "address": {
+                        "type": "string",
+                        "title": "Address"
+                    },
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "title": "Icon"
+                    },
+                    "decimals": {
+                        "type": "integer",
+                        "title": "Decimals"
+                    },
+                    "permit": {
+                        "type": "boolean",
+                        "title": "Permit"
+                    },
+                    "price_id": {
+                        "type": "string",
+                        "title": "Price Id"
+                    },
+                    "mintable": {
+                        "type": "boolean",
+                        "title": "Mintable"
+                    },
+                    "forbid_from": {
+                        "type": "boolean",
+                        "title": "Forbid From"
+                    },
+                    "forbid_to": {
+                        "type": "boolean",
+                        "title": "Forbid To"
+                    },
+                    "native_wrap": {
+                        "type": "boolean",
+                        "title": "Native Wrap"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "symbol",
+                    "address",
+                    "chain_id",
+                    "icon",
+                    "decimals",
+                    "permit",
+                    "price_id",
+                    "mintable",
+                    "forbid_from",
+                    "forbid_to",
+                    "native_wrap"
+                ],
+                "title": "Crypto"
+            },
+            "CryptoList": {
+                "properties": {
+                    "cryptos": {
+                        "items": {
+                            "$ref": "#/components/schemas/Crypto"
+                        },
+                        "type": "array",
+                        "title": "Cryptos"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "cryptos"
+                ],
+                "title": "CryptoList"
+            },
+            "Explorer": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "chain_id": {
+                        "type": "string",
+                        "title": "Chain Id"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name"
+                    },
+                    "domain": {
+                        "type": "string",
+                        "title": "Domain"
+                    },
+                    "base_url": {
+                        "type": "string",
+                        "title": "Base Url"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "chain_id",
+                    "name",
+                    "domain",
+                    "base_url"
+                ],
+                "title": "Explorer"
+            },
+            "ExplorerList": {
+                "properties": {
+                    "explorers": {
+                        "items": {
+                            "$ref": "#/components/schemas/Explorer"
+                        },
+                        "type": "array",
+                        "title": "Explorers"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "explorers"
+                ],
+                "title": "ExplorerList"
+            }
+        }
+    }
+}

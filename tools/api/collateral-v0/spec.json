@@ -1,0 +1,163 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Collateral API (v0)",
+        "description": "API for collateral estimation (v0)",
+        "version": "v0.1.0"
+    },
+    "paths": {
+        "/api/v0/collateral/estimate": {
+            "get": {
+                "tags": [
+                    "Collateral"
+                ],
+                "summary": "Estimate collateral",
+                "description": "Returns collateral estimate info",
+                "operationId": "estimate_collateral",
+                "parameters": [
+                    {
+                        "name": "from_chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "From Chain Id"
+                        }
+                    },
+                    {
+                        "name": "to_chain_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "To Chain Id"
+                        }
+                    },
+                    {
+                        "name": "from_token_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "From Token Address"
+                        }
+                    },
+                    {
+                        "name": "to_token_address",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "To Token Address"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CollateralEstimate"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CollateralEstimate": {
+                "properties": {
+                    "from_price_change": {
+                        "type": "string",
+                        "title": "From Price Change"
+                    },
+                    "to_price_change": {
+                        "type": "string",
+                        "title": "To Price Change"
+                    },
+                    "increase_coefficient": {
+                        "type": "string",
+                        "title": "Increase Coefficient"
+                    },
+                    "total_increase": {
+                        "type": "string",
+                        "title": "Total Increase"
+                    },
+                    "dashboard_url": {
+                        "type": "string",
+                        "title": "Dashboard Url"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "from_price_change",
+                    "to_price_change",
+                    "increase_coefficient",
+                    "total_increase",
+                    "dashboard_url"
+                ],
+                "title": "CollateralEstimate"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}

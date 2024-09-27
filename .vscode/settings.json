@@ -1,0 +1,8 @@
+{
+  "typescript.preferences.importModuleSpecifier": "relative",
+  // Display eslint messages as warnings for easier distinction from TS compile
+  // errors while keeping them errors during the build stage
+  "eslint.rules.customizations": [
+    { "rule": "*", "severity": "warn" },
+  ],
+}
