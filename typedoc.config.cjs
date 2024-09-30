@@ -21,6 +21,7 @@ module.exports = {
     'Crypto',
     'Crypto Approve',
     'Crypto Approve Impl',
+    'Crypto Aggregator',
     'Chain',
     'Quote',
     'Swap',

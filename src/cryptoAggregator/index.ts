@@ -6,44 +6,58 @@ import { isNotNull, isNull } from '../helper/null';
 import { Chain, ChainData, Crypto, CryptoData, Duration, Explorer, ExplorerData } from '../model';
 import { Contract, ContractData } from '../model';
 
+import { CryptoAggregatorData } from './data';
 import { CryptoAggregatorError } from './error';
+
+export { CryptoAggregatorError, CryptoAggregatorData };
 
 type GetterBind<R> = (id: string, required?: boolean) => R;
 
-interface CryptoStorage {
-  explorers: Explorer[];
-  explorerByChainId: Map<string, Explorer>;
-  contracts: Contract[];
-  contractByChainId: Map<string, Contract>;
-  chains: Chain[];
-  chainById: Map<string, Chain>;
-  cryptos: Crypto[];
-  cryptoById: Map<string, Crypto>;
-}
-
+/**
+ * Crypto data access aggregator
+ *
+ * @category Crypto Aggregator
+ */
 export class CryptoAggregator {
-  private readonly cryptoStorage: Cache<CryptoStorage>;
+  private readonly cryptoData: Cache<CryptoAggregatorData>;
+  private readonly cryptoDataSource: ICryptoDataSource;
   private readonly getExplorerByChainIdBind: GetterBind<Explorer>;
   private readonly getContractByChainIdBind: GetterBind<Contract>;
   private readonly getChainByIdBind: GetterBind<Chain>;
   private readonly getCryptoByIdBind: GetterBind<Crypto>;
-  private readonly cryptoDataSource: ICryptoDataSource;
 
   public constructor(cacheTtl: Duration, cryptoDataSource: ICryptoDataSource) {
-    this.cryptoStorage = new Cache(cacheTtl, (...args) => this.loadCryptoStorage(...args));
+    this.cryptoData = new Cache(cacheTtl, (...args) => this.loadCryptoData(...args));
+    this.cryptoDataSource = cryptoDataSource;
     this.getExplorerByChainIdBind = (...args): Explorer => this.getExplorerByChainId(...args);
     this.getContractByChainIdBind = (...args): Contract => this.getContractByChainId(...args);
     this.getChainByIdBind = (...args): Chain => this.getChainById(...args);
     this.getCryptoByIdBind = (...args): Crypto => this.getCryptoById(...args);
-    this.cryptoDataSource = cryptoDataSource;
   }
 
-  public async getCryptoData(force: boolean): Promise<CryptoStorage> {
-    return await this.cryptoStorage.get(force);
+  /**
+   * Gets underlying aggregator-stored crypto data
+   *
+   * @param force Should data load be forced or allow cache use
+   *
+   * @returns Crypto storage data
+   */
+  public async getCryptoData(force: boolean): Promise<CryptoAggregatorData> {
+    return await this.cryptoData.get(force);
   }
 
+  /**
+   * Gets explorer by chain ID it corresponds to
+   *
+   * @param chainId Chain ID of explorer
+   * @param required How missing explorer should be handled:
+   * - `false` - {@link Explorer.unknown | unknown} instance is returned (default)
+   * - `true` - {@link CryptoAggregatorError | exception} is thrown
+   *
+   * @returns Explorer corresponding to chain ID
+   */
   public getExplorerByChainId(chainId: string, required = false): Explorer {
-    const explorer = this.cryptoStorage.getCurrent()?.explorerByChainId?.get(chainId);
+    const explorer = this.cryptoData.getCurrent()?.explorerByChainId?.get(chainId);
     if (isNotNull(explorer)) {
       return explorer;
     }
@@ -56,8 +70,18 @@ export class CryptoAggregator {
     return unknownExplorer;
   }
 
+  /**
+   * Gets contract info by chain ID it corresponds to
+   *
+   * @param chainId Chain ID of contract
+   * @param required How missing contract should be handled:
+   * - `false` - {@link Contract.unknown | unknown} instance is returned (default)
+   * - `true` - {@link CryptoAggregatorError | exception} is thrown
+   *
+   * @returns Contract info corresponding to chain ID
+   */
   public getContractByChainId(chainId: string, required = false): Contract {
-    const contract = this.cryptoStorage.getCurrent()?.contractByChainId?.get(chainId);
+    const contract = this.cryptoData.getCurrent()?.contractByChainId?.get(chainId);
     if (isNotNull(contract)) {
       return contract;
     }
@@ -70,8 +94,18 @@ export class CryptoAggregator {
     return unknownContract;
   }
 
+  /**
+   * Gets chain by its ID
+   *
+   * @param chainId Chain ID
+   * @param required How missing chain should be handled:
+   * - `false` - {@link Chain.unknown | unknown} instance is returned (default)
+   * - `true` - {@link CryptoAggregatorError | exception} is thrown
+   *
+   * @returns Chain corresponding to ID
+   */
   public getChainById(chainId: string, required = false): Chain {
-    const chain = this.cryptoStorage.getCurrent()?.chainById?.get(chainId);
+    const chain = this.cryptoData.getCurrent()?.chainById?.get(chainId);
     if (isNotNull(chain)) {
       return chain;
     }
@@ -84,8 +118,18 @@ export class CryptoAggregator {
     return unknownChain;
   }
 
+  /**
+   * Gets crypto by its ID
+   *
+   * @param cryptoId Crypto ID
+   * @param required How missing crypto should be handled:
+   * - `false` - {@link Crypto.unknown | unknown} instance is returned (default)
+   * - `true` - {@link CryptoAggregatorError | exception} is thrown
+   *
+   * @returns Crypto corresponding to ID
+   */
   public getCryptoById(cryptoId: string, required = false): Crypto {
-    const crypto = this.cryptoStorage.getCurrent()?.cryptoById?.get(cryptoId);
+    const crypto = this.cryptoData.getCurrent()?.cryptoById?.get(cryptoId);
     if (isNotNull(crypto)) {
       return crypto;
     }
@@ -98,6 +142,13 @@ export class CryptoAggregator {
     return unknownCrypto;
   }
 
+  /**
+   * Creates specified filter that can be applied to crypto list
+   *
+   * @param chain Chain, its ID, or list of these values that crypto must be in
+   *
+   * @returns Crypto filter instance
+   */
   public makeCryptoFilter(chain?: Chain | string | readonly (Chain | string)[]): Filter<Crypto> {
     if (isNull(chain)) {
       return new AllowFilter();
@@ -120,7 +171,7 @@ export class CryptoAggregator {
     return new Filter((c) => allowedChainIds.has(c.id));
   }
 
-  private async loadCryptoStorage(): Promise<CryptoStorage> {
+  private async loadCryptoData(): Promise<CryptoAggregatorData> {
     const [explorersResponse, contractsResponse, chainsResponse, cryptosResponse] = await Promise.all([
       this.cryptoDataSource.getExplorers(),
       this.cryptoDataSource.getContracts(),
@@ -140,7 +191,7 @@ export class CryptoAggregator {
     const cryptos = cryptosResponse.map((d) => this.mapCrypto(d));
     const cryptoById = new Map(cryptos.map((c) => [c.data.id, c]));
 
-    const data: CryptoStorage = {
+    const data: CryptoAggregatorData = {
       explorers,
       explorerByChainId,
       contracts,

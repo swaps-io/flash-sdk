@@ -13,6 +13,8 @@ export { ZERO_ADDRESS } from './address';
 
 export { BaseError } from './error';
 
+export { Filter, type FilterPredicate } from './filter';
+
 export * from './native';
 
 export * from './bitcoin';
