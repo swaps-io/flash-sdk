@@ -15,6 +15,8 @@ export { BaseError } from './error';
 
 export { Filter, type FilterPredicate } from './filter';
 
+export * from './optional';
+
 export * from './native';
 
 export * from './bitcoin';

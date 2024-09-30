@@ -1,6 +1,6 @@
 {
   "name": "flash-sdk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Flash SDK",
   "main": "dist/lib/index.js",
   "types": "dist/types/index.d.ts",
