@@ -10,7 +10,10 @@ let flash: FlashClient;
 beforeAll(async () => {
   const wallet = new NeverWallet();
   flash = new FlashClient({ wallet });
-  await flash.preload();
+
+  if (!SKIP_API_DEPS) {
+    await flash.preload();
+  }
 });
 
 test('FlashClient gets chains', async () => {
