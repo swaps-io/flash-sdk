@@ -11,6 +11,8 @@ export { generateRandomId } from './random';
 
 export { ZERO_ADDRESS } from './address';
 
+export { BaseError } from './error';
+
 export * from './native';
 
 export * from './bitcoin';
