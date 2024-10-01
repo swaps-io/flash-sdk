@@ -2,6 +2,8 @@ export { ZERO_ADDRESS } from './address';
 
 export { getApiErrorDetail } from './api';
 
+export { isArray, newArray } from './array';
+
 export { BITCOIN_CHAIN_ID, BITCOIN_DECIMALS, BITCOIN_CRYPTO_ID, isBitcoinCrypto, makeBitcoinAmount } from './bitcoin';
 
 export { Cache } from './cache';
