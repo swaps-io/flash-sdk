@@ -1,5 +1,10 @@
 import { isNotNull, isNull } from './null';
 
+/**
+ * Action that can be executed exclusively
+ *
+ * @category Util
+ */
 export type ExclusiveAction<T> = () => Promise<T>;
 
 export interface ExclusiveSingletonOptions {
