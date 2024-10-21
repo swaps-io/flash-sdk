@@ -305,7 +305,7 @@ export class FlashClient {
    */
   public async submitSwapManualApproveSwap(params: SubmitSwapParams, swap: Swap): Promise<SwapApprove> {
     const swapApproveRequest = await this.swapApprove.prepareSwapApprove(params.operation, swap, params.checkOrderData);
-    const swapApprove = await this.swapApprove.approveSwap(swapApproveRequest);
+    const swapApprove = await this.swapApprove.approveSwap(swapApproveRequest, swap);
     return swapApprove;
   }
 
