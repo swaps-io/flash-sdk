@@ -170,7 +170,7 @@ export class GnosisSafeWallet implements ISmartWallet {
       instance,
       chainId: BigInt(chainId),
       address: safeAddress,
-      version: await instance.getContractVersion(),
+      version: instance.getContractVersion(),
     };
     return safe;
   }
@@ -198,7 +198,7 @@ export class GnosisSafeWallet implements ISmartWallet {
     // Patch the `default` mismatch in tests
     if ('default' in mod.default) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      mod = { ...mod, default: (mod.default as any).default };
+      mod = { ...mod.default, default: (mod.default as any).default } as unknown as T;
     }
     return mod;
   }

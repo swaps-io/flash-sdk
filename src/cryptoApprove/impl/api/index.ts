@@ -111,8 +111,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
     let owner: string;
     if (isSmartWallet(wallet)) {
-      const ownerWallet = await wallet.getOwnerWallet();
-      owner = await ownerWallet.getAddress();
+      owner = await wallet.getAddress({ chainId: cryptoData.chainId });
     } else {
       owner = await wallet.getAddress();
     }
@@ -250,10 +249,10 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       return 'no-action-needed';
     }
 
-    const wallet = await resolveDynamic(this.wallet);
-    if (isSmartWallet(wallet)) {
-      return 'should-provide-smart-approve';
-    }
+    // const wallet = await resolveDynamic(this.wallet);
+    // if (isSmartWallet(wallet)) {
+    //   return 'should-provide-smart-approve';
+    // }
 
     const providerPreference = await resolveDynamic(this.providerPreference);
     if (providerPreference === 'approve') {
@@ -641,12 +640,22 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
   private async performSendApproveTransaction(params: SendTransactionParams): Promise<undefined> {
     const wallet = await resolveDynamic(this.wallet);
-    if (isSmartWallet(wallet)) {
-      throw new CryptoApproveError('Unexpected smart wallet for send approve transaction');
-    }
+    // if (isSmartWallet(wallet)) {
+    //   throw new CryptoApproveError('Unexpected smart wallet for send approve transaction');
+    // }
 
     const sendApprove = async (): Promise<void> => {
-      const txid = await wallet.sendTransaction(params);
+      let txid: string
+      if (isSmartWallet(wallet)) {
+        const ownerWallet = await wallet.getOwnerWallet();
+        const from = await ownerWallet.getAddress();
+        const signDepositParams = await wallet.getSignTransactionParams({ ...params, from });
+        const ownerSignature = await ownerWallet.signTypedData(signDepositParams);
+        const sendDepositParams = await wallet.getSendTransactionParams({ ...signDepositParams, ownerSignature });
+        txid = await ownerWallet.sendTransaction(sendDepositParams);
+      } else {
+        txid = await wallet.sendTransaction(params);
+      }
       this.onApproveTxidReceived?.(txid);
     };
 
