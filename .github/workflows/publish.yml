@@ -18,11 +18,11 @@ jobs:
       - name: Read package version
         id: package
         run: |
-          VERSION=$(awk '/"version":/' package.json | sed 's/.*:.*"\(.*\)",/v\1/')
+          VERSION=$(awk '/"version":/' package.json | sed 's/.*:.*"\(.*\)",/\1/')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check release version
-        run: '[ "${{ steps.package.outputs.version }}" = "${{ github.event.release.tag_name }}" ]'
+        run: '[ "v${{ steps.package.outputs.version }}" = "${{ github.event.release.tag_name }}" ]'
 
       - name: Enable Corepack
         run: corepack enable
@@ -41,7 +41,7 @@ jobs:
       - name: Name artifact
         id: artifact
         run: |
-          NAME=flash-sdk-${{ steps.package.outputs.version }}.tgz
+          NAME=flash-sdk-${{ github.event.release.tag_name }}.tgz
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Build artifact
@@ -52,7 +52,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.release.tag_name }} ${{ steps.artifact.outputs.name }}
 
-      - name: Publish artifact to NPM
+      - name: Select NPM package tag
+        id: npm
+        run: |
+          TAG=$([[ "${{ steps.package.outputs.version }}" =~ ^[0-9]+.[0-9]+.[0-9]+$ ]] && echo "latest" || echo "next")
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Publish NPM package
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
-        run: npm publish ${{ steps.artifact.outputs.name }} --tag ${{ steps.package.outputs.version }} --access public
+        run: npm publish ${{ steps.artifact.outputs.name }} --tag ${{ steps.npm.outputs.tag }} --access public
