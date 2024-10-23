@@ -1,6 +1,10 @@
 <!-- omit in toc -->
 # Flash SDK 🧰
 
+![license](https://img.shields.io/badge/license-MIT-blue.svg)
+[![npm latest package](https://img.shields.io/npm/v/@swaps-io/flash-sdk/latest.svg)](https://www.npmjs.com/package/@swaps-io/flash-sdk)
+[![npm next package](https://img.shields.io/npm/v/@swaps-io/flash-sdk/next.svg)](https://www.npmjs.com/package/@swaps-io/flash-sdk)
+
 Set of tools for interaction with Flash protocol
 
 <!-- omit in toc -->
