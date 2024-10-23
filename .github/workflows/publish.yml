@@ -1,5 +1,5 @@
-name: Publish Tarball of Flash SDK
-run-name: Publish Tarball of Flash SDK ${{ github.event.release.tag_name }} (by ${{ github.actor }})
+name: Publish Flash SDK
+run-name: Publish Flash SDK ${{ github.event.release.tag_name }} (by ${{ github.actor }})
 
 on:
   release:
