@@ -1,7 +1,22 @@
 {
-  "name": "flash-sdk",
-  "version": "1.0.7",
-  "description": "Flash SDK",
+  "name": "@swaps-io/flash-sdk",
+  "version": "1.0.8-rc0",
+  "author": "Swaps.io Team",
+  "description": "Swaps.io - Flash SDK",
+  "license": "MIT",
+  "keywords": [
+    "swaps.io",
+    "flash",
+    "sdk"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swaps-io/flash-sdk.git"
+  },
+  "homepage": "https://github.com/swaps-io/flash-sdk",
+  "bugs": {
+    "url": "https://github.com/swaps-io/flash-sdk/issues"
+  },
   "main": "dist/lib/index.js",
   "types": "dist/types/index.d.ts",
   "files": [
@@ -87,5 +102,5 @@
       "optional": true
     }
   },
-  "packageManager": "yarn@4.5.0"
+  "packageManager": "yarn@4.5.1"
 }
