@@ -55,4 +55,4 @@ jobs:
       - name: Publish artifact to NPM
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
-      - run: npm publish ${{ steps.artifact.outputs.name }} --access public
+        run: npm publish ${{ steps.artifact.outputs.name }} --access public
