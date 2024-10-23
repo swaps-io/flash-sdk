@@ -102,5 +102,8 @@
       "optional": true
     }
   },
+  "resolutions": {
+    "jsonpath-plus": "10.1.0"
+  },
   "packageManager": "yarn@4.5.1"
 }
