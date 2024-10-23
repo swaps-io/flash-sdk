@@ -23,7 +23,7 @@ Set of tools for interaction with Flash protocol
 ### _Swap one specific crypto to another_
 
 ```ts
-import { FlashClient, ViemWallet, Crypto, Amount } from 'flash-sdk';
+import { FlashClient, ViemWallet, Crypto, Amount } from '@swaps-io/flash-sdk';
 
 // Initialize FlashClient
 const wallet = await ViemWallet.fromPrivateKey('0x13...37');
@@ -43,7 +43,7 @@ const swap = await flash.submitSwap({ quote });
 ### _Swap cryptos selected from the supported list_
 
 ```ts
-import { FlashClient, ViemWallet, Amount } from 'flash-sdk';
+import { FlashClient, ViemWallet, Amount } from '@swaps-io/flash-sdk';
 
 // Initialize FlashClient
 const wallet = await ViemWallet.fromPrivateKey('0x13...37');
@@ -107,7 +107,7 @@ if (swap.completed) {
 The SDK setup process assumes that [Node.js](https://nodejs.org/en) (version 22 is recommended) is installed on machine
 and a project where SDK is planned to be integrated is already created.
 
-1. Install `flash-sdk` as a usual NPM package dependency of the project
+1. Install `@swaps-io/flash-sdk` as a usual NPM package dependency of the project
 2. Install [peer dependencies](#peer-dependencies) of SDK according to the needs of the project
 
 ### Peer Dependencies
@@ -138,7 +138,7 @@ By default, SDK uses EVM provider based on `viem` library.
 It's possible to use a different ready-made provider:
 
 ```ts
-import { setEvmProvider, EthersEvmProvider } from 'flash-sdk';
+import { setEvmProvider, EthersEvmProvider } from '@swaps-io/flash-sdk';
 
 // Before actively using SDK methods
 setEvmProvider(new EthersEvmProvider());
@@ -147,7 +147,7 @@ setEvmProvider(new EthersEvmProvider());
 Or implement a custom one:
 
 ```ts
-import { IEvmProvider, setEvmProvider } from 'flash-sdk';
+import { IEvmProvider, setEvmProvider } from '@swaps-io/flash-sdk';
 
 class CustomEvmProvider implements IEvmProvider { /* ... */ }
 
