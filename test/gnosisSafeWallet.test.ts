@@ -18,7 +18,6 @@ test(
         {
           chainId: gnosisChainId,
           rpcUrl: gnosisRpcUrl,
-          address: '0x9210B6A21d12F0578E974579c7E0ab6e0814aE2B',
         },
       ],
     });
@@ -42,7 +41,6 @@ test(
         {
           chainId: gnosisChainId,
           rpcUrl: gnosisRpcUrl,
-          address: '0x9210B6A21d12F0578E974579c7E0ab6e0814aE2B',
         },
       ],
     });
@@ -147,7 +145,6 @@ test(
         {
           chainId: gnosisChainId,
           rpcUrl: gnosisRpcUrl,
-          address: '0x9210B6A21d12F0578E974579c7E0ab6e0814aE2B',
         },
       ],
     });
@@ -194,7 +191,6 @@ test(
         {
           chainId: gnosisChainId,
           rpcUrl: gnosisRpcUrl,
-          address: '0x9210B6A21d12F0578E974579c7E0ab6e0814aE2B',
         },
       ],
     });

@@ -13,6 +13,18 @@ export interface GetSmartAddressParams {
 }
 
 /**
+ * Get smart wallet address parameters of {@link ISmartWallet.getAddress}
+ *
+ * @category Smart Wallet
+ */
+export interface GetSmartIsDeployedParams {
+  /**
+   * Chain ID to get smart wallet address on
+   */
+  chainId: string;
+}
+
+/**
  * Get smart wallet owners parameters of {@link ISmartWallet.getOwners}
  *
  * @category Smart Wallet
@@ -91,6 +103,15 @@ export interface ISmartWallet {
    * @returns Addresses of swart wallet owners
    */
   getOwners(params: GetSmartOwnersParams): Promise<ReadonlySet<string>>;
+
+  /**
+   * Gets deployed smart wallet status
+   *
+   * @param params Get owners {@link GetSmartIsDeployedParams | params}
+   *
+   * @returns boolean deployed smart wallet status
+   */
+  isDeployed(params: GetSmartIsDeployedParams): Promise<boolean>
 
   /**
    * Gets wallet of the owner the smart wallet is managed on behalf of

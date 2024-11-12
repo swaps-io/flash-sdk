@@ -39,7 +39,7 @@
     "prepack": "yarn build"
   },
   "devDependencies": {
-    "@safe-global/protocol-kit": "5.0.1",
+    "@safe-global/protocol-kit": "5.0.4",
     "@tanstack/react-query": "5.56.2",
     "@trivago/prettier-plugin-sort-imports": "4.3.0",
     "@types/jest": "29.5.13",
@@ -62,7 +62,7 @@
     "wagmi": "2.12.14"
   },
   "peerDependencies": {
-    "@safe-global/protocol-kit": ">=4.0 <5",
+    "@safe-global/protocol-kit": "5.0.3",
     "@tanstack/react-query": ">=5.17 <6",
     "axios": ">=1.6 <2",
     "ethers": ">=6.9 <7",
@@ -71,9 +71,6 @@
     "wagmi": ">=2.2 <3"
   },
   "peerDependenciesMeta": {
-    "@safe-global/protocol-kit": {
-      "optional": true
-    },
     "@tanstack/react-query": {
       "optional": true
     },
@@ -87,5 +84,5 @@
       "optional": true
     }
   },
-  "packageManager": "yarn@4.5.0"
+  "packageManager": "yarn@4.5.1"
 }

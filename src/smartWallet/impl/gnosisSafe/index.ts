@@ -1,17 +1,25 @@
 import { ExclusiveInit } from '../../../helper/exclusive';
-import { isNotNull, isNull } from '../../../helper/null';
+import {isNotNull, isNull} from '../../../helper/null';
 import { IWallet, SendTransactionParams, SignTypedDataParams } from '../../../wallet';
 import { SmartWalletError } from '../../error';
 import {
-  GetSmartAddressParams,
+  GetSmartAddressParams, GetSmartIsDeployedParams,
   GetSmartOwnersParams,
   GetSmartSendTransactionParams,
   GetSmartSignTransactionParams,
   GetSmartSignTypedDataParams,
   ISmartWallet,
 } from '../../interface';
+import type { PredictedSafeProps } from '@safe-global/protocol-kit'
 
 import { GnosisSafeWalletParams } from './param';
+import {ZERO_ADDRESS} from "../../../helper/address";
+import {
+  DEFAULT_SAFE_VERSION,
+  KX_SAFE_WALLET_RECVSALT,
+  predictSafeAddress,
+  SAFE_WALLET_DEFAULT_FALLBACK_HANDLER_ADDRESS
+} from "./predictSafeAddress";
 
 export * from './param';
 
@@ -22,24 +30,19 @@ export * from './param';
  */
 export class GnosisSafeWallet implements ISmartWallet {
   private readonly ownerWallet: IWallet | undefined;
-  private readonly defaultAddress: string | undefined;
   private readonly perChainRpcUrls: Map<string, string>;
-  private readonly perChainAddresses: Map<string, string>;
   private readonly perChainSafeInit: Map<string, ExclusiveInit<SafeBundle>>;
   private readonly perChainOwnersInit: Map<string, ExclusiveInit<ReadonlySet<string>>>;
+  private readonly safeSDKIsInit: Map<string, boolean | undefined>;
 
   public constructor(params: GnosisSafeWalletParams = {}) {
+    this.safeSDKIsInit = new Map();
     this.ownerWallet = params.ownerWallet;
-    this.defaultAddress = params.address?.toLowerCase();
 
     this.perChainRpcUrls = new Map();
-    this.perChainAddresses = new Map();
     const chainConfigs = params.chains ?? [];
     for (const chainConfig of chainConfigs) {
       this.perChainRpcUrls.set(chainConfig.chainId, chainConfig.rpcUrl);
-      if (isNotNull(chainConfig.address)) {
-        this.perChainAddresses.set(chainConfig.chainId, chainConfig.address.toLowerCase());
-      }
     }
     if (this.perChainRpcUrls.size < chainConfigs.length) {
       throw new SmartWalletError('Duplicate Gnosis Safe wallet chain config detected');
@@ -47,6 +50,11 @@ export class GnosisSafeWallet implements ISmartWallet {
 
     this.perChainSafeInit = new Map();
     this.perChainOwnersInit = new Map();
+  }
+
+  public async isDeployed(params: GetSmartIsDeployedParams): Promise<boolean> {
+    const safe = await this.getSafe(params.chainId);
+    return safe.instance.isSafeDeployed()
   }
 
   public async getOwners(params: GetSmartOwnersParams): Promise<ReadonlySet<string>> {
@@ -68,13 +76,15 @@ export class GnosisSafeWallet implements ISmartWallet {
     return Promise.resolve(this.ownerWallet);
   }
 
-  public getAddress(params: GetSmartAddressParams): Promise<string> {
-    const address = this.perChainAddresses.get(params.chainId) ?? this.defaultAddress;
-    if (isNull(address)) {
-      throw new SmartWalletError(`No Gnosis Safe wallet address configured for chain "${params.chainId}"`);
+  public async getAddress(params: GetSmartAddressParams): Promise<string> {
+    const safeInit = this.safeSDKIsInit.get(params.chainId);
+    if (isNull(safeInit) && isNotNull(this.ownerWallet)) {
+      const address = await this.ownerWallet.getAddress()
+      this.getSafe(params.chainId).catch(console.error)
+      return predictSafeAddress(address)
     }
-
-    return Promise.resolve(address);
+    const safe = await this.getSafe(params.chainId);
+    return await safe.instance.getAddress()
   }
 
   public async getSignTransactionParams(params: GetSmartSignTransactionParams): Promise<SignTypedDataParams> {
@@ -159,13 +169,37 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   private async initSafe(chainId: string): Promise<SafeBundle> {
-    const safeAddress = await this.getAddress({ chainId });
     const provider = this.getRpcUrl(chainId);
+    const ownerAddress = await this.ownerWallet?.getAddress()
+
+    if (isNull(ownerAddress)) {
+      throw new SmartWalletError('No Gnosis Safe owner wallet configured');
+    }
 
     const protocolKit = await this.importProtocolKit();
     const Safe = protocolKit.default;
 
-    const instance = await Safe.init({ safeAddress, provider });
+    const predictedSafe: PredictedSafeProps = {
+      safeAccountConfig: {
+        owners: [ownerAddress],
+        threshold: 1,
+        to: ZERO_ADDRESS,
+        data: '0x',
+        fallbackHandler: SAFE_WALLET_DEFAULT_FALLBACK_HANDLER_ADDRESS,
+        paymentToken: ZERO_ADDRESS,
+        payment: 0,
+        paymentReceiver: KX_SAFE_WALLET_RECVSALT
+      },
+      safeDeploymentConfig: {
+        saltNonce: '0',
+        safeVersion: DEFAULT_SAFE_VERSION,
+        deploymentType: 'canonical'
+      }
+    }
+
+    const instance = await Safe.init({ provider, predictedSafe, isL1SafeSingleton: true });
+    const safeAddress = await instance.getAddress();
+    this.safeSDKIsInit.set(chainId, true)
     const safe: SafeBundle = {
       instance,
       chainId: BigInt(chainId),

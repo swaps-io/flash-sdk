@@ -8,6 +8,10 @@ import { ISmartWallet } from '../../interface';
  * @category Smart Wallet Impl
  */
 export class NeverSmartWallet implements ISmartWallet {
+  public isDeployed(): Promise<boolean> {
+    throw new Error('NeverSmartWallet.isDeployed called.');
+  }
+
   public getAddress(): Promise<string> {
     throw new SmartWalletError('NeverSmartWallet.getAddress called');
   }

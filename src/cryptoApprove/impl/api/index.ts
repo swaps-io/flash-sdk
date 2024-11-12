@@ -640,9 +640,9 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
   private async performSendApproveTransaction(params: SendTransactionParams): Promise<undefined> {
     const wallet = await resolveDynamic(this.wallet);
-    // if (isSmartWallet(wallet)) {
-    //   throw new CryptoApproveError('Unexpected smart wallet for send approve transaction');
-    // }
+    if (isSmartWallet(wallet)) {
+      throw new CryptoApproveError('Unexpected smart wallet for send approve transaction');
+    }
 
     const sendApprove = async (): Promise<void> => {
       let txid: string

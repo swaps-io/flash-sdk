@@ -17,16 +17,6 @@ export interface GnosisSafeChainConfig {
    * RPC URL for the chain transport
    */
   rpcUrl: string;
-
-  /**
-   * Gnosis Safe wallet contract address on the chain
-   *
-   * Overrides default `address` configured on higher level.
-   * Must be specified if no default value configured
-   *
-   * @default No address override
-   */
-  address?: string;
 }
 
 /**
