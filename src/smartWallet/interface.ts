@@ -111,7 +111,7 @@ export interface ISmartWallet {
    *
    * @returns boolean deployed smart wallet status
    */
-  isDeployed(params: GetSmartIsDeployedParams): Promise<boolean>
+  isDeployed(params: GetSmartIsDeployedParams): Promise<boolean>;
 
   /**
    * Gets wallet of the owner the smart wallet is managed on behalf of

@@ -645,7 +645,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     }
 
     const sendApprove = async (): Promise<void> => {
-      let txid: string
+      let txid: string;
       if (isSmartWallet(wallet)) {
         const ownerWallet = await wallet.getOwnerWallet();
         const from = await ownerWallet.getAddress();

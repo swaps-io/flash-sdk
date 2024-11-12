@@ -2,7 +2,7 @@ import { getSwapDataMainV0 } from '../../../api/gen/main-v0';
 import { isNotNull } from '../../../helper/null';
 import { IWalletLike, isSmartWallet } from '../../../helper/wallet';
 import { Swap, SwapApprove } from '../../../model';
-import {IWallet, SignTypedDataParams} from '../../../wallet';
+import { IWallet, SignTypedDataParams } from '../../../wallet';
 import { FlashOptionalValue } from '../../optional';
 import { CheckOrderDataFunc } from '../../param';
 
@@ -35,12 +35,12 @@ export class SwapApproveSubClient {
     const wallet = await this.wallet.getValue('Wallet must be configured for swap approve');
 
     let signerWallet: IWallet;
-    let swapSignParams: SignTypedDataParams = swapApproveRequest.swapSignParams
+    let swapSignParams: SignTypedDataParams = swapApproveRequest.swapSignParams;
     const chainId = swap.fromCrypto.chain.id;
     if (isSmartWallet(wallet)) {
       signerWallet = await wallet.getOwnerWallet();
       const from = await signerWallet.getAddress();
-      swapSignParams = await wallet.getSignTypedDataParams({ ...swapSignParams, chainId, from })
+      swapSignParams = await wallet.getSignTypedDataParams({ ...swapSignParams, chainId, from });
     } else {
       signerWallet = wallet;
     }
