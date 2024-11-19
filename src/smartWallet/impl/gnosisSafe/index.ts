@@ -23,6 +23,7 @@ import {
   SAFE_WALLET_DEFAULT_FALLBACK_HANDLER_ADDRESS,
   predictSafeAddress,
 } from './predictSafeAddress';
+import {isDeployedSafe} from "./isDeployedSafe";
 
 export * from './param';
 
@@ -56,8 +57,8 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public async isDeployed(params: GetSmartIsDeployedParams): Promise<boolean> {
-    const safe = await this.getSafe(params.chainId);
-    return safe.instance.isSafeDeployed();
+    const address = await this.getAddress(params)
+    return await isDeployedSafe(address, this.getRpcUrl(params.chainId))
   }
 
   public async getOwners(params: GetSmartOwnersParams): Promise<ReadonlySet<string>> {
