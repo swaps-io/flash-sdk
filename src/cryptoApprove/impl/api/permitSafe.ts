@@ -1,4 +1,4 @@
-import {evm} from "../../../lib/evm";
+import { evm } from '../../../lib/evm';
 
 const ERC20_INFINITE_AMOUNT = (2n ** 256n - 1n).toString();
 
@@ -33,8 +33,18 @@ const PERMIT_SAFE_ABI = [
   },
 ];
 
-export const encodePermitSafe = async (from: string, token: string, amount: string | undefined, signature: string): Promise<string> => {
+export const encodePermitSafe = async (
+  from: string,
+  token: string,
+  amount: string | undefined,
+  signature: string,
+): Promise<string> => {
   const approveAmount = amount ?? ERC20_INFINITE_AMOUNT;
-  const permitSafeData = await evm.functionDataEncode(PERMIT_SAFE_ABI, 'permitSafe', [from, token, approveAmount, signature]);
+  const permitSafeData = await evm.functionDataEncode(PERMIT_SAFE_ABI, 'permitSafe', [
+    from,
+    token,
+    approveAmount,
+    signature,
+  ]);
   return permitSafeData;
-}
+};

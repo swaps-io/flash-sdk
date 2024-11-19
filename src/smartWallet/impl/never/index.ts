@@ -1,7 +1,6 @@
 import { IWallet, SendTransactionParams, SignTypedDataParams } from '../../../wallet';
 import { SmartWalletError } from '../../error';
-import {ISmartWallet} from '../../interface';
-
+import { ISmartWallet } from '../../interface';
 
 /**
  * Smart wallet provider mock whose methods are not expected to ever be called

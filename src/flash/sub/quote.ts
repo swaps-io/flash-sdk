@@ -3,7 +3,7 @@ import { CryptoAggregator } from '../../cryptoAggregator';
 import { BITCOIN_CHAIN_ID, makeBitcoinAmount } from '../../helper/bitcoin';
 import { makeNativeAmount } from '../../helper/native';
 import { isNotNull, isNull } from '../../helper/null';
-import {isSmartWallet, IWalletLike} from '../../helper/wallet';
+import { IWalletLike, isSmartWallet } from '../../helper/wallet';
 import { Amount, AmountSource, Crypto, Duration } from '../../model';
 import { Quote } from '../../model/quote';
 import { QuoteData } from '../../model/quote/data';
@@ -23,7 +23,7 @@ export class QuoteSubClient {
   ) {
     this.cryptoAggregator = cryptoAggregator;
     this.onInconsistencyError = onInconsistencyError;
-    this.wallet = wallet
+    this.wallet = wallet;
   }
 
   public async getQuote(

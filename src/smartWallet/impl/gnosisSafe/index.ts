@@ -16,6 +16,7 @@ import {
   ISmartWallet,
 } from '../../interface';
 
+import { isDeployedSafe } from './isDeployedSafe';
 import { GnosisSafeWalletParams } from './param';
 import {
   DEFAULT_SAFE_VERSION,
@@ -23,7 +24,6 @@ import {
   SAFE_WALLET_DEFAULT_FALLBACK_HANDLER_ADDRESS,
   predictSafeAddress,
 } from './predictSafeAddress';
-import {isDeployedSafe} from "./isDeployedSafe";
 
 export * from './param';
 
@@ -57,8 +57,8 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public async isDeployed(params: GetSmartIsDeployedParams): Promise<boolean> {
-    const address = await this.getAddress(params)
-    return await isDeployedSafe(address, this.getRpcUrl(params.chainId))
+    const address = await this.getAddress(params);
+    return await isDeployedSafe(address, this.getRpcUrl(params.chainId));
   }
 
   public async getOwners(params: GetSmartOwnersParams): Promise<ReadonlySet<string>> {
@@ -162,8 +162,8 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public async getNonce(params: GetNonceParams): Promise<number> {
-    const safe = await this.getSafe(params.chainId)
-    return await safe.instance.getNonce()
+    const safe = await this.getSafe(params.chainId);
+    return await safe.instance.getNonce();
   }
 
   private async getSafe(chainId: string): Promise<SafeBundle> {
