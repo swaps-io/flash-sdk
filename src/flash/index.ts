@@ -88,7 +88,7 @@ export class FlashClient {
     this.wallet = new FlashOptionalValue(wallet);
     this.crypto = new CryptoAggregator(cryptoCacheTtl, cryptoDataSource);
     this.cryptoApprover = new CryptoApprover(cryptoApprove);
-    this.quote = new QuoteSubClient(this.crypto, onInconsistencyError);
+    this.quote = new QuoteSubClient(this.crypto, this.wallet, onInconsistencyError);
     this.swap = new SwapSubClient(
       this.crypto,
       this.cryptoApprover,
@@ -180,7 +180,8 @@ export class FlashClient {
       params.toCrypto,
       params.fromAmount,
       params.toAmount,
-      params.deploySmartToChains,
+      params.fromActorReceiver,
+      params.fromActorReceiverWalletOwner,
     );
     return quote;
   }
@@ -287,6 +288,7 @@ export class FlashClient {
       cryptoApprove,
       params.fromActorBitcoin,
       params.fromActorReceiver,
+      params.fromActorReceiverWalletOwner,
     );
     params.onSwapCreated?.(swap);
     return swap;

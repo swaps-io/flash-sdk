@@ -3,19 +3,27 @@ import { CryptoAggregator } from '../../cryptoAggregator';
 import { BITCOIN_CHAIN_ID, makeBitcoinAmount } from '../../helper/bitcoin';
 import { makeNativeAmount } from '../../helper/native';
 import { isNotNull, isNull } from '../../helper/null';
-import { Amount, AmountSource, Chain, Crypto, Duration } from '../../model';
+import {isSmartWallet, IWalletLike} from '../../helper/wallet';
+import { Amount, AmountSource, Crypto, Duration } from '../../model';
 import { Quote } from '../../model/quote';
 import { QuoteData } from '../../model/quote/data';
 import { FlashError } from '../error';
+import { FlashOptionalValue } from '../optional';
 import { OnInconsistencyError } from '../param';
 
 export class QuoteSubClient {
   private readonly cryptoAggregator: CryptoAggregator;
   private readonly onInconsistencyError: OnInconsistencyError | undefined;
+  private readonly wallet: FlashOptionalValue<IWalletLike>;
 
-  public constructor(cryptoAggregator: CryptoAggregator, onInconsistencyError: OnInconsistencyError | undefined) {
+  public constructor(
+    cryptoAggregator: CryptoAggregator,
+    wallet: FlashOptionalValue<IWalletLike>,
+    onInconsistencyError: OnInconsistencyError | undefined,
+  ) {
     this.cryptoAggregator = cryptoAggregator;
     this.onInconsistencyError = onInconsistencyError;
+    this.wallet = wallet
   }
 
   public async getQuote(
@@ -23,10 +31,19 @@ export class QuoteSubClient {
     toCrypto: Crypto,
     fromAmount?: Amount,
     toAmount?: Amount,
-    deploySmartToChains?: readonly (Chain | string)[],
+    fromActorReceiver?: string,
+    fromActorReceiverWalletOwner?: string,
   ): Promise<Quote> {
     if (isNull(fromAmount) === isNull(toAmount)) {
       throw new FlashError('Either "from" or "to" amount must be specified in quote params');
+    }
+    const wallet = await this.wallet.getValue('Wallet must be configured for swap creation');
+
+    let fromAddress: string;
+    if (isSmartWallet(wallet)) {
+      fromAddress = await wallet.getAddress({ chainId: fromCrypto.chain.id });
+    } else {
+      fromAddress = await wallet.getAddress();
     }
 
     let fromAmountValue: string | undefined;
@@ -39,13 +56,6 @@ export class QuoteSubClient {
       toAmountValue = toAmount.normalizeValue(toCrypto.decimals);
     }
 
-    const mapDeploySmartToChain = (chain: Chain | string): string => {
-      if (typeof chain == 'string') {
-        return chain;
-      }
-      return chain.id.toString();
-    };
-
     const { data: responseQuote } = await getQuoteMainV0({
       from_chain_id: fromCrypto.chain.id,
       from_token_address: fromCrypto.address,
@@ -53,7 +63,9 @@ export class QuoteSubClient {
       to_chain_id: toCrypto.chain.id,
       to_token_address: toCrypto.address,
       to_amount: toAmountValue,
-      deploy_smart_to_chains: deploySmartToChains?.map(mapDeploySmartToChain),
+      from_actor: fromAddress,
+      from_actor_receiver: fromActorReceiver,
+      from_actor_receiver_wallet_owner: fromActorReceiverWalletOwner,
     });
 
     const inconsistencyErrors: string[] = [];
@@ -137,7 +149,6 @@ export class QuoteSubClient {
       fromFeeEstimate: fromFeeEstimate.data,
       toFeeEstimate: toFeeEstimate.data,
       amountSource: amountSource,
-      deploySmartToChains: q.deploy_smart_to_chains ?? [],
     };
     const quote = new Quote(
       data,

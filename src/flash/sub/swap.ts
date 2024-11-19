@@ -80,6 +80,7 @@ export class SwapSubClient {
     cryptoApprove: CryptoApprove,
     fromActorBitcoin: string | undefined,
     fromActorReceiver: string | undefined,
+    fromActorReceiverWalletOwner?: string,
   ): Promise<Swap> {
     const wallet = await this.wallet.getValue('Wallet must be configured for swap creation');
 
@@ -109,7 +110,7 @@ export class SwapSubClient {
       to_token_address: quote.toCrypto.address,
       to_amount: toAmountValue,
       permit_transaction: cryptoApprove.permitTransaction,
-      deploy_smart_to_chains: quote.deploySmartToChains.map((chain) => chain.id),
+      from_actor_receiver_wallet_owner: fromActorReceiverWalletOwner,
     };
     const { data: responseSwap } = await createSwapMainV0(createSwapParams);
 
@@ -289,7 +290,6 @@ export class SwapSubClient {
       txLiqSend: txLiqSend?.data,
       txReportNoSend: txReportNoSend.map((tx) => tx.data),
       txSlash: txSlash?.data,
-      deploySmartToChains: s.deploy_smart_to_chains ?? [],
     };
     const swap = new Swap(
       data,

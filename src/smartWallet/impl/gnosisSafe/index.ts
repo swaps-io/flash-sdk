@@ -6,6 +6,7 @@ import { isNotNull, isNull } from '../../../helper/null';
 import { IWallet, SendTransactionParams, SignTypedDataParams } from '../../../wallet';
 import { SmartWalletError } from '../../error';
 import {
+  GetNonceParams,
   GetSmartAddressParams,
   GetSmartIsDeployedParams,
   GetSmartOwnersParams,
@@ -157,6 +158,11 @@ export class GnosisSafeWallet implements ISmartWallet {
       params.operation,
     );
     return signParams;
+  }
+
+  public async getNonce(params: GetNonceParams): Promise<number> {
+    const safe = await this.getSafe(params.chainId)
+    return await safe.instance.getNonce()
   }
 
   private async getSafe(chainId: string): Promise<SafeBundle> {

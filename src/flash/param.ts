@@ -251,10 +251,8 @@ export interface GetQuoteParams {
    */
   toAmount?: Amount;
 
-  /**
-   * Chain list where to deploy smart wallet
-   */
-  deploySmartToChains?: readonly (Chain | string)[];
+  fromActorReceiver?: string,
+  fromActorReceiverWalletOwner?: string,
 }
 
 /**
@@ -321,6 +319,8 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default No extra check performed for order data
    */
   checkOrderData?: CheckOrderDataFunc;
+
+  fromActorReceiverWalletOwner?: string;
 }
 
 /**

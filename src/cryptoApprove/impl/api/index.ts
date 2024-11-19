@@ -41,6 +41,8 @@ import {
   ApproveFinalizationMode,
   OnApproveTxidReceived,
 } from './param';
+import {GetSmartSignTypedDataParams} from "../../../smartWallet";
+import {ZERO_ADDRESS} from "../../../helper/address";
 
 export type * from './param';
 
@@ -249,10 +251,10 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       return 'no-action-needed';
     }
 
-    // const wallet = await resolveDynamic(this.wallet);
-    // if (isSmartWallet(wallet)) {
-    //   return 'should-provide-smart-approve';
-    // }
+    const wallet = await resolveDynamic(this.wallet);
+    if (isSmartWallet(wallet)) {
+      return 'should-provide-smart-approve';
+    }
 
     const providerPreference = await resolveDynamic(this.providerPreference);
     if (providerPreference === 'approve') {
@@ -393,7 +395,6 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       case 'should-provide-smart-approve':
         return [
           await this.prepareSmartApproveAction(
-            operation,
             spender,
             await this.getApproveValue(crypto, amount),
             crypto,
@@ -498,8 +499,48 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     return permitAction;
   }
 
+  //     "to": FCALL.address,
+  //     "value": 0,
+  //     "data": func_call_to_tx_data(FCALL),
+  //     "operation": 0,
+  //     "safeTxGas": 0,
+  //     "baseGas": 0,
+  //     "dataGas": 0,
+  //     "gasPrice": 0,
+  //     "gasToken": "0x0000000000000000000000000000000000000000",
+  //     "refundReceiver": "0x0000000000000000000000000000000000000000",
+  //     "nonce": safe_wallet_nonce,
+
+  private async makeSmartApproveData(
+      spender: string,
+      amount: string | undefined,
+      crypto: CryptoData,
+  ): Promise<string> {
+    const wallet = await resolveDynamic(this.wallet);
+    if (!isSmartWallet(wallet)) {
+      throw new CryptoApproveError('Smart wallet must be configured for smart approve action');
+    }
+    const nonce = wallet.getNonce({ chainId: crypto.chainId })
+    const { encodeErc20Approve } = await import('./erc20');
+    const tokenApproveData = await encodeErc20Approve(spender, amount);
+
+    const data = {
+      to: spender,
+      value: 0,
+      data: tokenApproveData,
+      operation: 0,
+      safeTxGas: 0,
+      baseGas: 0,
+      dataGas: 0,
+      gasPrice: 0,
+      gasToken: ZERO_ADDRESS,
+      refundReceiver: ZERO_ADDRESS,
+      nonce,
+    }
+    return JSON.stringify(data)
+  }
+
   private async prepareSmartApproveAction(
-    operation: string | undefined,
     spender: string,
     amount: string | undefined,
     crypto: CryptoData,
@@ -513,30 +554,32 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const chainId = crypto.chainId;
     const actorAddress = owner;
     const tokenAddress = crypto.address;
-    const ownerWallet = await wallet.getOwnerWallet();
-    const ownerAddress = await ownerWallet.getAddress();
+    const smartWalletAddress = await wallet.getAddress({ chainId });
 
-    const { encodeErc20Approve } = await import('./erc20');
-    const tokenApproveData = await encodeErc20Approve(spender, amount);
+    const data = await this.makeSmartApproveData(
+        spender,
+        amount,
+        crypto
+    )
 
-    const signSmartApproveParams = await wallet.getSignTransactionParams({
-      operation,
-      tag: 'approve-crypto',
+    const params: GetSmartSignTypedDataParams = {
       chainId,
-      from: ownerAddress,
-      to: tokenAddress,
-      data: tokenApproveData,
-    });
+      data: data,
+      from: smartWalletAddress,
+      tag: "approve-crypto"
+    }
+
+    const signTypedDataParams = await wallet.getSignTypedDataParams(params)
     const smartApproveAction: CryptoApproveAction = {
       type: 'sign-smart-approve-typed-data',
-      params: signSmartApproveParams,
+      params: signTypedDataParams,
       smartData: {
         actorAddress,
         tokenAddress,
         amount,
       },
     };
-    return smartApproveAction;
+    return smartApproveAction
   }
 
   private prepareWaitAction(
@@ -625,9 +668,17 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const ownerWallet = await wallet.getOwnerWallet();
     const smartApproveSignature = await ownerWallet.signTypedData(params);
 
+    const { encodePermitSafe } = await import('./permitSafe')
+    const encodedPermitSafe = await encodePermitSafe(
+        smartData.actorAddress,
+        smartData.tokenAddress,
+        smartData.amount,
+        smartApproveSignature
+    )
+
     const permit: PermitData = {
       type: 'smart-approve',
-      transaction: `smart-approve|${params.data}|${smartApproveSignature}`,
+      transaction: encodedPermitSafe,
       expiresAt: UNREACHABLE_TIME.data,
       chainId,
       actorAddress: smartData.actorAddress,

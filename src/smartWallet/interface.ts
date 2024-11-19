@@ -13,6 +13,18 @@ export interface GetSmartAddressParams {
 }
 
 /**
+ * Get smart wallet nonce parameters of {@link ISmartWallet.getNonce}
+ *
+ * @category Smart Wallet
+ */
+export interface GetNonceParams {
+  /**
+   * Chain ID to get smart wallet nonce on
+   */
+  chainId: string;
+}
+
+/**
  * Get smart wallet address parameters of {@link ISmartWallet.getAddress}
  *
  * @category Smart Wallet
@@ -149,4 +161,13 @@ export interface ISmartWallet {
    * @returns Sign typed data params usable in regular {@link IWallet | wallet}
    */
   getSignTypedDataParams(params: GetSmartSignTypedDataParams): Promise<SignTypedDataParams>;
+
+  /**
+   * Gets nonce of the smart wallet contract
+   *
+   * @param params Get nonce {@link GetNonceParams | params}
+   *
+   * @returns Contract nonce of swart wallet
+   */
+  getNonce(params: GetNonceParams): Promise<number>;
 }
