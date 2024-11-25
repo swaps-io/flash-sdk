@@ -48,3 +48,13 @@ export const SAFE_ABI = [
     type: 'function',
   },
 ];
+
+export const SAFE_IMPL_ABI = [
+  {
+    inputs: [],
+    name: 'nonce',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+];

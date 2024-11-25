@@ -16,6 +16,7 @@ import {
   ISmartWallet,
 } from '../../interface';
 
+import { getNonce } from './getNonce';
 import { isDeployedSafe } from './isDeployedSafe';
 import { GnosisSafeWalletParams } from './param';
 import {
@@ -162,8 +163,8 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public async getNonce(params: GetNonceParams): Promise<number> {
-    const safe = await this.getSafe(params.chainId);
-    return await safe.instance.getNonce();
+    const address = await this.getAddress(params);
+    return await getNonce(address, this.getRpcUrl(params.chainId));
   }
 
   private async getSafe(chainId: string): Promise<SafeBundle> {
