@@ -199,7 +199,7 @@ export class WagmiWalletVendor {
     const viem = await import('viem');
 
     // Account addresses must be checksum variant due to the way Wagmi maps them for connectors
-    const accountAddress = viem.getAddress(address);
+    const accountAddress = viem.getAddress(address) as Hex;
     return accountAddress;
   }
 }
