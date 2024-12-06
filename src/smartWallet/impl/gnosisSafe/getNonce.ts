@@ -9,10 +9,14 @@ export async function getNonce(address: string, rpc: string | undefined): Promis
   const client = createPublicClient({
     transport: http(rpc),
   });
-  const nonce = await client.readContract({
-    abi: abi.SAFE_IMPL_ABI,
-    functionName: 'nonce',
-    address: getAddress(address),
-  });
-  return Number(nonce);
+  try {
+    const nonce = await client.readContract({
+      abi: abi.SAFE_IMPL_ABI,
+      functionName: 'nonce',
+      address: getAddress(address),
+    });
+    return Number(nonce);
+  } catch {
+    return 0;
+  }
 }
