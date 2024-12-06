@@ -3,7 +3,7 @@ import { CryptoAggregator } from '../../cryptoAggregator';
 import { BITCOIN_CHAIN_ID, makeBitcoinAmount } from '../../helper/bitcoin';
 import { makeNativeAmount } from '../../helper/native';
 import { isNotNull, isNull } from '../../helper/null';
-import { IWalletLike, isSmartWallet } from '../../helper/wallet';
+import { IWalletLike } from '../../helper/wallet';
 import { Amount, AmountSource, Crypto, Duration } from '../../model';
 import { Quote } from '../../model/quote';
 import { QuoteData } from '../../model/quote/data';
@@ -31,19 +31,12 @@ export class QuoteSubClient {
     toCrypto: Crypto,
     fromAmount?: Amount,
     toAmount?: Amount,
+    fromActor?: string,
     fromActorReceiver?: string,
     fromActorReceiverWalletOwner?: string,
   ): Promise<Quote> {
     if (isNull(fromAmount) === isNull(toAmount)) {
       throw new FlashError('Either "from" or "to" amount must be specified in quote params');
-    }
-    const wallet = await this.wallet.getValue('Wallet must be configured for swap creation');
-
-    let fromAddress: string;
-    if (isSmartWallet(wallet)) {
-      fromAddress = await wallet.getAddress({ chainId: fromCrypto.chain.id });
-    } else {
-      fromAddress = await wallet.getAddress();
     }
 
     let fromAmountValue: string | undefined;
@@ -63,7 +56,7 @@ export class QuoteSubClient {
       to_chain_id: toCrypto.chain.id,
       to_token_address: toCrypto.address,
       to_amount: toAmountValue,
-      from_actor: fromAddress,
+      from_actor: fromActor,
       from_actor_receiver: fromActorReceiver,
       from_actor_receiver_wallet_owner: fromActorReceiverWalletOwner,
     });

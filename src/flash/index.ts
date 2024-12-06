@@ -180,6 +180,7 @@ export class FlashClient {
       params.toCrypto,
       params.fromAmount,
       params.toAmount,
+      params.fromActor,
       params.fromActorReceiver,
       params.fromActorReceiverWalletOwner,
     );

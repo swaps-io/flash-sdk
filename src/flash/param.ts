@@ -251,6 +251,7 @@ export interface GetQuoteParams {
    */
   toAmount?: Amount;
 
+  fromActor?: string,
   fromActorReceiver?: string;
   fromActorReceiverWalletOwner?: string;
 }
