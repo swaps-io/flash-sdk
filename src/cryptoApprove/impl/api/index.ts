@@ -72,6 +72,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   private readonly safePermitTtl: Duration;
   private readonly approveCheckPeriod: Duration;
   private readonly approveFinalizationMode: ApproveFinalizationMode;
+  private readonly disableApproveFinalizationOperationCheck: boolean;
   private readonly onApproveTxidReceived: OnApproveTxidReceived | undefined;
   private readonly permitCache: PermitCache | undefined;
   private sendApprovePromise: Promise<void> | undefined;
@@ -87,6 +88,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       approveCheckPeriod = Duration.fromSeconds(5),
       disablePermitCache = false,
       approveFinalizationMode = 'wait-after-wallet-tx',
+      disableApproveFinalizationOperationCheck = false,
       onApproveTxidReceived,
     } = params;
 
@@ -99,6 +101,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     this.safePermitTtl = safePermitTtl;
     this.approveCheckPeriod = approveCheckPeriod;
     this.approveFinalizationMode = approveFinalizationMode;
+    this.disableApproveFinalizationOperationCheck = disableApproveFinalizationOperationCheck;
     this.onApproveTxidReceived = onApproveTxidReceived;
     if (!disablePermitCache) {
       this.permitCache = new PermitCache();
@@ -359,7 +362,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
             crypto,
             owner,
           ),
-          this.prepareWaitAction('permit2', crypto, amount, owner, PERMIT2_ADDRESS),
+          this.prepareWaitAction(operation, 'permit2', crypto, amount, owner, PERMIT2_ADDRESS),
           await this.preparePermitAction(
             operation,
             'permit2',
@@ -411,7 +414,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
             crypto,
             owner,
           ),
-          this.prepareWaitAction('main', crypto, amount, owner, spender),
+          this.prepareWaitAction(operation, 'main', crypto, amount, owner, spender),
         ];
       default: // Ensure all approve verdict cases covered
         return approveVerdict satisfies never;
@@ -541,6 +544,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   }
 
   private prepareWaitAction(
+    operation: string | undefined,
     actionTarget: ApproveActionTarget,
     crypto: CryptoData,
     amount: Amount,
@@ -549,6 +553,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   ): CryptoApproveAction {
     const waitAction: CryptoApproveAction = {
       type: 'wait-approve-finalization',
+      operation,
       actionTarget,
       crypto,
       amount,
@@ -567,7 +572,13 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       case 'send-approve-transaction':
         return await this.performSendApproveTransaction(action.params);
       case 'wait-approve-finalization':
-        return await this.performWaitApproveFinalization(action.crypto, action.amount, action.owner, action.spender);
+        return await this.performWaitApproveFinalization(
+          action.operation,
+          action.crypto,
+          action.amount,
+          action.owner,
+          action.spender,
+        );
       default: // Ensure all action type cases covered
         return action satisfies never;
     }
@@ -663,6 +674,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   }
 
   private async performWaitApproveFinalization(
+    operation: string | undefined,
     crypto: CryptoData,
     amount: Amount,
     owner: string,
@@ -670,12 +682,33 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   ): Promise<undefined> {
     let approveFinalized = false;
 
+    let ensureOperationExecuting: (() => Promise<void>) | undefined;
+    if (isNotNull(operation) && !this.disableApproveFinalizationOperationCheck) {
+      const wallet = await resolveDynamic(this.wallet);
+      if (isSmartWallet(wallet)) {
+        throw new CryptoApproveError('Unexpected smart wallet to wait for approve finalization');
+      }
+
+      ensureOperationExecuting = async (): Promise<void> => {
+        const operations = await wallet.getExecutingOperations();
+        const executing = operations.has(operation);
+        if (!executing) {
+          throw new CryptoApproveError('Wallet operation related to approve wait is no longer executing');
+        }
+      };
+    }
+
+    const checkFinalized = async (): Promise<boolean> => {
+      const info = await this.getAllowance(crypto, owner, spender);
+      const verdict = await this.checkAllowance(crypto, amount, info);
+      const finalized = verdict !== 'should-provide-approve' && verdict !== 'should-approve-permit2';
+      return finalized;
+    };
+
     const waitFinalization = async (): Promise<void> => {
       while (!approveFinalized) {
-        const allowanceInfo = await this.getAllowance(crypto, owner, spender);
-        const allowanceVerdict = await this.checkAllowance(crypto, amount, allowanceInfo);
-        approveFinalized =
-          allowanceVerdict !== 'should-approve-permit2' && allowanceVerdict !== 'should-provide-approve';
+        await ensureOperationExecuting?.();
+        approveFinalized = await checkFinalized();
         if (!approveFinalized) {
           await this.approveCheckPeriod.sleep();
         }

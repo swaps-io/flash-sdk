@@ -98,6 +98,13 @@ export interface ApiCryptoApproveProviderParams {
   approveFinalizationMode?: ApproveFinalizationMode;
 
   /**
+   * Should wallet operation execution status check be disabled or not during approve finalization.
+   *
+   * @default false
+   */
+  disableApproveFinalizationOperationCheck?: boolean;
+
+  /**
    * Callback for handling approve transaction TXID when it's received from wallet
    *
    * @default No additional approve TXID handling
