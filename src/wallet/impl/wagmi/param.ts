@@ -121,7 +121,6 @@ export interface WagmiWalletExecuteParams<T> {
    * const handleSubmitButtonClick = () => {
    *   const executor = wallet.execute({
    *     target: (operation) => flash.submitSwap({ operation, quote }),
-   *     operation: 'submit-main-swap',
    *     ...
    *   });
    * };
