@@ -125,6 +125,11 @@ export interface WaitApproveFinalizationAction {
   type: 'wait-approve-finalization';
 
   /**
+   * @hidden
+   */
+  operation: string | undefined;
+
+  /**
    * Target of the wait approve finalization action
    */
   actionTarget: ApproveActionTarget;

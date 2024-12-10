@@ -1,6 +1,6 @@
 {
   "name": "@swaps-io/flash-sdk",
-  "version": "1.0.9",
+  "version": "1.1.0-rc.1",
   "author": "Swaps.io Team",
   "description": "Swaps.io - Flash SDK",
   "license": "MIT",
@@ -55,29 +55,29 @@
   },
   "devDependencies": {
     "@safe-global/protocol-kit": "5.0.4",
-    "@tanstack/react-query": "5.59.16",
-    "@trivago/prettier-plugin-sort-imports": "4.3.0",
+    "@tanstack/react-query": "5.62.3",
+    "@trivago/prettier-plugin-sort-imports": "5.2.0",
     "@types/jest": "29.5.14",
-    "@types/qs": "6.9.16",
+    "@types/qs": "6.9.17",
     "@typescript-eslint/eslint-plugin": "7.18.0",
     "@typescript-eslint/parser": "7.18.0",
-    "axios": "1.7.7",
-    "dotenv": "16.4.5",
+    "axios": "1.7.9",
+    "dotenv": "16.4.7",
     "eslint": "8.57.1",
     "eslint-config-prettier": "9.1.0",
     "ethers": "6.13.4",
     "jest": "29.7.0",
-    "orval": "7.2.0",
-    "prettier": "3.3.3",
-    "qs": "6.13.0",
+    "orval": "7.3.0",
+    "prettier": "3.4.2",
+    "qs": "6.13.1",
     "ts-jest": "^29.2.5",
-    "typedoc": "0.26.10",
-    "typescript": "5.6.3",
-    "viem": "2.21.33",
-    "wagmi": "2.12.24"
+    "typedoc": "0.27.4",
+    "typescript": "5.7.2",
+    "viem": "2.21.54",
+    "wagmi": "2.13.4"
   },
   "peerDependencies": {
-    "@safe-global/protocol-kit": "5.0.3",
+    "@safe-global/protocol-kit": "5.0.4",
     "@tanstack/react-query": ">=5.17 <6",
     "axios": ">=1.6 <2",
     "ethers": ">=6.9 <7",
@@ -102,5 +102,5 @@
   "resolutions": {
     "jsonpath-plus": "10.1.0"
   },
-  "packageManager": "yarn@4.5.1"
+  "packageManager": "yarn@4.5.3"
 }

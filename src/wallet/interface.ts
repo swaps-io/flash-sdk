@@ -144,4 +144,13 @@ export interface IWallet {
    * @returns Valid signature of the message
    */
   signMessage(params: SignMessageParams): Promise<string>;
+
+  /**
+   * Returns set of IDs of operations that are in active execution, i.e. there
+   * is a wallet executor for each of these operations that neither finished
+   * (successfully or with failure) nor terminated.
+   *
+   * @returns Readonly set of operation IDs in active execution
+   */
+  getExecutingOperations(): Promise<ReadonlySet<string>>;
 }

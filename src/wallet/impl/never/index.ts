@@ -22,4 +22,8 @@ export class NeverWallet implements IWallet {
   public signMessage(): Promise<string> {
     throw new WalletError('NeverWallet.signMessage called');
   }
+
+  public getExecutingOperations(): Promise<ReadonlySet<string>> {
+    throw new WalletError('NeverWallet.getExecutingOperations called');
+  }
 }
