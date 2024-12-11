@@ -250,11 +250,6 @@ export interface GetQuoteParams {
    * The "to" ("buy" from user perspective) amount
    */
   toAmount?: Amount;
-
-  /**
-   * Chain list where to deploy smart wallet
-   */
-  deploySmartToChains?: readonly (Chain | string)[];
 }
 
 /**

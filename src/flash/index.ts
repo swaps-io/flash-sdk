@@ -175,13 +175,7 @@ export class FlashClient {
    */
   public async getQuote(params: GetQuoteParams): Promise<Quote> {
     await this.crypto.getCryptoData(false);
-    const quote = await this.quote.getQuote(
-      params.fromCrypto,
-      params.toCrypto,
-      params.fromAmount,
-      params.toAmount,
-      params.deploySmartToChains,
-    );
+    const quote = await this.quote.getQuote(params.fromCrypto, params.toCrypto, params.fromAmount, params.toAmount);
     return quote;
   }
 

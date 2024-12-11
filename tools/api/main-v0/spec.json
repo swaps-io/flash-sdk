@@ -227,13 +227,8 @@
                         "in": "query",
                         "required": false,
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/components/schemas/PermitMode"
-                                }
-                            ],
-                            "default": "permit2",
-                            "title": "Mode"
+                            "$ref": "#/components/schemas/PermitMode",
+                            "default": "permit2"
                         }
                     },
                     {
@@ -334,13 +329,8 @@
                         "in": "query",
                         "required": false,
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/components/schemas/PermitMode"
-                                }
-                            ],
-                            "default": "permit2",
-                            "title": "Mode"
+                            "$ref": "#/components/schemas/PermitMode",
+                            "default": "permit2"
                         }
                     },
                     {
@@ -428,19 +418,6 @@
                 "operationId": "get_quote",
                 "parameters": [
                     {
-                        "name": "deploy_smart_to_chains",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "default": [],
-                            "title": "Deploy Smart To Chains"
-                        }
-                    },
-                    {
                         "name": "from_chain_id",
                         "in": "query",
                         "required": true,
@@ -507,6 +484,70 @@
                             ],
                             "title": "To Amount"
                         }
+                    },
+                    {
+                        "name": "from_actor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "From Actor"
+                        }
+                    },
+                    {
+                        "name": "from_actor_receiver",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "From Actor Receiver"
+                        }
+                    },
+                    {
+                        "name": "from_actor_receiver_wallet_owner",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "From Actor Receiver Wallet Owner"
+                        }
+                    },
+                    {
+                        "name": "permit_transaction",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Permit Transaction"
+                        }
                     }
                 ],
                 "responses": {
@@ -519,6 +560,16 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomException"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "422": {
                         "description": "Validation Error",
@@ -558,6 +609,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Swap"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomException"
                                 }
                             }
                         }
@@ -667,7 +728,7 @@
                     "Swap"
                 ],
                 "summary": "Confirm swap",
-                "description": "Sends signed order to MM",
+                "description": "Submits signed order",
                 "operationId": "submit_swap",
                 "parameters": [
                     {
@@ -697,6 +758,49 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Swap"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/swaps/{swap_hash}/manual_receive": {
+            "get": {
+                "tags": [
+                    "Swap"
+                ],
+                "summary": "Receive swap manually",
+                "description": "Returns call data to receive swap manually",
+                "operationId": "manual_receive",
+                "parameters": [
+                    {
+                        "name": "swap_hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Swap Hash"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionData"
                                 }
                             }
                         }
@@ -1106,6 +1210,42 @@
                             "type": "string",
                             "title": "Address"
                         }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "title": "Limit"
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Cursor"
+                        }
+                    },
+                    {
+                        "name": "signed_only",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true,
+                            "title": "Signed Only"
+                        }
                     }
                 ],
                 "responses": {
@@ -1319,6 +1459,48 @@
                 }
             }
         },
+        "/api/v0/tm": {
+            "post": {
+                "tags": [
+                    "TM"
+                ],
+                "summary": "Create tmt",
+                "description": "Creates tm",
+                "operationId": "create_tm",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateTM"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EventCreated"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v0/agreement/message": {
             "get": {
                 "tags": [
@@ -1426,21 +1608,21 @@
                 }
             }
         },
-        "/api/v0/smart/deploy/pay-cryptos": {
+        "/api/v0/smart/deploy/chains": {
             "get": {
                 "tags": [
                     "Smart Wallet"
                 ],
-                "summary": "Get smart wallet pay-cryptos",
-                "description": "Returns cryptos that can be used to pay for smart wallet deploy",
-                "operationId": "get_smart_wallet_pay_cryptos",
+                "summary": "Get smart wallet chains",
+                "description": "Returns chains where smart wallet can be deployed",
+                "operationId": "get_smart_wallet_chains",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SmartWalletPayCryptos"
+                                    "$ref": "#/components/schemas/SmartWalletChains"
                                 }
                             }
                         }
@@ -1448,42 +1630,21 @@
                 }
             }
         },
-        "/api/v0/smart/{owner_address}": {
+        "/api/v0/alert": {
             "get": {
                 "tags": [
-                    "Smart Wallet"
+                    "Alert"
                 ],
-                "summary": "Get smart wallet data",
-                "description": "Returns smart wallet data of the owner",
-                "operationId": "get_smart_wallet",
-                "parameters": [
-                    {
-                        "name": "owner_address",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Owner Address"
-                        }
-                    }
-                ],
+                "summary": "Get alert",
+                "description": "Returns alert message",
+                "operationId": "get_alert",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SmartWallet"
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Validation Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                    "$ref": "#/components/schemas/Alert"
                                 }
                             }
                         }
@@ -1536,6 +1697,26 @@
                     "signature"
                 ],
                 "title": "AgreementUser"
+            },
+            "Alert": {
+                "properties": {
+                    "message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message"
+                ],
+                "title": "Alert"
             },
             "AllowanceInfo": {
                 "properties": {
@@ -1752,6 +1933,29 @@
                         ],
                         "title": "From Actor Receiver"
                     },
+                    "from_actor_receiver_wallet_owner": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor Receiver Wallet Owner"
+                    },
+                    "collateral_receiver": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^(0x)[a-fA-F0-9]{40}$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Collateral Receiver"
+                    },
                     "to_chain_id": {
                         "type": "string",
                         "title": "To Chain Id"
@@ -1770,14 +1974,6 @@
                             }
                         ],
                         "title": "Permit Transaction"
-                    },
-                    "deploy_smart_to_chains": {
-                        "items": {
-                            "type": "string"
-                        },
-                        "type": "array",
-                        "title": "Deploy Smart To Chains",
-                        "default": []
                     }
                 },
                 "type": "object",
@@ -1789,6 +1985,129 @@
                     "to_token_address"
                 ],
                 "title": "CreateSwap"
+            },
+            "CreateTM": {
+                "properties": {
+                    "d": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "D"
+                    },
+                    "c": {
+                        "type": "string",
+                        "title": "C"
+                    },
+                    "a": {
+                        "type": "string",
+                        "title": "A"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "d",
+                    "c",
+                    "a"
+                ],
+                "title": "CreateTM"
+            },
+            "CustomException": {
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "title": "Detail"
+                    },
+                    "extra_data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomExceptionExtraData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "detail"
+                ],
+                "title": "CustomException"
+            },
+            "CustomExceptionDetails": {
+                "properties": {
+                    "max_size_in_usd": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Max Size In Usd"
+                    },
+                    "max_size_in_token_decimal": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Max Size In Token Decimal"
+                    }
+                },
+                "type": "object",
+                "title": "CustomExceptionDetails"
+            },
+            "CustomExceptionExtraData": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "error_type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    },
+                    "error_code": {
+                        "type": "string",
+                        "title": "Error Code"
+                    },
+                    "details": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CustomExceptionDetails"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "message",
+                    "error_type",
+                    "error_code"
+                ],
+                "title": "CustomExceptionExtraData"
+            },
+            "EventCreated": {
+                "properties": {
+                    "ok": {
+                        "type": "boolean",
+                        "title": "Ok"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "ok"
+                ],
+                "title": "EventCreated"
             },
             "HTTPValidationError": {
                 "properties": {
@@ -1987,12 +2306,38 @@
                     "amount_source": {
                         "$ref": "#/components/schemas/AmountSource"
                     },
-                    "deploy_smart_to_chains": {
-                        "items": {
-                            "type": "string"
-                        },
-                        "type": "array",
-                        "title": "Deploy Smart To Chains"
+                    "from_actor": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor"
+                    },
+                    "from_actor_receiver": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor Receiver"
+                    },
+                    "from_actor_receiver_wallet_owner": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor Receiver Wallet Owner"
                     }
                 },
                 "type": "object",
@@ -2122,13 +2467,25 @@
                 ],
                 "title": "SlashTransaction"
             },
-            "SmartChain": {
+            "SmartWalletChains": {
                 "properties": {
-                    "chain_id": {
-                        "type": "string",
-                        "title": "Chain Id"
-                    },
-                    "smart_address": {
+                    "chain_ids": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Chain Ids"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "chain_ids"
+                ],
+                "title": "SmartWalletChains"
+            },
+            "SubmitSwap": {
+                "properties": {
+                    "signature": {
                         "anyOf": [
                             {
                                 "type": "string"
@@ -2137,69 +2494,6 @@
                                 "type": "null"
                             }
                         ],
-                        "title": "Smart Address"
-                    },
-                    "state": {
-                        "$ref": "#/components/schemas/SmartWalletState"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "chain_id",
-                    "smart_address",
-                    "state"
-                ],
-                "title": "SmartChain"
-            },
-            "SmartWallet": {
-                "properties": {
-                    "owner_address": {
-                        "type": "string",
-                        "title": "Owner Address"
-                    },
-                    "smart_chains": {
-                        "items": {
-                            "$ref": "#/components/schemas/SmartChain"
-                        },
-                        "type": "array",
-                        "title": "Smart Chains"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "owner_address",
-                    "smart_chains"
-                ],
-                "title": "SmartWallet"
-            },
-            "SmartWalletPayCryptos": {
-                "properties": {
-                    "crypto_ids": {
-                        "items": {
-                            "type": "string"
-                        },
-                        "type": "array",
-                        "title": "Crypto Ids"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "crypto_ids"
-                ],
-                "title": "SmartWalletPayCryptos"
-            },
-            "SmartWalletState": {
-                "type": "string",
-                "enum": [
-                    "ready",
-                    "pending"
-                ],
-                "title": "SmartWalletState"
-            },
-            "SubmitSwap": {
-                "properties": {
-                    "signature": {
-                        "type": "string",
                         "title": "Signature"
                     },
                     "raise_on_error": {
@@ -2255,6 +2549,17 @@
                         "type": "string",
                         "title": "From Actor Receiver"
                     },
+                    "from_actor_receiver_wallet_owner": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor Receiver Wallet Owner"
+                    },
                     "to_chain_id": {
                         "type": "string",
                         "title": "To Chain Id"
@@ -2293,6 +2598,10 @@
                     "collateral_rewardable": {
                         "type": "string",
                         "title": "Collateral Rewardable"
+                    },
+                    "collateral_receiver": {
+                        "type": "string",
+                        "title": "Collateral Receiver"
                     },
                     "time_estimate": {
                         "type": "integer",
@@ -2354,13 +2663,6 @@
                     },
                     "amount_source": {
                         "$ref": "#/components/schemas/AmountSource"
-                    },
-                    "deploy_smart_to_chains": {
-                        "items": {
-                            "type": "string"
-                        },
-                        "type": "array",
-                        "title": "Deploy Smart To Chains"
                     },
                     "nonce": {
                         "type": "integer",
@@ -2445,6 +2747,7 @@
                     "collateral_chain_id",
                     "collateral_amount",
                     "collateral_rewardable",
+                    "collateral_receiver",
                     "time_estimate",
                     "time_to_lock_bitcoin",
                     "time_to_receive",
@@ -2494,11 +2797,23 @@
                         },
                         "type": "array",
                         "title": "Swaps"
+                    },
+                    "cursor": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Cursor"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "swaps"
+                    "swaps",
+                    "cursor"
                 ],
                 "title": "SwapList"
             },

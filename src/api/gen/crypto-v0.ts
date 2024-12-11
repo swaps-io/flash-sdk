@@ -39,11 +39,11 @@ export interface CryptoListCryptoV0 {
   cryptos: CryptoCryptoV0[];
 }
 
-export interface ContractListCryptoV0 {
-  contracts: ContractInfoCryptoV0[];
-}
-
 export type ContractInfoCryptoV0CollateralDecimals = number | null;
+
+export type ContractInfoCryptoV0CollateralBitcoinDecimals = number | null;
+
+export type ContractInfoCryptoV0CollateralBitcoinAddress = string | null;
 
 export type ContractInfoCryptoV0CollateralAddress = string | null;
 
@@ -51,14 +51,18 @@ export interface ContractInfoCryptoV0 {
   address: string;
   chain_id: string;
   collateral_address: ContractInfoCryptoV0CollateralAddress;
-  collateral_bitcoin_address?: ContractInfoCryptoV0CollateralAddress;
-  collateral_bitcoin_decimals?: ContractInfoCryptoV0CollateralDecimals;
-  collateral_bitcoin_support?: boolean;
-  collateral_bitcoin_token_addresses?: string[];
+  collateral_bitcoin_address: ContractInfoCryptoV0CollateralBitcoinAddress;
+  collateral_bitcoin_decimals: ContractInfoCryptoV0CollateralBitcoinDecimals;
+  collateral_bitcoin_support: boolean;
+  collateral_bitcoin_token_addresses: string[];
   collateral_decimals: ContractInfoCryptoV0CollateralDecimals;
   collateral_support: boolean;
   collateral_token_addresses: string[];
   native_wrap_address: string;
+}
+
+export interface ContractListCryptoV0 {
+  contracts: ContractInfoCryptoV0[];
 }
 
 export type ChainCryptoV0L1 = string | null;
