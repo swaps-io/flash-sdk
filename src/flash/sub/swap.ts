@@ -14,7 +14,7 @@ import {
 import { CryptoAggregator } from '../../cryptoAggregator';
 import { CryptoApprover } from '../../cryptoApprove';
 import { BITCOIN_CHAIN_ID, makeBitcoinAmount } from '../../helper/bitcoin';
-import { makeNativeAmount } from '../../helper/native';
+import { isNativeCrypto, makeNativeAmount } from '../../helper/native';
 import { isNotNull, isNull } from '../../helper/null';
 import { IWalletLike, isSmartWallet } from '../../helper/wallet';
 import {
@@ -38,6 +38,7 @@ import {
   TransactionData,
 } from '../../model';
 import { SwapState, toSwapState } from '../../model/swap/state';
+import { SwapSubmit } from '../../model/swapSubmit';
 import { FlashError } from '../error';
 import { FlashOptionalValue } from '../optional';
 import { OnInconsistencyError } from '../param';
@@ -180,11 +181,15 @@ export class SwapSubClient {
     return swap;
   }
 
-  public async submitSwap(swap: Swap, swapApprove: SwapApprove): Promise<void> {
+  public async submitSwap(swap: Swap, swapApprove: SwapApprove): Promise<SwapSubmit> {
     const submitSwapParams: SubmitSwapMainV0 = {
       signature: swapApprove.swapSignature,
     };
     await submitSwapMainV0(swap.hash, submitSwapParams);
+
+    const needsCall = isNativeCrypto(swap.fromCrypto);
+    const swapSubmit = new SwapSubmit(swap.hash, needsCall);
+    return swapSubmit;
   }
 
   public async getSwap(swapRef: Swap | string): Promise<Swap> {

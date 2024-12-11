@@ -19,6 +19,7 @@ import {
   Swap,
   SwapApprove,
 } from '../model';
+import { SwapSubmit } from '../model/swapSubmit';
 
 import { FlashOptionalValue } from './optional';
 import {
@@ -46,6 +47,7 @@ import { QuoteSubClient } from './sub/quote';
 import { ResolverSubClient } from './sub/resolver';
 import { SwapSubClient } from './sub/swap';
 import { SwapApproveSubClient } from './sub/swapApprove';
+import { SwapCallSubClient } from './sub/swapCall';
 
 export type * from './param';
 export type * from './error';
@@ -62,6 +64,7 @@ export class FlashClient {
   private readonly quote: QuoteSubClient;
   private readonly swap: SwapSubClient;
   private readonly swapApprove: SwapApproveSubClient;
+  private readonly swapCall: SwapCallSubClient;
   private readonly resolver: ResolverSubClient;
   private readonly nativeWrap: NativeWrapSubClient;
   private readonly agreement: AgreementSubClient;
@@ -98,6 +101,7 @@ export class FlashClient {
       onInconsistencyError,
     );
     this.swapApprove = new SwapApproveSubClient(this.wallet);
+    this.swapCall = new SwapCallSubClient(this.wallet);
     this.resolver = new ResolverSubClient(this.crypto, resolverCacheTtl);
     this.nativeWrap = new NativeWrapSubClient(this.wallet, this.crypto);
     this.agreement = new AgreementSubClient(this.wallet);
@@ -229,6 +233,7 @@ export class FlashClient {
    * - create swap with the service
    * - approve swap via signing the order typed data (chain-agnostic)
    * - submit swap to the service
+   * - call swap transaction (optional, from native only)
    *
    * @param params The operation {@link SubmitSwapParams | params}
    *
@@ -239,7 +244,8 @@ export class FlashClient {
     const cryptoApprove = await this.submitSwapManualApproveCrypto(params);
     const swap = await this.submitSwapManualCreateSwap(params, cryptoApprove);
     const swapApprove = await this.submitSwapManualApproveSwap(params, swap);
-    await this.submitSwapManualSubmitSwap(swap, swapApprove);
+    const swapSubmit = await this.submitSwapManualSubmitSwap(swap, swapApprove);
+    await this.submitSwapManualCallSwap(params, swapSubmit);
     return swap;
   }
 
@@ -313,9 +319,29 @@ export class FlashClient {
    *
    * @param swap Created swap (obtained from {@link FlashClient.submitSwapManualCreateSwap})
    * @param swapApprove Swap approve (obtained from {@link FlashClient.submitSwapManualApproveSwap})
+   *
+   * @returns Swap submit
    */
-  public async submitSwapManualSubmitSwap(swap: Swap, swapApprove: SwapApprove): Promise<void> {
-    await this.swap.submitSwap(swap, swapApprove);
+  public async submitSwapManualSubmitSwap(swap: Swap, swapApprove: SwapApprove): Promise<SwapSubmit> {
+    const swapSubmit = await this.swap.submitSwap(swap, swapApprove);
+    return swapSubmit;
+  }
+
+  /**
+   * Performs manual submitted swap call
+   *
+   * _Note_: this is a part of _manual_ flow. Automated {@link FlashClient.submitSwap}
+   * method (that includes call of this manual method) should be preferred
+   *
+   * @param params The operation {@link SubmitSwapParams | params}
+   * @param swapSubmit Swap submit (obtained from {@link FlashClient.submitSwapManualSubmitSwap})
+   *
+   * @returns Swap call TXID or empty string
+   */
+  public async submitSwapManualCallSwap(params: SubmitSwapParams, swapSubmit: SwapSubmit): Promise<string> {
+    const callRequest = await this.swapCall.prepareSwapCall(params.operation, swapSubmit);
+    const txid = await this.swapCall.callSwap(callRequest);
+    return txid;
   }
 
   /**

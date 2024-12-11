@@ -13,3 +13,4 @@ export * from './transaction';
 export * from './resolver';
 export * from './amountSource';
 export * from './swapApprove';
+export * from './swapSubmit';
