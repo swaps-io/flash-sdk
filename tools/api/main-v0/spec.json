@@ -2503,9 +2503,6 @@
                     }
                 },
                 "type": "object",
-                "required": [
-                    "signature"
-                ],
                 "title": "SubmitSwap"
             },
             "Swap": {
@@ -2727,6 +2724,16 @@
                                 "type": "null"
                             }
                         ]
+                    },
+                    "tx_refund": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/Transaction"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "type": "object",
@@ -2767,7 +2774,8 @@
                     "tx_send",
                     "tx_liq_send",
                     "tx_report_no_send",
-                    "tx_slash"
+                    "tx_slash",
+                    "tx_refund"
                 ],
                 "title": "Swap"
             },
@@ -2829,7 +2837,8 @@
                     "cancelled_awaiting_slash",
                     "cancelled_slashed",
                     "completed_sent",
-                    "completed_liq_sent"
+                    "completed_liq_sent",
+                    "cancelled_refunded"
                 ],
                 "title": "SwapState"
             },

@@ -259,6 +259,7 @@ export class SwapSubClient {
     const txLiqSend = isNull(s.tx_liq_send) ? undefined : this.mapLiqSendTransaction(s.tx_liq_send);
     const txReportNoSend = s.tx_report_no_send.map((tx) => this.mapReportNoSendTransaction(tx));
     const txSlash = isNull(s.tx_slash) ? undefined : this.mapSlashTransaction(s.tx_slash, txReportNoSend);
+    const txRefund = isNull(s.tx_refund) ? undefined : this.mapTransaction(s.tx_refund);
 
     const data: SwapData = {
       hash: s.hash,
@@ -294,6 +295,7 @@ export class SwapSubClient {
       txLiqSend: txLiqSend?.data,
       txReportNoSend: txReportNoSend.map((tx) => tx.data),
       txSlash: txSlash?.data,
+      txRefund: txRefund?.data,
     };
     const swap = new Swap(
       data,

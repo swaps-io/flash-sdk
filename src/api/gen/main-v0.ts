@@ -147,6 +147,7 @@ export const SwapStateMainV0 = {
   cancelled_slashed: 'cancelled_slashed',
   completed_sent: 'completed_sent',
   completed_liq_sent: 'completed_liq_sent',
+  cancelled_refunded: 'cancelled_refunded',
 } as const;
 
 export type SwapListMainV0Cursor = string | null;
@@ -164,6 +165,8 @@ export interface SwapDataMainV0 {
 export type SwapMainV0TxSlash = SlashTransactionMainV0 | null;
 
 export type SwapMainV0TxSend = TransactionMainV0 | null;
+
+export type SwapMainV0TxRefund = TransactionMainV0 | null;
 
 export type SwapMainV0TxReceive = TransactionMainV0 | null;
 
@@ -217,6 +220,7 @@ export interface SwapMainV0 {
   tx_liq_send: SwapMainV0TxLiqSend;
   tx_lock_bitcoin: SwapMainV0TxLockBitcoin;
   tx_receive: SwapMainV0TxReceive;
+  tx_refund: SwapMainV0TxRefund;
   tx_report_no_send: ReportNoSendTransactionMainV0[];
   tx_send: SwapMainV0TxSend;
   tx_slash: SwapMainV0TxSlash;
@@ -226,7 +230,7 @@ export type SubmitSwapMainV0Signature = string | null;
 
 export interface SubmitSwapMainV0 {
   raise_on_error?: boolean;
-  signature: SubmitSwapMainV0Signature;
+  signature?: SubmitSwapMainV0Signature;
 }
 
 export interface SmartWalletChainsMainV0 {
