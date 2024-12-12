@@ -14,7 +14,7 @@ import {
 import { CryptoAggregator } from '../../cryptoAggregator';
 import { CryptoApprover } from '../../cryptoApprove';
 import { BITCOIN_CHAIN_ID, makeBitcoinAmount } from '../../helper/bitcoin';
-import { makeNativeAmount } from '../../helper/native';
+import { isNativeCrypto, makeNativeAmount } from '../../helper/native';
 import { isNotNull, isNull } from '../../helper/null';
 import { IWalletLike, isSmartWallet } from '../../helper/wallet';
 import {
@@ -34,10 +34,12 @@ import {
   Swap,
   SwapApprove,
   SwapData,
+  SwapState,
+  SwapSubmit,
   Transaction,
   TransactionData,
+  toSwapState,
 } from '../../model';
-import { SwapState, toSwapState } from '../../model/swap/state';
 import { FlashError } from '../error';
 import { FlashOptionalValue } from '../optional';
 import { OnInconsistencyError } from '../param';
@@ -109,7 +111,6 @@ export class SwapSubClient {
       to_token_address: quote.toCrypto.address,
       to_amount: toAmountValue,
       permit_transaction: cryptoApprove.permitTransaction,
-      deploy_smart_to_chains: quote.deploySmartToChains.map((chain) => chain.id),
     };
     const { data: responseSwap } = await createSwapMainV0(createSwapParams);
 
@@ -181,11 +182,15 @@ export class SwapSubClient {
     return swap;
   }
 
-  public async submitSwap(swap: Swap, swapApprove: SwapApprove): Promise<void> {
+  public async submitSwap(swap: Swap, swapApprove: SwapApprove): Promise<SwapSubmit> {
     const submitSwapParams: SubmitSwapMainV0 = {
       signature: swapApprove.swapSignature,
     };
     await submitSwapMainV0(swap.hash, submitSwapParams);
+
+    const needsCall = isNativeCrypto(swap.fromCrypto);
+    const swapSubmit = new SwapSubmit(swap.hash, needsCall);
+    return swapSubmit;
   }
 
   public async getSwap(swapRef: Swap | string): Promise<Swap> {
@@ -289,7 +294,6 @@ export class SwapSubClient {
       txLiqSend: txLiqSend?.data,
       txReportNoSend: txReportNoSend.map((tx) => tx.data),
       txSlash: txSlash?.data,
-      deploySmartToChains: s.deploy_smart_to_chains ?? [],
     };
     const swap = new Swap(
       data,

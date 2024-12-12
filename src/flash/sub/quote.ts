@@ -3,7 +3,7 @@ import { CryptoAggregator } from '../../cryptoAggregator';
 import { BITCOIN_CHAIN_ID, makeBitcoinAmount } from '../../helper/bitcoin';
 import { makeNativeAmount } from '../../helper/native';
 import { isNotNull, isNull } from '../../helper/null';
-import { Amount, AmountSource, Chain, Crypto, Duration } from '../../model';
+import { Amount, AmountSource, Crypto, Duration } from '../../model';
 import { Quote } from '../../model/quote';
 import { QuoteData } from '../../model/quote/data';
 import { FlashError } from '../error';
@@ -18,13 +18,7 @@ export class QuoteSubClient {
     this.onInconsistencyError = onInconsistencyError;
   }
 
-  public async getQuote(
-    fromCrypto: Crypto,
-    toCrypto: Crypto,
-    fromAmount?: Amount,
-    toAmount?: Amount,
-    deploySmartToChains?: readonly (Chain | string)[],
-  ): Promise<Quote> {
+  public async getQuote(fromCrypto: Crypto, toCrypto: Crypto, fromAmount?: Amount, toAmount?: Amount): Promise<Quote> {
     if (isNull(fromAmount) === isNull(toAmount)) {
       throw new FlashError('Either "from" or "to" amount must be specified in quote params');
     }
@@ -39,13 +33,6 @@ export class QuoteSubClient {
       toAmountValue = toAmount.normalizeValue(toCrypto.decimals);
     }
 
-    const mapDeploySmartToChain = (chain: Chain | string): string => {
-      if (typeof chain == 'string') {
-        return chain;
-      }
-      return chain.id.toString();
-    };
-
     const { data: responseQuote } = await getQuoteMainV0({
       from_chain_id: fromCrypto.chain.id,
       from_token_address: fromCrypto.address,
@@ -53,7 +40,6 @@ export class QuoteSubClient {
       to_chain_id: toCrypto.chain.id,
       to_token_address: toCrypto.address,
       to_amount: toAmountValue,
-      deploy_smart_to_chains: deploySmartToChains?.map(mapDeploySmartToChain),
     });
 
     const inconsistencyErrors: string[] = [];
@@ -137,7 +123,6 @@ export class QuoteSubClient {
       fromFeeEstimate: fromFeeEstimate.data,
       toFeeEstimate: toFeeEstimate.data,
       amountSource: amountSource,
-      deploySmartToChains: q.deploy_smart_to_chains ?? [],
     };
     const quote = new Quote(
       data,

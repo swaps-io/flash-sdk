@@ -184,9 +184,4 @@ export interface SwapData {
    * Source of the amount
    */
   amountSource: AmountSource;
-
-  /**
-   * Chain ids where to deploy smart wallet
-   */
-  deploySmartToChains: string[];
 }

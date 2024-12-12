@@ -17,6 +17,12 @@ export type GetBalanceMainV0Params = {
   token_address: string;
 };
 
+export type GetUserSwapsMainV0Params = {
+  limit?: number;
+  cursor?: string | null;
+  signed_only?: boolean;
+};
+
 export type GetStatesMainV0Params = {
   hashes: string[];
 };
@@ -48,13 +54,16 @@ export type LiqSendMainV0Params = {
 };
 
 export type GetQuoteMainV0Params = {
-  deploy_smart_to_chains?: string[];
   from_chain_id: string;
   to_chain_id: string;
   from_token_address: string;
   to_token_address: string;
   from_amount?: string | null;
   to_amount?: string | null;
+  from_actor?: string | null;
+  from_actor_receiver?: string | null;
+  from_actor_receiver_wallet_owner?: string | null;
+  permit_transaction?: string | null;
 };
 
 export type GetPermitTransactionMainV0Params = {
@@ -140,7 +149,10 @@ export const SwapStateMainV0 = {
   completed_liq_sent: 'completed_liq_sent',
 } as const;
 
+export type SwapListMainV0Cursor = string | null;
+
 export interface SwapListMainV0 {
+  cursor: SwapListMainV0Cursor;
   swaps: SwapMainV0[];
 }
 
@@ -163,38 +175,62 @@ export type SwapMainV0ToActorBitcoin = string | null;
 
 export type SwapMainV0TimeToLockBitcoin = number | null;
 
+export type SwapMainV0FromActorReceiverWalletOwner = string | null;
+
 export type SwapMainV0FromActorBitcoin = string | null;
 
 export type SwapMainV0DeadlineLockBitcoin = number | null;
 
+export interface SwapMainV0 {
+  amount_source: AmountSourceMainV0;
+  collateral_amount: string;
+  collateral_chain_id: string;
+  collateral_receiver: string;
+  collateral_rewardable: string;
+  created_at: number;
+  deadline_liq_send: number;
+  deadline_lock_bitcoin: SwapMainV0DeadlineLockBitcoin;
+  deadline_receive: number;
+  deadline_send: number;
+  from_actor: string;
+  from_actor_bitcoin: SwapMainV0FromActorBitcoin;
+  from_actor_receiver: string;
+  from_actor_receiver_wallet_owner?: SwapMainV0FromActorReceiverWalletOwner;
+  from_amount: string;
+  from_chain_id: string;
+  from_fee_estimate: string;
+  from_token_address: string;
+  hash: string;
+  nonce: number;
+  state: SwapStateMainV0;
+  time_estimate: number;
+  time_to_liq_send: number;
+  time_to_lock_bitcoin: SwapMainV0TimeToLockBitcoin;
+  time_to_receive: number;
+  time_to_send: number;
+  to_actor: string;
+  to_actor_bitcoin: SwapMainV0ToActorBitcoin;
+  to_amount: string;
+  to_chain_id: string;
+  to_fee_estimate: string;
+  to_token_address: string;
+  tx_liq_send: SwapMainV0TxLiqSend;
+  tx_lock_bitcoin: SwapMainV0TxLockBitcoin;
+  tx_receive: SwapMainV0TxReceive;
+  tx_report_no_send: ReportNoSendTransactionMainV0[];
+  tx_send: SwapMainV0TxSend;
+  tx_slash: SwapMainV0TxSlash;
+}
+
+export type SubmitSwapMainV0Signature = string | null;
+
 export interface SubmitSwapMainV0 {
   raise_on_error?: boolean;
-  signature: string;
+  signature: SubmitSwapMainV0Signature;
 }
 
-export type SmartWalletStateMainV0 = (typeof SmartWalletStateMainV0)[keyof typeof SmartWalletStateMainV0];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const SmartWalletStateMainV0 = {
-  ready: 'ready',
-  pending: 'pending',
-} as const;
-
-export interface SmartWalletPayCryptosMainV0 {
-  crypto_ids: string[];
-}
-
-export type SmartChainMainV0SmartAddress = string | null;
-
-export interface SmartChainMainV0 {
-  chain_id: string;
-  smart_address: SmartChainMainV0SmartAddress;
-  state: SmartWalletStateMainV0;
-}
-
-export interface SmartWalletMainV0 {
-  owner_address: string;
-  smart_chains: SmartChainMainV0[];
+export interface SmartWalletChainsMainV0 {
+  chain_ids: string[];
 }
 
 export interface SlashTransactionMainV0 {
@@ -225,11 +261,19 @@ export interface ReportNoSendTransactionMainV0 {
 
 export type QuoteMainV0TimeToLockBitcoin = number | null;
 
+export type QuoteMainV0FromActorReceiverWalletOwner = string | null;
+
+export type QuoteMainV0FromActorReceiver = string | null;
+
+export type QuoteMainV0FromActor = string | null;
+
 export interface QuoteMainV0 {
   amount_source: AmountSourceMainV0;
   collateral_amount: string;
   collateral_chain_id: string;
-  deploy_smart_to_chains?: string[];
+  from_actor?: QuoteMainV0FromActor;
+  from_actor_receiver?: QuoteMainV0FromActorReceiver;
+  from_actor_receiver_wallet_owner?: QuoteMainV0FromActorReceiverWalletOwner;
   from_amount: string;
   from_chain_id: string;
   from_fee_estimate: string;
@@ -283,22 +327,62 @@ export interface HTTPValidationErrorMainV0 {
   detail?: ValidationErrorMainV0[];
 }
 
+export interface EventCreatedMainV0 {
+  ok: boolean;
+}
+
+export type CustomExceptionExtraDataMainV0Details = CustomExceptionDetailsMainV0 | null;
+
+export interface CustomExceptionExtraDataMainV0 {
+  details?: CustomExceptionExtraDataMainV0Details;
+  error_code: string;
+  error_type: string;
+  message: string;
+}
+
+export type CustomExceptionDetailsMainV0MaxSizeInUsd = number | null;
+
+export type CustomExceptionDetailsMainV0MaxSizeInTokenDecimal = number | null;
+
+export interface CustomExceptionDetailsMainV0 {
+  max_size_in_token_decimal?: CustomExceptionDetailsMainV0MaxSizeInTokenDecimal;
+  max_size_in_usd?: CustomExceptionDetailsMainV0MaxSizeInUsd;
+}
+
+export type CustomExceptionMainV0ExtraData = CustomExceptionExtraDataMainV0 | null;
+
+export interface CustomExceptionMainV0 {
+  detail: string;
+  extra_data?: CustomExceptionMainV0ExtraData;
+}
+
+export interface CreateTMMainV0 {
+  a: string;
+  c: string;
+  d: string[];
+}
+
 export type CreateSwapMainV0ToAmount = string | null;
 
 export type CreateSwapMainV0PermitTransaction = string | null;
 
 export type CreateSwapMainV0FromAmount = string | null;
 
+export type CreateSwapMainV0FromActorReceiverWalletOwner = string | null;
+
 export type CreateSwapMainV0FromActorReceiver = string | null;
 
 export type CreateSwapMainV0FromActorBitcoin = string | null;
 
+export type CreateSwapMainV0CollateralReceiver = string | null;
+
 export interface CreateSwapMainV0 {
-  deploy_smart_to_chains?: string[];
+  collateral_receiver?: CreateSwapMainV0CollateralReceiver;
   /** @pattern ^(0x)[a-fA-F0-9]{40}$ */
   from_actor: string;
   from_actor_bitcoin?: CreateSwapMainV0FromActorBitcoin;
   from_actor_receiver?: CreateSwapMainV0FromActorReceiver;
+  from_actor_receiver_wallet_owner?: CreateSwapMainV0FromActorReceiverWalletOwner;
   from_amount?: CreateSwapMainV0FromAmount;
   from_chain_id: string;
   from_token_address: string;
@@ -340,46 +424,6 @@ export const AmountSourceMainV0 = {
   to: 'to',
 } as const;
 
-export interface SwapMainV0 {
-  amount_source: AmountSourceMainV0;
-  collateral_amount: string;
-  collateral_chain_id: string;
-  collateral_rewardable: string;
-  created_at: number;
-  deadline_liq_send: number;
-  deadline_lock_bitcoin: SwapMainV0DeadlineLockBitcoin;
-  deadline_receive: number;
-  deadline_send: number;
-  deploy_smart_to_chains?: string[];
-  from_actor: string;
-  from_actor_bitcoin: SwapMainV0FromActorBitcoin;
-  from_actor_receiver: string;
-  from_amount: string;
-  from_chain_id: string;
-  from_fee_estimate: string;
-  from_token_address: string;
-  hash: string;
-  nonce: number;
-  state: SwapStateMainV0;
-  time_estimate: number;
-  time_to_liq_send: number;
-  time_to_lock_bitcoin: SwapMainV0TimeToLockBitcoin;
-  time_to_receive: number;
-  time_to_send: number;
-  to_actor: string;
-  to_actor_bitcoin: SwapMainV0ToActorBitcoin;
-  to_amount: string;
-  to_chain_id: string;
-  to_fee_estimate: string;
-  to_token_address: string;
-  tx_liq_send: SwapMainV0TxLiqSend;
-  tx_lock_bitcoin: SwapMainV0TxLockBitcoin;
-  tx_receive: SwapMainV0TxReceive;
-  tx_report_no_send: ReportNoSendTransactionMainV0[];
-  tx_send: SwapMainV0TxSend;
-  tx_slash: SwapMainV0TxSlash;
-}
-
 export type AllowanceInfoMainV0ContractAddress = string | null;
 
 export type AllowanceInfoMainV0AllowanceP2 = string | null;
@@ -391,6 +435,12 @@ export interface AllowanceInfoMainV0 {
   chain_id: string;
   contract_address: AllowanceInfoMainV0ContractAddress;
   token_address: string;
+}
+
+export type AlertMainV0Message = string | null;
+
+export interface AlertMainV0 {
+  message: AlertMainV0Message;
 }
 
 export type AgreementUserMainV0Signature = string | null;
@@ -493,7 +543,7 @@ export const getSwapDataMainV0 = (swapHash: string, options?: SecondParameter<ty
 };
 
 /**
- * Sends signed order to MM
+ * Submits signed order
  * @summary Confirm swap
  */
 export const submitSwapMainV0 = (
@@ -508,6 +558,17 @@ export const submitSwapMainV0 = (
       headers: { 'Content-Type': 'application/json' },
       data: submitSwapMainV0,
     },
+    options,
+  );
+};
+
+/**
+ * Returns call data to receive swap manually
+ * @summary Receive swap manually
+ */
+export const manualReceiveMainV0 = (swapHash: string, options?: SecondParameter<typeof axiosClientMainV0>) => {
+  return axiosClientMainV0<TransactionDataMainV0>(
+    { url: `/api/v0/swaps/${swapHash}/manual_receive`, method: 'GET' },
     options,
   );
 };
@@ -599,8 +660,12 @@ export const getStatesMainV0 = (params: GetStatesMainV0Params, options?: SecondP
  * Returns user swaps
  * @summary Get user swaps
  */
-export const getUserSwapsMainV0 = (address: string, options?: SecondParameter<typeof axiosClientMainV0>) => {
-  return axiosClientMainV0<SwapListMainV0>({ url: `/api/v0/users/${address}/swaps`, method: 'GET' }, options);
+export const getUserSwapsMainV0 = (
+  address: string,
+  params?: GetUserSwapsMainV0Params,
+  options?: SecondParameter<typeof axiosClientMainV0>,
+) => {
+  return axiosClientMainV0<SwapListMainV0>({ url: `/api/v0/users/${address}/swaps`, method: 'GET', params }, options);
 };
 
 /**
@@ -650,6 +715,17 @@ export const getCollateralMainV0 = (
 };
 
 /**
+ * Creates tm
+ * @summary Create tmt
+ */
+export const createTmMainV0 = (createTMMainV0: CreateTMMainV0, options?: SecondParameter<typeof axiosClientMainV0>) => {
+  return axiosClientMainV0<EventCreatedMainV0>(
+    { url: `/api/v0/tm`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: createTMMainV0 },
+    options,
+  );
+};
+
+/**
  * Returns agreement message
  * @summary Get agreement message
  */
@@ -685,22 +761,19 @@ export const getUserMainV0 = (address: string, options?: SecondParameter<typeof 
 };
 
 /**
- * Returns cryptos that can be used to pay for smart wallet deploy
- * @summary Get smart wallet pay-cryptos
+ * Returns chains where smart wallet can be deployed
+ * @summary Get smart wallet chains
  */
-export const getSmartWalletPayCryptosMainV0 = (options?: SecondParameter<typeof axiosClientMainV0>) => {
-  return axiosClientMainV0<SmartWalletPayCryptosMainV0>(
-    { url: `/api/v0/smart/deploy/pay-cryptos`, method: 'GET' },
-    options,
-  );
+export const getSmartWalletChainsMainV0 = (options?: SecondParameter<typeof axiosClientMainV0>) => {
+  return axiosClientMainV0<SmartWalletChainsMainV0>({ url: `/api/v0/smart/deploy/chains`, method: 'GET' }, options);
 };
 
 /**
- * Returns smart wallet data of the owner
- * @summary Get smart wallet data
+ * Returns alert message
+ * @summary Get alert
  */
-export const getSmartWalletMainV0 = (ownerAddress: string, options?: SecondParameter<typeof axiosClientMainV0>) => {
-  return axiosClientMainV0<SmartWalletMainV0>({ url: `/api/v0/smart/${ownerAddress}`, method: 'GET' }, options);
+export const getAlertMainV0 = (options?: SecondParameter<typeof axiosClientMainV0>) => {
+  return axiosClientMainV0<AlertMainV0>({ url: `/api/v0/alert`, method: 'GET' }, options);
 };
 
 export type GetAllowanceMainV0Result = NonNullable<Awaited<ReturnType<typeof getAllowanceMainV0>>>;
@@ -712,6 +785,7 @@ export type CreateSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof creat
 export type GetSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof getSwapMainV0>>>;
 export type GetSwapDataMainV0Result = NonNullable<Awaited<ReturnType<typeof getSwapDataMainV0>>>;
 export type SubmitSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof submitSwapMainV0>>>;
+export type ManualReceiveMainV0Result = NonNullable<Awaited<ReturnType<typeof manualReceiveMainV0>>>;
 export type LiqSendMainV0Result = NonNullable<Awaited<ReturnType<typeof liqSendMainV0>>>;
 export type ReportNoSendMainV0Result = NonNullable<Awaited<ReturnType<typeof reportNoSendMainV0>>>;
 export type SlashMainV0Result = NonNullable<Awaited<ReturnType<typeof slashMainV0>>>;
@@ -723,10 +797,9 @@ export type GetResolverListMainV0Result = NonNullable<Awaited<ReturnType<typeof 
 export type GetResolverMainV0Result = NonNullable<Awaited<ReturnType<typeof getResolverMainV0>>>;
 export type GetBalanceMainV0Result = NonNullable<Awaited<ReturnType<typeof getBalanceMainV0>>>;
 export type GetCollateralMainV0Result = NonNullable<Awaited<ReturnType<typeof getCollateralMainV0>>>;
+export type CreateTmMainV0Result = NonNullable<Awaited<ReturnType<typeof createTmMainV0>>>;
 export type GetMessageMainV0Result = NonNullable<Awaited<ReturnType<typeof getMessageMainV0>>>;
 export type CreateUserMainV0Result = NonNullable<Awaited<ReturnType<typeof createUserMainV0>>>;
 export type GetUserMainV0Result = NonNullable<Awaited<ReturnType<typeof getUserMainV0>>>;
-export type GetSmartWalletPayCryptosMainV0Result = NonNullable<
-  Awaited<ReturnType<typeof getSmartWalletPayCryptosMainV0>>
->;
-export type GetSmartWalletMainV0Result = NonNullable<Awaited<ReturnType<typeof getSmartWalletMainV0>>>;
+export type GetSmartWalletChainsMainV0Result = NonNullable<Awaited<ReturnType<typeof getSmartWalletChainsMainV0>>>;
+export type GetAlertMainV0Result = NonNullable<Awaited<ReturnType<typeof getAlertMainV0>>>;

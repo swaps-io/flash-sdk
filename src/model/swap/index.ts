@@ -404,11 +404,4 @@ export class Swap implements Data<SwapData>, WithData<SwapData, Swap> {
   public get slashable(): boolean {
     return this.state === SwapState.CancelledAwaitingSlash;
   }
-
-  /**
-   * Chains where to deploy smart wallet
-   */
-  public get deploySmartToChains(): Chain[] {
-    return this.data.deploySmartToChains.map(this.getChain);
-  }
 }

@@ -1,4 +1,4 @@
-import { Amount, Crypto } from '../model';
+import { Amount, Crypto, CryptoData, DataLike, extractData } from '../model';
 
 /**
  * Address of native crypto
@@ -23,8 +23,9 @@ export const NATIVE_DECIMALS = 18;
  *
  * @category Native
  */
-export const isNativeCrypto = (crypto: Crypto): boolean => {
-  return crypto.address === NATIVE_ADDRESS;
+export const isNativeCrypto = (crypto: DataLike<CryptoData>): boolean => {
+  const cryptoData = extractData(crypto);
+  return cryptoData.address === NATIVE_ADDRESS;
 };
 
 /**
