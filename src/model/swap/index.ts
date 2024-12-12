@@ -391,7 +391,8 @@ export class Swap implements Data<SwapData>, WithData<SwapData, Swap> {
     return (
       this.state === SwapState.CancelledNoSlash ||
       this.state === SwapState.CancelledAwaitingSlash ||
-      this.state === SwapState.CancelledSlashed
+      this.state === SwapState.CancelledSlashed ||
+      this.state === SwapState.CancelledRefunded
     );
   }
 
