@@ -181,6 +181,11 @@ export interface SwapData {
   txSlash: SlashTransactionData | undefined;
 
   /**
+   * Data of "from" asset refund transaction (if occurred)
+   */
+  txRefund: TransactionData | undefined;
+
+  /**
    * Source of the amount
    */
   amountSource: AmountSource;
