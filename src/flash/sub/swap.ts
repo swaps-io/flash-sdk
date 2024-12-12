@@ -34,11 +34,12 @@ import {
   Swap,
   SwapApprove,
   SwapData,
+  SwapState,
+  SwapSubmit,
   Transaction,
   TransactionData,
+  toSwapState,
 } from '../../model';
-import { SwapState, toSwapState } from '../../model/swap/state';
-import { SwapSubmit } from '../../model/swapSubmit';
 import { FlashError } from '../error';
 import { FlashOptionalValue } from '../optional';
 import { OnInconsistencyError } from '../param';

@@ -18,8 +18,8 @@ import {
   ResolverCollateral,
   Swap,
   SwapApprove,
+  SwapSubmit,
 } from '../model';
-import { SwapSubmit } from '../model/swapSubmit';
 
 import { FlashOptionalValue } from './optional';
 import {
@@ -341,6 +341,7 @@ export class FlashClient {
   public async submitSwapManualCallSwap(params: SubmitSwapParams, swapSubmit: SwapSubmit): Promise<string> {
     const callRequest = await this.swapCall.prepareSwapCall(params.operation, swapSubmit);
     const txid = await this.swapCall.callSwap(callRequest);
+    params.onSwapCalled?.(txid);
     return txid;
   }
 

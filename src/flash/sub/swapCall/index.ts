@@ -1,7 +1,7 @@
 import { manualReceiveMainV0 } from '../../../api/gen/main-v0';
 import { isNull } from '../../../helper/null';
 import { IWalletLike, isSmartWallet } from '../../../helper/wallet';
-import { SwapSubmit } from '../../../model/swapSubmit';
+import { SwapSubmit } from '../../../model';
 import { FlashOptionalValue } from '../../optional';
 
 import { SwapCallParams, SwapCallRequest } from './model';

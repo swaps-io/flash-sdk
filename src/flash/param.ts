@@ -31,6 +31,16 @@ export type OnInconsistencyError = (errors: string[]) => void | boolean;
 export type OnSwapCreated = (swap: Swap) => void;
 
 /**
+ * Callback for handling manually called swap
+ *
+ * @param txid TXID of manual swap call transaction or empty string if no
+ * manual call needed
+ *
+ * @category Client Params
+ */
+export type OnSwapCalled = (txid: string) => void;
+
+/**
  * Function for checking order data
  *
  * Should throw an error if the data is invalid for any reason
@@ -308,6 +318,13 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default No additional created swap handling
    */
   onSwapCreated?: OnSwapCreated;
+
+  /**
+   * {@link OnSwapCalled | Callback} for handling manual swap call
+   *
+   * @default No additional called swap handling
+   */
+  onSwapCalled?: OnSwapCalled;
 
   /**
    * {@link CheckOrderDataFunc | Callback} for checking order data
