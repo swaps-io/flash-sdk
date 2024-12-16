@@ -22,16 +22,56 @@ import { SmartApproveData } from './private';
 export type ApproveProviderPreference = 'permit-permit2-approve' | 'permit-approve' | 'approve';
 
 /**
+ * Finite crypto {@link ApproveAmountPreference | approve amount preference} descriptor
+ *
+ * @category Crypto Approve
+ */
+export interface FiniteApproveAmountPreference {
+  /**
+   * Finite amount to approve protocol with
+   *
+   * Can be overwritten by larger amount requirement of current swap, if not forbidden by {@link strict} param
+   */
+  finite: Amount;
+
+  /**
+   * Should {@link finite} amount be allowed to grow to match current swap amount or not
+   *
+   * When grow is not allowed, throws an insufficient finite approve amount error
+   *
+   * @default false
+   */
+  strict?: boolean;
+}
+
+/**
  * Preference of how crypto allowance amount should be selected:
  * - `exact` - provide exact amount allowance required for a single swap.
  *    Each approve/permit uses extra gas. This option is more secure, but less cheap
  * - `infinite` - provide infinite amount allowance for any number of swaps.
  *    No extra gas swapping approved "from" crypto next time. This option is
  *    more cheap, but potentially less secure
+ * - `{ finite }` - provide a finite amount allowance that can be used for multiple swaps.
+ *    This option is a customizable compromise between `exact` and `infinite`
  *
  * @category Crypto Approve
  */
-export type ApproveAmountPreference = 'exact' | 'infinite';
+export type ApproveAmountPreference = 'exact' | 'infinite' | FiniteApproveAmountPreference;
+
+/**
+ * Checks if passed {@link ApproveAmountPreference} is {@link FiniteApproveAmountPreference} case or not
+ *
+ * @param preference Preference to check for finite amount preference case
+ *
+ * @returns Type match: `true` if finite amount preference, `false` otherwise
+ *
+ * @category Crypto Approve
+ */
+export const isFiniteApproveAmountPreference = (
+  preference: ApproveAmountPreference,
+): preference is FiniteApproveAmountPreference => {
+  return typeof preference === 'object' && 'finite' in preference;
+};
 
 /**
  * Which contract type the approve action targets:
