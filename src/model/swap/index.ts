@@ -363,6 +363,17 @@ export class Swap implements Data<SwapData>, WithData<SwapData, Swap> {
   }
 
   /**
+   * Swap's "from" asset refund transaction. May not occur yet
+   */
+  public get txRefund(): Transaction | undefined {
+    if (isNull(this.data.txRefund)) {
+      return undefined;
+    }
+
+    return new Transaction(this.data.txRefund);
+  }
+
+  /**
    * Indicates if swap is awaiting actions from "to" actor (resolver)
    *
    * When becomes `false`, either {@link Swap.completed} or {@link Swap.cancelled} is `true`
@@ -391,7 +402,8 @@ export class Swap implements Data<SwapData>, WithData<SwapData, Swap> {
     return (
       this.state === SwapState.CancelledNoSlash ||
       this.state === SwapState.CancelledAwaitingSlash ||
-      this.state === SwapState.CancelledSlashed
+      this.state === SwapState.CancelledSlashed ||
+      this.state === SwapState.CancelledRefunded
     );
   }
 

@@ -147,6 +147,7 @@ export const SwapStateMainV0 = {
   cancelled_slashed: 'cancelled_slashed',
   completed_sent: 'completed_sent',
   completed_liq_sent: 'completed_liq_sent',
+  cancelled_refunded: 'cancelled_refunded',
 } as const;
 
 export type SwapListMainV0Cursor = string | null;
@@ -164,6 +165,8 @@ export interface SwapDataMainV0 {
 export type SwapMainV0TxSlash = SlashTransactionMainV0 | null;
 
 export type SwapMainV0TxSend = TransactionMainV0 | null;
+
+export type SwapMainV0TxRefund = TransactionMainV0 | null;
 
 export type SwapMainV0TxReceive = TransactionMainV0 | null;
 
@@ -217,43 +220,21 @@ export interface SwapMainV0 {
   tx_liq_send: SwapMainV0TxLiqSend;
   tx_lock_bitcoin: SwapMainV0TxLockBitcoin;
   tx_receive: SwapMainV0TxReceive;
+  tx_refund: SwapMainV0TxRefund;
   tx_report_no_send: ReportNoSendTransactionMainV0[];
   tx_send: SwapMainV0TxSend;
   tx_slash: SwapMainV0TxSlash;
 }
 
+export type SubmitSwapMainV0Signature = string | null;
+
 export interface SubmitSwapMainV0 {
   raise_on_error?: boolean;
-  signature: string;
-}
-
-export type SmartWalletStateMainV0 = (typeof SmartWalletStateMainV0)[keyof typeof SmartWalletStateMainV0];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const SmartWalletStateMainV0 = {
-  ready: 'ready',
-  pending: 'pending',
-} as const;
-
-export interface SmartWalletPayCryptosMainV0 {
-  crypto_ids: string[];
+  signature?: SubmitSwapMainV0Signature;
 }
 
 export interface SmartWalletChainsMainV0 {
   chain_ids: string[];
-}
-
-export type SmartChainMainV0SmartAddress = string | null;
-
-export interface SmartChainMainV0 {
-  chain_id: string;
-  smart_address: SmartChainMainV0SmartAddress;
-  state: SmartWalletStateMainV0;
-}
-
-export interface SmartWalletMainV0 {
-  owner_address: string;
-  smart_chains: SmartChainMainV0[];
 }
 
 export interface SlashTransactionMainV0 {
@@ -566,7 +547,7 @@ export const getSwapDataMainV0 = (swapHash: string, options?: SecondParameter<ty
 };
 
 /**
- * Sends signed order to MM
+ * Submits signed order
  * @summary Confirm swap
  */
 export const submitSwapMainV0 = (
@@ -581,6 +562,17 @@ export const submitSwapMainV0 = (
       headers: { 'Content-Type': 'application/json' },
       data: submitSwapMainV0,
     },
+    options,
+  );
+};
+
+/**
+ * Returns call data to receive swap manually
+ * @summary Receive swap manually
+ */
+export const manualReceiveMainV0 = (swapHash: string, options?: SecondParameter<typeof axiosClientMainV0>) => {
+  return axiosClientMainV0<TransactionDataMainV0>(
+    { url: `/api/v0/swaps/${swapHash}/manual_receive`, method: 'GET' },
     options,
   );
 };
@@ -773,30 +765,11 @@ export const getUserMainV0 = (address: string, options?: SecondParameter<typeof 
 };
 
 /**
- * Returns cryptos that can be used to pay for smart wallet deploy
- * @summary Get smart wallet pay-cryptos
- */
-export const getSmartWalletPayCryptosMainV0 = (options?: SecondParameter<typeof axiosClientMainV0>) => {
-  return axiosClientMainV0<SmartWalletPayCryptosMainV0>(
-    { url: `/api/v0/smart/deploy/pay-cryptos`, method: 'GET' },
-    options,
-  );
-};
-
-/**
  * Returns chains where smart wallet can be deployed
  * @summary Get smart wallet chains
  */
 export const getSmartWalletChainsMainV0 = (options?: SecondParameter<typeof axiosClientMainV0>) => {
   return axiosClientMainV0<SmartWalletChainsMainV0>({ url: `/api/v0/smart/deploy/chains`, method: 'GET' }, options);
-};
-
-/**
- * Returns smart wallet data of the owner
- * @summary Get smart wallet data
- */
-export const getSmartWalletMainV0 = (ownerAddress: string, options?: SecondParameter<typeof axiosClientMainV0>) => {
-  return axiosClientMainV0<SmartWalletMainV0>({ url: `/api/v0/smart/${ownerAddress}`, method: 'GET' }, options);
 };
 
 /**
@@ -816,6 +789,7 @@ export type CreateSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof creat
 export type GetSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof getSwapMainV0>>>;
 export type GetSwapDataMainV0Result = NonNullable<Awaited<ReturnType<typeof getSwapDataMainV0>>>;
 export type SubmitSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof submitSwapMainV0>>>;
+export type ManualReceiveMainV0Result = NonNullable<Awaited<ReturnType<typeof manualReceiveMainV0>>>;
 export type LiqSendMainV0Result = NonNullable<Awaited<ReturnType<typeof liqSendMainV0>>>;
 export type ReportNoSendMainV0Result = NonNullable<Awaited<ReturnType<typeof reportNoSendMainV0>>>;
 export type SlashMainV0Result = NonNullable<Awaited<ReturnType<typeof slashMainV0>>>;
@@ -831,9 +805,5 @@ export type CreateTmMainV0Result = NonNullable<Awaited<ReturnType<typeof createT
 export type GetMessageMainV0Result = NonNullable<Awaited<ReturnType<typeof getMessageMainV0>>>;
 export type CreateUserMainV0Result = NonNullable<Awaited<ReturnType<typeof createUserMainV0>>>;
 export type GetUserMainV0Result = NonNullable<Awaited<ReturnType<typeof getUserMainV0>>>;
-export type GetSmartWalletPayCryptosMainV0Result = NonNullable<
-  Awaited<ReturnType<typeof getSmartWalletPayCryptosMainV0>>
->;
 export type GetSmartWalletChainsMainV0Result = NonNullable<Awaited<ReturnType<typeof getSmartWalletChainsMainV0>>>;
-export type GetSmartWalletMainV0Result = NonNullable<Awaited<ReturnType<typeof getSmartWalletMainV0>>>;
 export type GetAlertMainV0Result = NonNullable<Awaited<ReturnType<typeof getAlertMainV0>>>;

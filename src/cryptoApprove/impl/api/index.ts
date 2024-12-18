@@ -25,9 +25,11 @@ import {
   CryptoApproveRequest,
   CryptoData,
   Duration,
+  FiniteApproveAmountPreference,
   IncompleteCryptoApprove,
   Instant,
   extractData,
+  isFiniteApproveAmountPreference,
 } from '../../../model';
 import { SmartApproveData } from '../../../model/cryptoApprove/private';
 import { GetSmartSignTypedDataParams } from '../../../smartWallet';
@@ -323,6 +325,15 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const mismatchPreference = async (): Promise<boolean> => {
       const infinite = isNull(permit.maxAmount);
       const preference = await resolveDynamic(this.amountPreference);
+      if (isFiniteApproveAmountPreference(preference)) {
+        if (infinite) {
+          return true;
+        }
+
+        const finiteValue = this.getFiniteApproveValue(crypto, amount, preference);
+        return finiteValue !== permit.maxAmount;
+      }
+
       switch (preference) {
         case 'exact':
           return infinite;
@@ -424,12 +435,33 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
   private async getApproveValue(crypto: CryptoData, amount: Amount): Promise<string | undefined> {
     const preference = await resolveDynamic(this.amountPreference);
+    if (isFiniteApproveAmountPreference(preference)) {
+      return this.getFiniteApproveValue(crypto, amount, preference);
+    }
+
     switch (preference) {
       case 'infinite':
         return undefined;
       case 'exact':
         return amount.normalizeValue(crypto.decimals);
     }
+  }
+
+  private getFiniteApproveValue(crypto: CryptoData, amount: Amount, preference: FiniteApproveAmountPreference): string {
+    let finiteAmount = preference.finite;
+    if (amount.is('greater', finiteAmount) && !preference.strict) {
+      finiteAmount = amount;
+    }
+
+    if (finiteAmount.is('less', amount)) {
+      throw new CryptoApproveError(
+        `Strict finite approve amount preference insufficiency: ` +
+          `${finiteAmount.normalizeValue(crypto.decimals)} provided, ` +
+          `but at least ${amount.normalizeValue(crypto.decimals)} required`,
+      );
+    }
+
+    return finiteAmount.normalizeValue(crypto.decimals);
   }
 
   private async prepareApproveAction(

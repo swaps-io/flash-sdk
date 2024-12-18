@@ -26,6 +26,7 @@ module.exports = {
     'Quote',
     'Swap',
     'Swap Approve',
+    'Swap Submit',
     'Amount',
     'Amount Source',
     'Explorer',

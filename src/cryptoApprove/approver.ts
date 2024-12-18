@@ -1,3 +1,4 @@
+import { isNativeCrypto } from '../helper/native';
 import { CryptoApprove, IncompleteCryptoApprove } from '../model';
 
 import { ICryptoApproveProvider, PrepareCryptoApproveParams } from './interface';
@@ -22,6 +23,11 @@ export class CryptoApprover {
    * @returns Complete crypto approve
    */
   public async approve(params: PrepareCryptoApproveParams): Promise<CryptoApprove> {
+    if (isNativeCrypto(params.crypto)) {
+      const cryptoApprove = new CryptoApprove(undefined);
+      return cryptoApprove;
+    }
+
     const cryptoApproveRequest = await this.provider.prepareCryptoApprove(params);
 
     let cryptoApprove = await this.provider.approveCrypto(cryptoApproveRequest, undefined);

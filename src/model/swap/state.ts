@@ -99,6 +99,15 @@ export enum SwapState {
   CancelledSlashed = 'cancelled-slashed',
 
   /**
+   * Swap cancelled with no collateral slash required - original "from" asset is refunded to "from" user
+   *
+   * From states:
+   * - {@link SwapState.AwaitingSend} - when "to" crypto not sent to "from" actor
+   *   by "to" actor within the send deadline and collateral in "refund" mode
+   */
+  CancelledRefunded = 'cancelled-refunded',
+
+  /**
    * Swap successfully completed
    *
    * The "to" actor now has "from" actor's "from" crypto, the "from" actor has "to" actor's "to" crypto
@@ -146,6 +155,7 @@ const SWAP_STATE_MAP: Record<string, SwapState> = {
   [SwapState.CancelledAwaitingSlash]: SwapState.CancelledAwaitingSlash,
   [SwapState.CancelledNoSlash]: SwapState.CancelledNoSlash,
   [SwapState.CancelledSlashed]: SwapState.CancelledSlashed,
+  [SwapState.CancelledRefunded]: SwapState.CancelledRefunded,
   [SwapState.CompletedSent]: SwapState.CompletedSent,
   [SwapState.CompletedLiqSent]: SwapState.CompletedLiqSent,
 
@@ -158,6 +168,7 @@ const SWAP_STATE_MAP: Record<string, SwapState> = {
   cancelled_awaiting_slash: SwapState.CancelledAwaitingSlash,
   cancelled_no_slash: SwapState.CancelledNoSlash,
   cancelled_slashed: SwapState.CancelledSlashed,
+  cancelled_refunded: SwapState.CancelledRefunded,
   completed_sent: SwapState.CompletedSent,
   completed_liq_sent: SwapState.CompletedLiqSent,
 };

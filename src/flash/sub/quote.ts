@@ -3,27 +3,22 @@ import { CryptoAggregator } from '../../cryptoAggregator';
 import { BITCOIN_CHAIN_ID, makeBitcoinAmount } from '../../helper/bitcoin';
 import { makeNativeAmount } from '../../helper/native';
 import { isNotNull, isNull } from '../../helper/null';
-import { IWalletLike } from '../../helper/wallet';
 import { Amount, AmountSource, Crypto, Duration } from '../../model';
 import { Quote } from '../../model/quote';
 import { QuoteData } from '../../model/quote/data';
 import { FlashError } from '../error';
-import { FlashOptionalValue } from '../optional';
 import { OnInconsistencyError } from '../param';
 
 export class QuoteSubClient {
   private readonly cryptoAggregator: CryptoAggregator;
   private readonly onInconsistencyError: OnInconsistencyError | undefined;
-  private readonly wallet: FlashOptionalValue<IWalletLike>;
 
   public constructor(
     cryptoAggregator: CryptoAggregator,
-    wallet: FlashOptionalValue<IWalletLike>,
     onInconsistencyError: OnInconsistencyError | undefined,
   ) {
     this.cryptoAggregator = cryptoAggregator;
     this.onInconsistencyError = onInconsistencyError;
-    this.wallet = wallet;
   }
 
   public async getQuote(
