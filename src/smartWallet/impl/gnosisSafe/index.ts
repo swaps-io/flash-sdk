@@ -1,3 +1,4 @@
+import { isArray } from '../../../helper/array';
 import { ExclusiveInit } from '../../../helper/exclusive';
 import { isNotNull, isNull } from '../../../helper/null';
 import { IWallet, SendTransactionParams, SignTypedDataParams } from '../../../wallet';
@@ -9,6 +10,7 @@ import {
   GetSmartSignTransactionParams,
   GetSmartSignTypedDataParams,
   ISmartWallet,
+  SmartBatchTransactionParams,
 } from '../../interface';
 
 import { GnosisSafeWalletParams } from './param';
@@ -79,15 +81,32 @@ export class GnosisSafeWallet implements ISmartWallet {
 
   public async getSignTransactionParams(params: GetSmartSignTransactionParams): Promise<SignTypedDataParams> {
     const safe = await this.getSafe(params.chainId);
-    const safeTransaction = await safe.instance.createTransaction({
-      transactions: [
-        {
-          to: params.to,
-          data: params.data ?? '0x',
-          value: params.value ?? '0',
-        },
-      ],
-    });
+
+    const toSafeTx = (txp: SmartBatchTransactionParams): SafeTransactionParams => {
+      return {
+        to: txp.to,
+        data: txp.data ?? '0x',
+        value: txp.value ?? '0',
+      };
+    };
+
+    const transactions: SafeTransactionParams[] = [];
+
+    const addTxs = (tx: SmartBatchTransactionParams | readonly SmartBatchTransactionParams[] | undefined): void => {
+      if (isNotNull(tx)) {
+        if (isArray(tx)) {
+          transactions.push(...tx.map(toSafeTx));
+        } else {
+          transactions.push(toSafeTx(tx));
+        }
+      }
+    };
+
+    addTxs(params.pre);
+    addTxs(params);
+    addTxs(params.post);
+
+    const safeTransaction = await safe.instance.createTransaction({ transactions });
 
     const signParams = await this.prepareSignParams(
       params.chainId,
@@ -245,6 +264,7 @@ type Safe = Awaited<ReturnType<ProtocolKitLib['default']['init']>>;
 type SafeVersion = Awaited<ReturnType<Safe['getContractVersion']>>;
 type SafeData = Parameters<ProtocolKitLib['generateTypedData']>[0]['data'];
 type SafeTransaction = Awaited<ReturnType<Safe['createTransaction']>>;
+type SafeTransactionParams = Parameters<Safe['createTransaction']>[0]['transactions'][0];
 type SafeEthTransaction =
   (typeof import('@safe-global/protocol-kit/dist/src/utils/transactions/SafeTransaction'))['default'];
 

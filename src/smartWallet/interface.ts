@@ -38,11 +38,32 @@ export interface GetSmartOwnersParams {
 }
 
 /**
+ * Parameters of a smart wallet transaction that's part of transaction batch
+ *
+ * @category Smart Wallet
+ */
+export type SmartBatchTransactionParams = Pick<SendTransactionParams, 'to' | 'value' | 'data'>;
+
+/**
  * Get smart wallet sign transaction parameters of {@link ISmartWallet.getSignTransactionParams}
  *
  * @category Smart Wallet
  */
-export type GetSmartSignTransactionParams = SendTransactionParams;
+export interface GetSmartSignTransactionParams extends SendTransactionParams {
+  /**
+   * List or single item of "pre" batch transaction params to execute before the primary transaction
+   *
+   * @default []
+   */
+  pre?: SmartBatchTransactionParams | readonly SmartBatchTransactionParams[];
+
+  /**
+   * List or single item of "post" batch transaction params to execute after the primary transaction
+   *
+   * @default []
+   */
+  post?: SmartBatchTransactionParams | readonly SmartBatchTransactionParams[];
+}
 
 /**
  * Get smart wallet send transaction parameters of {@link ISmartWallet.getSendTransactionParams}
