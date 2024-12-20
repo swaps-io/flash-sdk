@@ -439,6 +439,7 @@ export interface AllowanceInfoMainV0 {
   chain_id: string;
   contract_address: AllowanceInfoMainV0ContractAddress;
   token_address: string;
+  allowance_updatable?: boolean;
 }
 
 export type AlertMainV0Message = string | null;
