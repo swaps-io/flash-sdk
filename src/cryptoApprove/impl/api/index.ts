@@ -111,6 +111,11 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   }
 
   public async prepareCryptoApprove(params: PrepareCryptoApproveParams): Promise<CryptoApproveRequest> {
+    if (params.amount.is('less-or-equal', Amount.zero())) {
+      const cryptoApproveRequest = new CryptoApproveRequest([]);
+      return cryptoApproveRequest;
+    }
+
     const cryptoData = extractData(params.crypto);
     const wallet = await resolveDynamic(this.wallet);
 
