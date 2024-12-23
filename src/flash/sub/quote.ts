@@ -13,10 +13,7 @@ export class QuoteSubClient {
   private readonly cryptoAggregator: CryptoAggregator;
   private readonly onInconsistencyError: OnInconsistencyError | undefined;
 
-  public constructor(
-    cryptoAggregator: CryptoAggregator,
-    onInconsistencyError: OnInconsistencyError | undefined,
-  ) {
+  public constructor(cryptoAggregator: CryptoAggregator, onInconsistencyError: OnInconsistencyError | undefined) {
     this.cryptoAggregator = cryptoAggregator;
     this.onInconsistencyError = onInconsistencyError;
   }

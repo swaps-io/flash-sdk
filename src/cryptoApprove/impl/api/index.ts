@@ -32,13 +32,14 @@ import {
   isFiniteApproveAmountPreference,
 } from '../../../model';
 import { SmartApproveData } from '../../../model/cryptoApprove/private';
-import { GetSmartSignTypedDataParams } from '../../../smartWallet';
+import { SmartBatchTransactionParams } from '../../../smartWallet';
 import { SendTransactionParams, SignTypedDataParams } from '../../../wallet';
 import { CryptoApproveError } from '../../error';
 import { ICryptoApproveProvider, PrepareCryptoApproveParams } from '../../interface';
 import { PermitCache, PermitData } from '../../permit';
 import { PERMIT2_ADDRESS } from '../../permit2';
 
+import { encodeErc20Approve } from './erc20';
 import {
   AllowanceSource,
   ApiCryptoApproveProviderParams,
@@ -51,6 +52,7 @@ export type * from './param';
 interface AllowanceInfo {
   allowance: Amount;
   allowanceP2?: Amount;
+  allowanceUpdatable: boolean;
 }
 
 type ApproveVerdict =
@@ -113,6 +115,11 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   }
 
   public async prepareCryptoApprove(params: PrepareCryptoApproveParams): Promise<CryptoApproveRequest> {
+    if (params.amount.is('less-or-equal', Amount.zero())) {
+      const cryptoApproveRequest = new CryptoApproveRequest([]);
+      return cryptoApproveRequest;
+    }
+
     const cryptoData = extractData(params.crypto);
     const wallet = await resolveDynamic(this.wallet);
 
@@ -126,6 +133,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const allowanceInfo = await this.getAllowance(cryptoData, owner, params.spender);
     const approveVerdict = await this.checkAllowance(cryptoData, params.amount, allowanceInfo);
     const canReusePermit = await this.checkCanReusePermit(cryptoData, params.amount, owner, approveVerdict);
+    const revokeAllowance = this.checkShouldRevokeAllowance(allowanceInfo);
 
     let actions: CryptoApproveAction[] = [];
     if (!canReusePermit) {
@@ -136,6 +144,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
         owner,
         params.spender,
         approveVerdict,
+        revokeAllowance,
       );
     }
 
@@ -212,6 +221,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     return {
       allowance: mapAmount(allowanceInfo.allowance),
       allowanceP2: allowanceInfo.allowance_p2 ? mapAmount(allowanceInfo.allowance_p2) : undefined,
+      allowanceUpdatable: allowanceInfo.allowance_updatable ?? false,
     };
   }
 
@@ -238,6 +248,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     return {
       allowance: mapAmount(allowance),
       allowanceP2: undefined,
+      allowanceUpdatable: false, // Unknown, use safer option
     };
   }
 
@@ -352,6 +363,16 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     return canReuse;
   }
 
+  private checkShouldRevokeAllowance(allowanceInfo: AllowanceInfo): boolean {
+    const hasAllowance = allowanceInfo.allowance.is('greater', Amount.zero());
+    if (!hasAllowance) {
+      return false;
+    }
+
+    const shouldRevoke = !allowanceInfo.allowanceUpdatable;
+    return shouldRevoke;
+  }
+
   private async collectApproveActions(
     operation: string | undefined,
     crypto: CryptoData,
@@ -359,10 +380,12 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     owner: string,
     spender: string,
     approveVerdict: ApproveVerdict,
+    revoke: boolean,
   ): Promise<CryptoApproveAction[]> {
     switch (approveVerdict) {
       case 'no-action-needed':
         return [];
+
       case 'should-approve-permit2':
         // Infinite amount is provided for the Permit2 contract by-design (it has its own amount permit logic add-on)
         return [
@@ -384,6 +407,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
             owner,
           ),
         ];
+
       case 'should-provide-permit':
         return [
           await this.preparePermitAction(
@@ -395,6 +419,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
             owner,
           ),
         ];
+
       case 'should-provide-permit2':
         return [
           await this.preparePermitAction(
@@ -406,6 +431,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
             owner,
           ),
         ];
+
       case 'should-provide-smart-approve':
         return [
           await this.prepareSmartApproveAction(
@@ -414,10 +440,24 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
             crypto,
             owner,
             operation,
+            revoke,
           ),
         ];
+
       case 'should-provide-approve':
         return [
+          ...(revoke
+            ? [
+                await this.prepareApproveAction(
+                  operation,
+                  'main',
+                  spender,
+                  '0', // Revoke by approving 0 value
+                  crypto,
+                  owner,
+                ),
+              ]
+            : []),
           await this.prepareApproveAction(
             operation,
             'main',
@@ -428,6 +468,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
           ),
           this.prepareWaitAction(operation, 'main', crypto, amount, owner, spender),
         ];
+
       default: // Ensure all approve verdict cases covered
         return approveVerdict satisfies never;
     }
@@ -566,6 +607,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     crypto: CryptoData,
     owner: string,
     operation: string | undefined,
+    revoke: boolean,
   ): Promise<CryptoApproveAction> {
     const wallet = await resolveDynamic(this.wallet);
     if (!isSmartWallet(wallet)) {
@@ -579,15 +621,24 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
     const data = await this.makeSmartApproveData(spender, amount, crypto);
 
-    const params: GetSmartSignTypedDataParams = {
-      chainId,
-      data: data,
-      from: smartWalletAddress,
-      tag: 'approve-crypto',
-      operation,
-    };
+    let pre: SmartBatchTransactionParams | undefined;
+    if (revoke) {
+      const tokenRevokeData = await encodeErc20Approve(spender, '0'); // Revoke by approving 0 value
+      pre = {
+        to: tokenAddress,
+        data: tokenRevokeData,
+      };
+    }
 
-    const signTypedDataParams = await wallet.getSignTypedDataParams(params);
+    const signTypedDataParams = await wallet.getSignTransactionParams({
+      operation,
+      tag: 'approve-crypto',
+      chainId,
+      from: smartWalletAddress,
+      to: tokenAddress,
+      data,
+      pre,
+    });
     const smartApproveAction: CryptoApproveAction = {
       type: 'sign-smart-approve-typed-data',
       params: signTypedDataParams,
