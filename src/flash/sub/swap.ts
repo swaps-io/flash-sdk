@@ -13,7 +13,7 @@ import {
 } from '../../api/gen/main-v0';
 import { CryptoAggregator } from '../../cryptoAggregator';
 import { CryptoApprover } from '../../cryptoApprove';
-import { BITCOIN_CHAIN_ID, makeBitcoinAmount } from '../../helper/bitcoin';
+import { BITCOIN_CHAIN_ID, isBitcoinCrypto, makeBitcoinAmount } from '../../helper/bitcoin';
 import { isNativeCrypto, makeNativeAmount } from '../../helper/native';
 import { isNotNull, isNull } from '../../helper/null';
 import { IWalletLike, isSmartWallet } from '../../helper/wallet';
@@ -190,7 +190,7 @@ export class SwapSubClient {
     };
     await submitSwapMainV0(swap.hash, submitSwapParams);
 
-    const needsCall = isNativeCrypto(swap.fromCrypto);
+    const needsCall = isNativeCrypto(swap.fromCrypto) && !isBitcoinCrypto(swap.fromCrypto);
     const swapSubmit = new SwapSubmit(swap.hash, needsCall);
     return swapSubmit;
   }

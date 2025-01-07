@@ -1,4 +1,5 @@
 import { getSwapDataMainV0 } from '../../../api/gen/main-v0';
+import { isBitcoinCrypto } from '../../../helper/bitcoin';
 import { isNativeCrypto } from '../../../helper/native';
 import { isNotNull } from '../../../helper/null';
 import { IWalletLike, isSmartWallet } from '../../../helper/wallet';
@@ -21,7 +22,8 @@ export class SwapApproveSubClient {
     swap: Swap,
     checkOrderData: CheckOrderDataFunc | undefined,
   ): Promise<SwapApproveRequest> {
-    if (isNativeCrypto(swap.fromCrypto)) {
+    const needsCall = isNativeCrypto(swap.fromCrypto) && !isBitcoinCrypto(swap.fromCrypto);
+    if (needsCall) {
       const swapApproveRequest = new SwapApproveRequest(operation, swap.fromActor, '', swap.fromCrypto.chain.id);
       return swapApproveRequest;
     }
