@@ -7,7 +7,7 @@ import { isNotNull, isNull } from '../../../helper/null';
 import { IWallet, SendTransactionParams, SignTypedDataParams } from '../../../wallet';
 import { SmartWalletError } from '../../error';
 import {
-  GetNonceParams,
+  GetSmartWalletNonceParams,
   GetSmartAddressParams,
   GetSmartIsDeployedParams,
   GetSmartOwnersParams,
@@ -40,10 +40,10 @@ export class GnosisSafeWallet implements ISmartWallet {
   private readonly perChainRpcUrls: Map<string, string>;
   private readonly perChainSafeInit: Map<string, ExclusiveInit<SafeBundle>>;
   private readonly perChainOwnersInit: Map<string, ExclusiveInit<ReadonlySet<string>>>;
-  private readonly safeSDKIsInit: Map<string, boolean | undefined>;
+  private readonly safeSdkIsInit: Map<string, boolean | undefined>;
 
   public constructor(params: GnosisSafeWalletParams = {}) {
-    this.safeSDKIsInit = new Map();
+    this.safeSdkIsInit = new Map();
     this.ownerWallet = params.ownerWallet;
 
     this.perChainRpcUrls = new Map();
@@ -84,7 +84,7 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public async getAddress(params: GetSmartAddressParams): Promise<string> {
-    const safeInit = this.safeSDKIsInit.get(params.chainId);
+    const safeInit = this.safeSdkIsInit.get(params.chainId);
     if (isNull(safeInit) && isNotNull(this.ownerWallet)) {
       const address = await this.ownerWallet.getAddress();
       this.getSafe(params.chainId).catch(console.error);
@@ -183,7 +183,7 @@ export class GnosisSafeWallet implements ISmartWallet {
     return signParams;
   }
 
-  public async getNonce(params: GetNonceParams): Promise<number> {
+  public async getNonce(params: GetSmartWalletNonceParams): Promise<number> {
     const address = await this.getAddress(params);
     return await getNonce(address, this.getRpcUrl(params.chainId));
   }
@@ -230,7 +230,7 @@ export class GnosisSafeWallet implements ISmartWallet {
 
     const instance = await Safe.init({ provider, predictedSafe, isL1SafeSingleton: true });
     const safeAddress = await instance.getAddress();
-    this.safeSDKIsInit.set(chainId, true);
+    this.safeSdkIsInit.set(chainId, true);
     const safe: SafeBundle = {
       instance,
       chainId: BigInt(chainId),

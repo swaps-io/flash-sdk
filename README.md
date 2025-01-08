@@ -120,15 +120,15 @@ SDK dependencies are specified as "peer" ones, i.e. they are supposed to be inst
 uses this SDK. The safest option is to install all of them, however, some of them may be omitted if a set of specific
 use-cases is not needed for the project - see the table below for more details.
 
-| Dependency                  | Version | Required | When to Install                                                                |
-| --------------------------- | :-----: | :------: | ------------------------------------------------------------------------------ |
-| `axios`                     |  1.6+   |  _Yes_   | Always                                                                         |
-| `qs`                        |  6.11+  |  _Yes_   | Always                                                                         |
-| `viem`                      |  2.1+   | _No [1]_ | EVM functionality in use & configured as provider (default) or `wagmi` in use  |
-| `ethers`                    |  6.9+   | _No [1]_ | EVM functionality in use & configured as provider or `GnosisSafeWallet` in use |
-| `wagmi`                     |  2.2+   |   _No_   | `WagmiWallet` implementation in use                                            |
-| `@tanstack/react-query`     |  5.17+  |   _No_   | `WagmiWallet` implementation in use                                            |
-| `@safe-global/protocol-kit` |  4.0+   |   _No_   | `GnosisSafeWallet` implementation in use (note - also requires `ethers`)       |
+| Dependency                  | Version | Required | When to Install                                                                                     |
+| --------------------------- |:-------:|:--------:|-----------------------------------------------------------------------------------------------------|
+| `axios`                     |  1.6+   |  _Yes_   | Always                                                                                              |
+| `qs`                        |  6.11+  |  _Yes_   | Always                                                                                              |
+| `viem`                      |  2.1+   | _No [1]_ | EVM functionality in use & configured as provider (default) or `wagmi` or `GnosisSafeWallet` in use |
+| `ethers`                    |  6.9+   | _No [1]_ | EVM functionality in use & configured as provider or `GnosisSafeWallet` in use                      |
+| `wagmi`                     |  2.2+   |   _No_   | `WagmiWallet` implementation in use                                                                 |
+| `@tanstack/react-query`     |  5.17+  |   _No_   | `WagmiWallet` implementation in use                                                                 |
+| `@safe-global/protocol-kit` |  5.0+   |  _Yes_   | `GnosisSafeWallet` implementation in use (note - also requires `viem`)                            |
 
 _Important notes:_
 
