@@ -11,7 +11,6 @@ import {
   getPermitTransactionMainV0,
 } from '../../../api/gen/main-v0';
 import { IChainProvider } from '../../../chainProvider';
-import { ZERO_ADDRESS } from '../../../helper/address';
 import { Dynamic, resolveDynamic } from '../../../helper/dynamic';
 import { isNotNull, isNull } from '../../../helper/null';
 import { IWalletLike, isSmartWallet } from '../../../helper/wallet';
@@ -576,29 +575,14 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     return permitAction;
   }
 
-  private async makeSmartApproveData(spender: string, amount: string | undefined, crypto: CryptoData): Promise<string> {
+  private async makeSmartApproveData(spender: string, amount: string | undefined): Promise<string> {
     const wallet = await resolveDynamic(this.wallet);
     if (!isSmartWallet(wallet)) {
       throw new CryptoApproveError('Smart wallet must be configured for smart approve action');
     }
-    const nonce = await wallet.getNonce({ chainId: crypto.chainId });
     const { encodeErc20Approve } = await import('./erc20');
     const tokenApproveData = await encodeErc20Approve(spender, amount);
-
-    const data = {
-      to: crypto.address,
-      value: 0,
-      data: tokenApproveData,
-      operation: 0,
-      safeTxGas: 0,
-      baseGas: 0,
-      dataGas: 0,
-      gasPrice: 0,
-      gasToken: ZERO_ADDRESS,
-      refundReceiver: ZERO_ADDRESS,
-      nonce,
-    };
-    return JSON.stringify(data);
+    return tokenApproveData;
   }
 
   private async prepareSmartApproveAction(
@@ -619,7 +603,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const tokenAddress = crypto.address;
     const smartWalletAddress = await wallet.getAddress({ chainId });
 
-    const data = await this.makeSmartApproveData(spender, amount, crypto);
+    const data = await this.makeSmartApproveData(spender, amount);
 
     let pre: SmartBatchTransactionParams | undefined;
     if (revoke) {
