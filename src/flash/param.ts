@@ -58,6 +58,13 @@ export type CheckOrderDataFunc = (orderData: string) => Promise<void>;
  */
 export interface FlashClientParams {
   /**
+   * Project identifier for Flash APIs
+   *
+   * Must consist of "a"-"z", "A"-"Z", "0"-"9", "-", and "_" (at least 1 character)
+   */
+  projectId: string;
+
+  /**
    * Wallet provider to use for signing quotes & sending transactions
    *
    * @default Swap functionality unavailable:
