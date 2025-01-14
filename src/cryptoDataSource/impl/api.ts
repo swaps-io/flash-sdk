@@ -1,3 +1,4 @@
+import { setRequestProjectId } from '../../api/client/axios/core/id';
 import { AxiosInstanceSource } from '../../api/client/axios/core/source';
 import { setAxiosInstanceCryptoV0 } from '../../api/client/axios/crypto-v0';
 import {
@@ -16,12 +17,38 @@ import { ChainData, CollateralContractData, ContractData, Crypto, CryptoData, Ex
 import { ICryptoDataSource } from '../interface';
 
 /**
+ * Params for {@link ApiCryptoDataSource} constructor
+ *
+ * @category Crypto Source
+ */
+export interface ApiCryptoDataSourceParams {
+  /**
+   * Project identifier for Flash APIs
+   *
+   * Must consist of "a"-"z", "A"-"Z", "0"-"9", "-", and "_" (at least 1 character)
+   */
+  projectId: string;
+
+  /**
+   * Client for Flash Crypto API access
+   *
+   * See {@link AxiosInstanceSource} for supported options
+   *
+   * @default 'https://crypto.prod.swaps.io'
+   */
+  cryptoClient?: AxiosInstanceSource;
+}
+
+/**
  * Api crypto source that fetches crypto data from API
  *
  * @category Crypto Source
  */
 export class ApiCryptoDataSource implements ICryptoDataSource {
-  public constructor(cryptoClient: AxiosInstanceSource = 'https://crypto.prod.swaps.io') {
+  public constructor(params: ApiCryptoDataSourceParams) {
+    const { projectId, cryptoClient = 'https://crypto.prod.swaps.io' } = params;
+
+    setRequestProjectId(projectId);
     setAxiosInstanceCryptoV0(cryptoClient);
   }
 
