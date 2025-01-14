@@ -1,10 +1,17 @@
 import type { Chain, Hex, PrivateKeyAccount, WalletClient } from 'viem';
 
-import { Duration } from '../../..';
 import { ExclusiveInit, ExclusivePool } from '../../../helper/exclusive';
 import { isNotNull, isNull } from '../../../helper/null';
+import { generateRandomId } from '../../../helper/random';
+import { Duration } from '../../../model/time/duration';
 import { WalletError } from '../../error';
-import { IWallet, SendTransactionParams, SignMessageParams, SignTypedDataParams } from '../../interface';
+import {
+  IWallet,
+  SendTransactionParams,
+  SignMessageParams,
+  SignTypedDataParams,
+  WithWalletOperation,
+} from '../../interface';
 
 import {
   ANY_CHAIN,
@@ -38,6 +45,7 @@ export class ViemWallet implements IWallet {
   private readonly waitTxTimeout: Duration;
   private readonly sendPool: ExclusivePool;
   private readonly enableAddressChecksum: boolean;
+  private readonly executingOperations: Set<string>;
 
   public constructor(params: ViemWalletParams) {
     this.data = new ExclusiveInit(() => this.initData(params));
@@ -46,6 +54,7 @@ export class ViemWallet implements IWallet {
     this.waitTxTimeout = waitTxTimeout;
     this.sendPool = new ExclusivePool();
     this.enableAddressChecksum = params.enableAddressChecksum ?? false;
+    this.executingOperations = new Set();
   }
 
   /**
@@ -71,29 +80,39 @@ export class ViemWallet implements IWallet {
   }
 
   public async signTypedData(params: SignTypedDataParams): Promise<string> {
-    const chainId = normalizeChainId(params.chainId);
-    const from = normalizeAddress(params.from);
-    const typedData = normalizeTypedData(params.data);
+    return await this.withOperation(this.getOperation(params), async () => {
+      const chainId = normalizeChainId(params.chainId);
+      const from = normalizeAddress(params.from);
+      const typedData = normalizeTypedData(params.data);
 
-    await this.getCheckedChain(chainId); // Ensure chain was configured
-    const account = await this.getCheckedAccount(from);
+      await this.getCheckedChain(chainId); // Ensure chain was configured
+      const account = await this.getCheckedAccount(from);
 
-    const signature = await account.signTypedData(typedData);
-    return signature;
+      const signature = await account.signTypedData(typedData);
+      return signature;
+    });
   }
 
   public async sendTransaction(params: SendTransactionParams): Promise<string> {
-    const txid = await this.sendPool.execute(() => this.sendTransactionNoSync(params));
-    return txid;
+    return await this.withOperation(this.getOperation(params), async () => {
+      const txid = await this.sendPool.execute(() => this.sendTransactionNoSync(params));
+      return txid;
+    });
   }
 
   public async signMessage(params: SignMessageParams): Promise<string> {
-    const from = normalizeAddress(params.from);
+    return await this.withOperation(this.getOperation(params), async () => {
+      const from = normalizeAddress(params.from);
 
-    const account = await this.getCheckedAccount(from);
+      const account = await this.getCheckedAccount(from);
 
-    const signature = await account.signMessage({ message: params.message });
-    return signature;
+      const signature = await account.signMessage({ message: params.message });
+      return signature;
+    });
+  }
+
+  public async getExecutingOperations(): Promise<ReadonlySet<string>> {
+    return Promise.resolve(this.executingOperations);
   }
 
   /**
@@ -108,51 +127,66 @@ export class ViemWallet implements IWallet {
    * @returns TXID of sent transaction
    */
   public async sendTransactionNoSync(params: SendTransactionParams): Promise<string> {
-    const chainId = normalizeChainId(params.chainId);
-    const from = normalizeAddress(params.from);
-    const to = normalizeAddress(params.to);
-    const value = normalizeValue(params.value);
-    const data = normalizeData(params.data);
+    return await this.withOperation(this.getOperation(params, '-no-sync'), async () => {
+      const chainId = normalizeChainId(params.chainId);
+      const from = normalizeAddress(params.from);
+      const to = normalizeAddress(params.to);
+      const value = normalizeValue(params.value);
+      const data = normalizeData(params.data);
 
-    const chain = await this.getCheckedChain(chainId);
-    const account = await this.getCheckedAccount(from);
+      const chain = await this.getCheckedChain(chainId);
+      const account = await this.getCheckedAccount(from);
 
-    const client = await this.getCheckedClient(chainId);
+      const client = await this.getCheckedClient(chainId);
 
-    const { waitForTransactionReceipt, estimateGas } = await import('viem/actions');
+      const { waitForTransactionReceipt, estimateGas } = await import('viem/actions');
 
-    const estimatedGas = await estimateGas(client, { account, to, value, data });
-    const gas = estimatedGas + this.gasLimitOverhead;
-    const txid = await client.sendTransaction({
-      account,
-      chain,
-      to,
-      value,
-      data,
-      gas,
-    });
+      const estimatedGas = await estimateGas(client, { account, to, value, data });
+      const gas = estimatedGas + this.gasLimitOverhead;
+      const txid = await client.sendTransaction({
+        account,
+        chain,
+        to,
+        value,
+        data,
+        gas,
+      });
 
-    const errors: unknown[] = [];
+      const errors: unknown[] = [];
 
-    const timeout = async (): Promise<void> => {
-      await this.waitTxTimeout.sleep();
-      const errorMessage = this.combineErrorMessage(errors);
-      throw new WalletError(errorMessage);
-    };
+      const timeout = async (): Promise<void> => {
+        await this.waitTxTimeout.sleep();
+        const errorMessage = this.combineErrorMessage(errors);
+        throw new WalletError(errorMessage);
+      };
 
-    const wait = async (): Promise<void> => {
-      for (;;) {
-        try {
-          await waitForTransactionReceipt(client, { hash: txid });
-          return;
-        } catch (e) {
-          errors.push(e);
+      const wait = async (): Promise<void> => {
+        for (;;) {
+          try {
+            await waitForTransactionReceipt(client, { hash: txid });
+            return;
+          } catch (e) {
+            errors.push(e);
+          }
         }
-      }
-    };
-    await Promise.race([timeout(), wait()]);
+      };
+      await Promise.race([timeout(), wait()]);
 
-    return txid;
+      return txid;
+    });
+  }
+
+  private getOperation(wo: WithWalletOperation, suffix = ''): string {
+    return (wo.operation ?? generateRandomId()) + suffix;
+  }
+
+  private async withOperation<T>(operation: string, call: () => Promise<T>): Promise<T> {
+    this.executingOperations.add(operation);
+    try {
+      return await call();
+    } finally {
+      this.executingOperations.delete(operation);
+    }
   }
 
   private getErrorMessage(error: unknown): string {

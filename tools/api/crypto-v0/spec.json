@@ -179,6 +179,13 @@
                         "type": "array",
                         "title": "Collateral Token Addresses"
                     },
+                    "collateral_bitcoin_token_addresses": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Collateral Bitcoin Token Addresses"
+                    },
                     "collateral_decimals": {
                         "anyOf": [
                             {
@@ -201,6 +208,32 @@
                         ],
                         "title": "Collateral Address"
                     },
+                    "collateral_bitcoin_address": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Collateral Bitcoin Address"
+                    },
+                    "collateral_bitcoin_decimals": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Collateral Bitcoin Decimals"
+                    },
+                    "collateral_bitcoin_support": {
+                        "type": "boolean",
+                        "title": "Collateral Bitcoin Support"
+                    },
                     "native_wrap_address": {
                         "type": "string",
                         "title": "Native Wrap Address"
@@ -212,8 +245,12 @@
                     "address",
                     "collateral_support",
                     "collateral_token_addresses",
+                    "collateral_bitcoin_token_addresses",
                     "collateral_decimals",
                     "collateral_address",
+                    "collateral_bitcoin_address",
+                    "collateral_bitcoin_decimals",
+                    "collateral_bitcoin_support",
                     "native_wrap_address"
                 ],
                 "title": "ContractInfo"

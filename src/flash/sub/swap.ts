@@ -13,8 +13,8 @@ import {
 } from '../../api/gen/main-v0';
 import { CryptoAggregator } from '../../cryptoAggregator';
 import { CryptoApprover } from '../../cryptoApprove';
-import { BITCOIN_CHAIN_ID, makeBitcoinAmount } from '../../helper/bitcoin';
-import { makeNativeAmount } from '../../helper/native';
+import { BITCOIN_CHAIN_ID, isBitcoinCrypto, makeBitcoinAmount } from '../../helper/bitcoin';
+import { isNativeCrypto, makeNativeAmount } from '../../helper/native';
 import { isNotNull, isNull } from '../../helper/null';
 import { IWalletLike, isSmartWallet } from '../../helper/wallet';
 import {
@@ -34,10 +34,12 @@ import {
   Swap,
   SwapApprove,
   SwapData,
+  SwapState,
+  SwapSubmit,
   Transaction,
   TransactionData,
+  toSwapState,
 } from '../../model';
-import { SwapState, toSwapState } from '../../model/swap/state';
 import { FlashError } from '../error';
 import { FlashOptionalValue } from '../optional';
 import { OnInconsistencyError } from '../param';
@@ -109,7 +111,6 @@ export class SwapSubClient {
       to_token_address: quote.toCrypto.address,
       to_amount: toAmountValue,
       permit_transaction: cryptoApprove.permitTransaction,
-      deploy_smart_to_chains: quote.deploySmartToChains.map((chain) => chain.id),
     };
     const { data: responseSwap } = await createSwapMainV0(createSwapParams);
 
@@ -181,11 +182,15 @@ export class SwapSubClient {
     return swap;
   }
 
-  public async submitSwap(swap: Swap, swapApprove: SwapApprove): Promise<void> {
+  public async submitSwap(swap: Swap, swapApprove: SwapApprove): Promise<SwapSubmit> {
     const submitSwapParams: SubmitSwapMainV0 = {
       signature: swapApprove.swapSignature,
     };
     await submitSwapMainV0(swap.hash, submitSwapParams);
+
+    const needsCall = isNativeCrypto(swap.fromCrypto) && !isBitcoinCrypto(swap.fromCrypto);
+    const swapSubmit = new SwapSubmit(swap.hash, needsCall);
+    return swapSubmit;
   }
 
   public async getSwap(swapRef: Swap | string): Promise<Swap> {
@@ -254,6 +259,7 @@ export class SwapSubClient {
     const txLiqSend = isNull(s.tx_liq_send) ? undefined : this.mapLiqSendTransaction(s.tx_liq_send);
     const txReportNoSend = s.tx_report_no_send.map((tx) => this.mapReportNoSendTransaction(tx));
     const txSlash = isNull(s.tx_slash) ? undefined : this.mapSlashTransaction(s.tx_slash, txReportNoSend);
+    const txRefund = isNull(s.tx_refund) ? undefined : this.mapTransaction(s.tx_refund);
 
     const data: SwapData = {
       hash: s.hash,
@@ -289,7 +295,7 @@ export class SwapSubClient {
       txLiqSend: txLiqSend?.data,
       txReportNoSend: txReportNoSend.map((tx) => tx.data),
       txSlash: txSlash?.data,
-      deploySmartToChains: s.deploy_smart_to_chains ?? [],
+      txRefund: txRefund?.data,
     };
     const swap = new Swap(
       data,

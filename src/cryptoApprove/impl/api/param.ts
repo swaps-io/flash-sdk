@@ -32,6 +32,13 @@ export type OnApproveTxidReceived = (txid: string) => void;
  */
 export interface ApiCryptoApproveProviderParams {
   /**
+   * Project identifier for Flash APIs
+   *
+   * Must consist of "a"-"z", "A"-"Z", "0"-"9", "-", and "_" (at least 1 character)
+   */
+  projectId: string;
+
+  /**
    * Wallet provider to use for signing permits & sending approve transactions
    */
   wallet: Dynamic<IWalletLike>;
@@ -96,6 +103,13 @@ export interface ApiCryptoApproveProviderParams {
    * @default 'wait-after-wallet-tx'
    */
   approveFinalizationMode?: ApproveFinalizationMode;
+
+  /**
+   * Should wallet operation execution status check be disabled or not during approve finalization.
+   *
+   * @default false
+   */
+  disableApproveFinalizationOperationCheck?: boolean;
 
   /**
    * Callback for handling approve transaction TXID when it's received from wallet

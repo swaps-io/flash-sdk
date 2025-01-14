@@ -1,4 +1,6 @@
 import { getSwapDataMainV0 } from '../../../api/gen/main-v0';
+import { isBitcoinCrypto } from '../../../helper/bitcoin';
+import { isNativeCrypto } from '../../../helper/native';
 import { isNotNull } from '../../../helper/null';
 import { IWalletLike, isSmartWallet } from '../../../helper/wallet';
 import { Swap, SwapApprove } from '../../../model';
@@ -20,6 +22,12 @@ export class SwapApproveSubClient {
     swap: Swap,
     checkOrderData: CheckOrderDataFunc | undefined,
   ): Promise<SwapApproveRequest> {
+    const needsCall = isNativeCrypto(swap.fromCrypto) && !isBitcoinCrypto(swap.fromCrypto);
+    if (needsCall) {
+      const swapApproveRequest = new SwapApproveRequest(operation, swap.fromActor, '', swap.fromCrypto.chain.id);
+      return swapApproveRequest;
+    }
+
     const response = await getSwapDataMainV0(swap.hash);
     const orderData = response.data.data;
 
@@ -32,6 +40,11 @@ export class SwapApproveSubClient {
   }
 
   public async approveSwap(swapApproveRequest: SwapApproveRequest): Promise<SwapApprove> {
+    if (!swapApproveRequest.swapSignParams.data) {
+      const swapApprove = new SwapApprove('');
+      return swapApprove;
+    }
+
     const wallet = await this.wallet.getValue('Wallet must be configured for swap approve');
 
     let signerWallet: IWallet;

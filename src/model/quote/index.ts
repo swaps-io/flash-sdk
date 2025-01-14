@@ -207,11 +207,4 @@ export class Quote implements Data<QuoteData>, WithData<QuoteData, Quote> {
   public get amountSource(): AmountSource {
     return this.data.amountSource;
   }
-
-  /**
-   * Chains where to deploy smart wallet
-   */
-  public get deploySmartToChains(): Chain[] {
-    return this.data.deploySmartToChains.map(this.getChain);
-  }
 }

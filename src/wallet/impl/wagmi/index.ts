@@ -93,15 +93,8 @@ export class WagmiWallet implements IWallet {
     return this.activeOperation;
   }
 
-  /**
-   * Returns set of IDs of operations that are in active execution, i.e. there
-   * is a Wagmi executors for each of these operations that neither finished
-   * (successfully or with failure) nor terminated.
-   *
-   * @returns Readonly set of operation IDs in active execution
-   */
-  public getExecutingOperations(): ReadonlySet<string> {
-    return this.executingOperations;
+  public getExecutingOperations(): Promise<ReadonlySet<string>> {
+    return Promise.resolve(this.executingOperations);
   }
 
   /**
