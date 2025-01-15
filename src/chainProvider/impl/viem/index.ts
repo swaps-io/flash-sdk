@@ -7,7 +7,8 @@ import {
   ChainBlock,
   ChainLog,
   ChainTransaction,
-  GetBlockParams, GetByteCodeParams,
+  GetBlockParams,
+  GetByteCodeParams,
   GetLogsParams,
   GetTransactionParams,
   IChainProvider,
@@ -149,6 +150,4 @@ export class ViemChainProvider implements IChainProvider {
     const code = await client.getCode({ address: params.address as Hex });
     return code ?? '';
   }
-
-
 }

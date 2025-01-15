@@ -1,5 +1,6 @@
 import type { PredictedSafeProps } from '@safe-global/protocol-kit';
 
+import { buildChainProvider } from '../../../chainProvider';
 import { ZERO_ADDRESS } from '../../../helper/address';
 import { isArray } from '../../../helper/array';
 import { ExclusiveInit } from '../../../helper/exclusive';
@@ -7,9 +8,9 @@ import { isNotNull, isNull } from '../../../helper/null';
 import { IWallet, SendTransactionParams, SignTypedDataParams } from '../../../wallet';
 import { SmartWalletError } from '../../error';
 import {
-  GetSmartNonceParams,
   GetSmartAddressParams,
   GetSmartIsDeployedParams,
+  GetSmartNonceParams,
   GetSmartOwnersParams,
   GetSmartSendTransactionParams,
   GetSmartSignTransactionParams,
@@ -27,7 +28,6 @@ import {
   SAFE_WALLET_DEFAULT_FALLBACK_HANDLER_ADDRESS,
   predictSafeAddress,
 } from './predictSafeAddress';
-import {buildChainProvider} from "../../../chainProvider";
 
 export * from './param';
 
@@ -42,7 +42,7 @@ export class GnosisSafeWallet implements ISmartWallet {
   private readonly perChainSafeInit: Map<string, ExclusiveInit<SafeBundle>>;
   private readonly perChainOwnersInit: Map<string, ExclusiveInit<ReadonlySet<string>>>;
   private readonly safeSdkIsInit: Map<string, boolean | undefined>;
-  private readonly provider = buildChainProvider()
+  private readonly provider = buildChainProvider();
 
   public constructor(params: GnosisSafeWalletParams = {}) {
     this.safeSdkIsInit = new Map();
@@ -98,14 +98,14 @@ export class GnosisSafeWallet implements ISmartWallet {
 
   public async getSignTransactionParams(params: GetSmartSignTransactionParams): Promise<SignTypedDataParams> {
     const safe = await this.getSafe(params.chainId);
-    let nonce = await this.getNonce(params)
+    let nonce = await this.getNonce(params);
 
     const toSafeTx = (txp: SmartBatchTransactionParams): SafeTransactionParams => {
       return {
         to: txp.to,
         data: txp.data ?? '0x',
         value: txp.value ?? '0',
-        nonce: nonce++
+        nonce: nonce++,
       } as unknown as SafeTransactionParams;
     };
 
