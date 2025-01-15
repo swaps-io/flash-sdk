@@ -128,7 +128,7 @@ use-cases is not needed for the project - see the table below for more details.
 | `ethers`                    |  6.9+   | _No [1]_ | EVM functionality in use & configured as provider or `GnosisSafeWallet` in use                      |
 | `wagmi`                     |  2.2+   |   _No_   | `WagmiWallet` implementation in use                                                                 |
 | `@tanstack/react-query`     |  5.17+  |   _No_   | `WagmiWallet` implementation in use                                                                 |
-| `@safe-global/protocol-kit` |  5.0+   |  _Yes_   | `GnosisSafeWallet` implementation in use (note - also requires `viem`)                            |
+| `@safe-global/protocol-kit` |  5.0+   |   _No_   | `GnosisSafeWallet` implementation in use (note - also requires `viem`)                              |
 
 _Important notes:_
 
