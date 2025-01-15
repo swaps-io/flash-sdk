@@ -17,7 +17,7 @@ export interface GetSmartAddressParams {
  *
  * @category Smart Wallet
  */
-export interface GetSmartWalletNonceParams {
+export interface GetSmartNonceParams {
   /**
    * Chain ID to get smart wallet nonce on
    */
@@ -190,5 +190,5 @@ export interface ISmartWallet {
    *
    * @returns Contract nonce of swart wallet
    */
-  getNonce(params: GetSmartWalletNonceParams): Promise<number>;
+  getNonce(params: GetSmartNonceParams): Promise<number>;
 }
