@@ -1,3 +1,4 @@
+import { setRequestProjectId } from '../../../api/client/axios/core/id';
 import { setAxiosInstanceMainV0 } from '../../../api/client/axios/main-v0';
 import {
   GetAllowanceMainV0Params,
@@ -84,6 +85,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
   public constructor(params: ApiCryptoApproveProviderParams) {
     const {
+      projectId,
       wallet,
       mainClient = 'https://api.prod.swaps.io',
       providerPreference = 'permit-permit2-approve',
@@ -97,6 +99,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       onApproveTxidReceived,
     } = params;
 
+    setRequestProjectId(projectId);
     setAxiosInstanceMainV0(mainClient);
 
     this.wallet = wallet;

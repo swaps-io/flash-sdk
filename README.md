@@ -30,8 +30,9 @@ Set of tools for interaction with Flash protocol
 import { FlashClient, ViemWallet, Crypto, Amount } from '@swaps-io/flash-sdk';
 
 // Initialize FlashClient
+const projectId = 'sdk-example'; // Replace with a meaningful project ID
 const wallet = await ViemWallet.fromPrivateKey('0x13...37');
-const flash = new FlashClient({ wallet });
+const flash = new FlashClient({ projectId, wallet });
 await flash.preload(); // Optional
 
 // Select "from" & "to" cryptos by their chain ID & contract address
@@ -50,8 +51,9 @@ const swap = await flash.submitSwap({ quote });
 import { FlashClient, ViemWallet, Amount } from '@swaps-io/flash-sdk';
 
 // Initialize FlashClient
+const projectId = 'sdk-example'; // Replace with a meaningful project ID
 const wallet = await ViemWallet.fromPrivateKey('0x13...37');
-const flash = new FlashClient({ wallet });
+const flash = new FlashClient({ projectId, wallet });
 await flash.preload(); // Optional
 
 // Select "from" & "to" chains from supported list

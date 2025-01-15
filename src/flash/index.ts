@@ -1,4 +1,5 @@
 import { setAxiosInstanceCollateralV0 } from '../api/client/axios/collateral-v0';
+import { setRequestProjectId } from '../api/client/axios/core/id';
 import { setAxiosInstanceMainV0 } from '../api/client/axios/main-v0';
 import { CryptoAggregator } from '../cryptoAggregator';
 import { ApiCryptoApproveProvider, CryptoApprover, NoWalletCryptoApproveProvider } from '../cryptoApprove';
@@ -69,22 +70,24 @@ export class FlashClient {
   private readonly nativeWrap: NativeWrapSubClient;
   private readonly agreement: AgreementSubClient;
 
-  public constructor(params: FlashClientParams = {}) {
+  public constructor(params: FlashClientParams) {
     const {
+      projectId,
       wallet,
       cryptoApprove = isNotNull(wallet)
-        ? new ApiCryptoApproveProvider({ wallet })
+        ? new ApiCryptoApproveProvider({ projectId, wallet })
         : new NoWalletCryptoApproveProvider(),
       swapToAmountTolerance = Amount.zero(),
       swapFromAmountTolerance = Amount.zero(),
       mainClient = 'https://api.prod.swaps.io',
       collateralClient = 'https://collateral.prod.swaps.io',
       cryptoCacheTtl = Duration.fromHours(1),
-      cryptoDataSource = new ApiCryptoDataSource(),
+      cryptoDataSource = new ApiCryptoDataSource({ projectId }),
       resolverCacheTtl = Duration.fromHours(1),
       onInconsistencyError,
     } = params;
 
+    setRequestProjectId(projectId);
     setAxiosInstanceMainV0(mainClient);
     setAxiosInstanceCollateralV0(collateralClient);
 
