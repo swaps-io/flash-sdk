@@ -27,6 +27,7 @@ import {
   SAFE_WALLET_DEFAULT_FALLBACK_HANDLER_ADDRESS,
   predictSafeAddress,
 } from './predictSafeAddress';
+import {buildChainProvider} from "../../../chainProvider";
 
 export * from './param';
 
@@ -41,6 +42,7 @@ export class GnosisSafeWallet implements ISmartWallet {
   private readonly perChainSafeInit: Map<string, ExclusiveInit<SafeBundle>>;
   private readonly perChainOwnersInit: Map<string, ExclusiveInit<ReadonlySet<string>>>;
   private readonly safeSdkIsInit: Map<string, boolean | undefined>;
+  private readonly provider = buildChainProvider()
 
   public constructor(params: GnosisSafeWalletParams = {}) {
     this.safeSdkIsInit = new Map();
@@ -61,7 +63,7 @@ export class GnosisSafeWallet implements ISmartWallet {
 
   public async isDeployed(params: GetSmartIsDeployedParams): Promise<boolean> {
     const address = await this.getAddress(params);
-    return await isDeployedSafe(address, this.getRpcUrl(params.chainId));
+    return await isDeployedSafe(address, params.chainId, this.provider);
   }
 
   public async getOwners(params: GetSmartOwnersParams): Promise<ReadonlySet<string>> {
@@ -185,7 +187,7 @@ export class GnosisSafeWallet implements ISmartWallet {
 
   public async getNonce(params: GetSmartWalletNonceParams): Promise<number> {
     const address = await this.getAddress(params);
-    return await getNonce(address, this.getRpcUrl(params.chainId));
+    return await getNonce(address, params.chainId, this.provider);
   }
 
   private async getSafe(chainId: string): Promise<SafeBundle> {

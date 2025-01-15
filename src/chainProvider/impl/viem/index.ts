@@ -7,7 +7,7 @@ import {
   ChainBlock,
   ChainLog,
   ChainTransaction,
-  GetBlockParams,
+  GetBlockParams, GetByteCodeParams,
   GetLogsParams,
   GetTransactionParams,
   IChainProvider,
@@ -141,4 +141,14 @@ export class ViemChainProvider implements IChainProvider {
 
     return callResultData;
   }
+
+  public async getByteCode(params: GetByteCodeParams): Promise<string> {
+    const chainId = this.vendor.toViemChainId(params.chainId);
+    const chain = await this.vendor.getCheckedChain(chainId);
+    const client = await this.vendor.getChainClient(chain);
+    const code = await client.getCode({ address: params.address as Hex });
+    return code ?? '';
+  }
+
+
 }

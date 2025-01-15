@@ -1,19 +1,13 @@
-import { isNull } from '../../../helper/null';
+import { IChainProvider } from '../../../chainProvider';
+import { evm } from '../../../lib/evm';
 
-export async function getNonce(address: string, rpc: string | undefined): Promise<number> {
-  if (isNull(rpc)) {
-    throw new Error('getNonce error, rpc url not has');
-  }
-  const { createPublicClient, http, getAddress } = await import('viem');
+export async function getNonce(address: string, chainId: string, provider: IChainProvider): Promise<number> {
   const abi = await import('./abi');
-  const client = createPublicClient({
-    transport: http(rpc),
-  });
   try {
-    const nonce = await client.readContract({
-      abi: abi.SAFE_IMPL_ABI,
-      functionName: 'nonce',
-      address: getAddress(address),
+    const nonce = await provider.call({
+      chainId,
+      to: address,
+      data: await evm.functionDataEncode(abi.SAFE_IMPL_ABI, 'nonce'),
     });
     return Number(nonce);
   } catch {

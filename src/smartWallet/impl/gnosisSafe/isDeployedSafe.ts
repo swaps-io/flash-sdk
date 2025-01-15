@@ -1,13 +1,7 @@
-import { isNotNull, isNull } from '../../../helper/null';
+import { IChainProvider } from '../../../chainProvider';
+import { isNotNull } from '../../../helper/null';
 
-export async function isDeployedSafe(address: string, rpc: string | undefined): Promise<boolean> {
-  if (isNull(rpc)) {
-    throw new Error('isDeployedSafe error, rpc url not has');
-  }
-  const { createPublicClient, http, getAddress } = await import('viem');
-  const client = createPublicClient({
-    transport: http(rpc),
-  });
-  const code = await client.getCode({ address: getAddress(address) });
+export async function isDeployedSafe(address: string, chainId: string, provider: IChainProvider): Promise<boolean> {
+  const code = await provider.getByteCode({ address, chainId });
   return isNotNull(code) && code.length > 2;
 }
