@@ -39,7 +39,6 @@ import { ICryptoApproveProvider, PrepareCryptoApproveParams } from '../../interf
 import { PermitCache, PermitData } from '../../permit';
 import { PERMIT2_ADDRESS } from '../../permit2';
 
-import { encodeErc20Approve } from './erc20';
 import {
   AllowanceSource,
   ApiCryptoApproveProviderParams,
@@ -437,11 +436,11 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       case 'should-provide-smart-approve':
         return [
           await this.prepareSmartApproveAction(
+            operation,
             spender,
             await this.getApproveValue(crypto, amount),
             crypto,
             owner,
-            operation,
             revoke,
           ),
         ];
@@ -578,22 +577,12 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     return permitAction;
   }
 
-  private async makeSmartApproveData(spender: string, amount: string | undefined): Promise<string> {
-    const wallet = await resolveDynamic(this.wallet);
-    if (!isSmartWallet(wallet)) {
-      throw new CryptoApproveError('Smart wallet must be configured for smart approve action');
-    }
-    const { encodeErc20Approve } = await import('./erc20');
-    const tokenApproveData = await encodeErc20Approve(spender, amount);
-    return tokenApproveData;
-  }
-
   private async prepareSmartApproveAction(
+    operation: string | undefined,
     spender: string,
     amount: string | undefined,
     crypto: CryptoData,
     owner: string,
-    operation: string | undefined,
     revoke: boolean,
   ): Promise<CryptoApproveAction> {
     const wallet = await resolveDynamic(this.wallet);
@@ -606,7 +595,8 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const tokenAddress = crypto.address;
     const smartWalletAddress = await wallet.getAddress({ chainId });
 
-    const data = await this.makeSmartApproveData(spender, amount);
+    const { encodeErc20Approve } = await import('./erc20');
+    const tokenApproveData = await encodeErc20Approve(spender, amount);
 
     let pre: SmartBatchTransactionParams | undefined;
     if (revoke) {
@@ -623,7 +613,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       chainId,
       from: smartWalletAddress,
       to: tokenAddress,
-      data,
+      data: tokenApproveData,
       pre,
     });
     const smartApproveAction: CryptoApproveAction = {

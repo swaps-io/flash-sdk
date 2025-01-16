@@ -1,3 +1,4 @@
+import { IChainProvider } from '../../../chainProvider';
 import { IWallet } from '../../../wallet';
 
 /**
@@ -25,6 +26,11 @@ export interface GnosisSafeChainConfig {
  * @category Smart Wallet Impl
  */
 export interface GnosisSafeWalletParams {
+  /**
+   * Chain provider to use for smart wallet functionality
+   */
+  chainProvider: IChainProvider;
+
   /**
    * Owner wallet that is allowed to act on behalf of the smart wallet
    *

@@ -186,7 +186,7 @@ export interface ISmartWallet {
   /**
    * Gets nonce of the smart wallet contract
    *
-   * @param params Get nonce {@link GetNonceParams | params}
+   * @param params Get nonce {@link GetSmartNonceParams | params}
    *
    * @returns Contract nonce of swart wallet
    */

@@ -21,15 +21,19 @@ export async function predictSafeAddress(eoaAddress: string, saltNonce = 0): Pro
   if (addressCache.has(eoaAddress)) {
     return addressCache.get(eoaAddress)!;
   }
+
   const { concat, encodeAbiParameters, getContractAddress, isHex, keccak256, parseAbiParameters } = await import(
     'viem'
   );
+
   const asHex = (hex?: string): Hex => {
     return isHex(hex) ? hex : `0x${hex}`;
   };
+
   const encodeParameters = (types: string, values: unknown[]): string => {
     return encodeAbiParameters(parseAbiParameters(types), values);
   };
+
   const initializer = await encodeInitializer(eoaAddress);
   const initializerHash = keccak256(initializer as Hex);
   const encodedNonce = asHex(encodeParameters('uint256', [saltNonce]));
@@ -49,11 +53,8 @@ export async function predictSafeAddress(eoaAddress: string, saltNonce = 0): Pro
 
 async function encodeInitializer(userAddress: string): Promise<string> {
   const abi = await import('./abi');
-  return await evm.functionDataEncode(abi.SAFE_ABI, 'setup', makeParams(userAddress));
-}
 
-export function makeParams(userAddress: string): unknown[] {
-  return [
+  const setupParams = [
     /* _owners */ [userAddress],
     /* _threshold */ 1,
     /* to */ ZERO_ADDRESS,
@@ -63,4 +64,6 @@ export function makeParams(userAddress: string): unknown[] {
     /* payment */ 0,
     /* paymentReceiver */ KX_SAFE_WALLET_RECVSALT,
   ];
+  const data = await evm.functionDataEncode(abi.SAFE_ABI, 'setup', setupParams);
+  return data;
 }

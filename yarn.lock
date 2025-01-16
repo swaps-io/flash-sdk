@@ -2473,7 +2473,7 @@ __metadata:
     viem: "npm:2.21.54"
     wagmi: "npm:2.13.4"
   peerDependencies:
-    "@safe-global/protocol-kit": 5.0.4
+    "@safe-global/protocol-kit": ">=5.0 <6"
     "@tanstack/react-query": ">=5.17 <6"
     axios: ">=1.6 <2"
     ethers: ">=6.9 <7"
@@ -2481,6 +2481,8 @@ __metadata:
     viem: ">=2.1 <3"
     wagmi: ">=2.2 <3"
   peerDependenciesMeta:
+    "@safe-global/protocol-kit":
+      optional: true
     "@tanstack/react-query":
       optional: true
     ethers:

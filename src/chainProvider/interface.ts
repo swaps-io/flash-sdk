@@ -200,8 +200,9 @@ export interface GetByteCodeParams {
    * Chain ID to get bytecode on
    */
   chainId: string;
+
   /**
-   * Contract address
+   * Contract address to get bytecode of
    */
   address: string;
 }
@@ -241,10 +242,11 @@ export interface IChainProvider {
   call(params: CallParams): Promise<string>;
 
   /**
-   * Retrieves the bytecode associated with the provided parameters.
+   * Retrieve specified contract's deployed bytecode
    *
-   * @param {GetByteCodeParams} params - An object containing the parameters required to fetch the bytecode.
-   * @return {Promise<string>} A promise that resolves to the bytecode as a string.
+   * May return empty string if no bytecode is associated with the address
+   *
+   * @param params Get contract bytecode {@link GetByteCodeParams | params}
    */
   getByteCode(params: GetByteCodeParams): Promise<string>;
 }
