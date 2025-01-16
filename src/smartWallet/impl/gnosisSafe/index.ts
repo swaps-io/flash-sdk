@@ -100,15 +100,14 @@ export class GnosisSafeWallet implements ISmartWallet {
 
   public async getSignTransactionParams(params: GetSmartSignTransactionParams): Promise<SignTypedDataParams> {
     const safe = await this.getSafe(params.chainId);
-    let nonce = await this.getNonce(params);
+    const nonce = await this.getNonce(params);
 
     const toSafeTx = (txp: SmartBatchTransactionParams): SafeTransactionParams => {
       return {
         to: txp.to,
         data: txp.data ?? '0x',
         value: txp.value ?? '0',
-        nonce: nonce++,
-      } as unknown as SafeTransactionParams;
+      };
     };
 
     const transactions: SafeTransactionParams[] = [];
@@ -127,7 +126,7 @@ export class GnosisSafeWallet implements ISmartWallet {
     addTxs(params);
     addTxs(params.post);
 
-    const safeTransaction = await safe.instance.createTransaction({ transactions });
+    const safeTransaction = await safe.instance.createTransaction({ transactions, options: { nonce } });
 
     const signParams = await this.prepareSignParams(
       params.chainId,
