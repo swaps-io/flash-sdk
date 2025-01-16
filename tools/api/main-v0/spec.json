@@ -1757,6 +1757,10 @@
                             }
                         ],
                         "title": "Allowance P2"
+                    },
+                    "allowance_updatable": {
+                        "type": "boolean",
+                        "title": "Allowance Updatable"
                     }
                 },
                 "type": "object",
