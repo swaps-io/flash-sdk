@@ -607,7 +607,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       };
     }
 
-    const signTypedDataParams = await wallet.getSignTransactionParams({
+    const signSmartApproveParams = await wallet.getSignTransactionParams({
       operation,
       tag: 'approve-crypto',
       chainId,
@@ -618,7 +618,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     });
     const smartApproveAction: CryptoApproveAction = {
       type: 'sign-smart-approve-typed-data',
-      params: signTypedDataParams,
+      params: signSmartApproveParams,
       smartData: {
         actorAddress,
         tokenAddress,
@@ -722,18 +722,16 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const ownerWallet = await wallet.getOwnerWallet();
     const ownerWalletAddress = await ownerWallet.getAddress();
     const smartApproveSignature = await ownerWallet.signTypedData({ ...params, from: ownerWalletAddress });
-
-    const { encodePermitSafe } = await import('./permitSafe');
-    const encodedPermitSafe = await encodePermitSafe(
-      smartData.actorAddress,
-      smartData.tokenAddress,
-      smartData.amount,
-      smartApproveSignature,
-    );
+    const smartApproveTransaction = await wallet.getPermitTransaction({
+      from: smartData.actorAddress,
+      token: smartData.tokenAddress,
+      amount: smartData.amount,
+      signature: smartApproveSignature,
+    });
 
     const permit: PermitData = {
       type: 'smart-approve',
-      transaction: encodedPermitSafe,
+      transaction: smartApproveTransaction,
       expiresAt: UNREACHABLE_TIME.data,
       chainId,
       actorAddress: smartData.actorAddress,
@@ -755,10 +753,10 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       if (isSmartWallet(wallet)) {
         const ownerWallet = await wallet.getOwnerWallet();
         const from = await ownerWallet.getAddress();
-        const signDepositParams = await wallet.getSignTransactionParams({ ...params, from });
-        const ownerSignature = await ownerWallet.signTypedData(signDepositParams);
-        const sendDepositParams = await wallet.getSendTransactionParams({ ...signDepositParams, ownerSignature });
-        txid = await ownerWallet.sendTransaction(sendDepositParams);
+        const signApproveParams = await wallet.getSignTransactionParams({ ...params, from });
+        const ownerSignature = await ownerWallet.signTypedData(signApproveParams);
+        const sendApproveParams = await wallet.getSendTransactionParams({ ...signApproveParams, ownerSignature });
+        txid = await ownerWallet.sendTransaction(sendApproveParams);
       } else {
         txid = await wallet.sendTransaction(params);
       }

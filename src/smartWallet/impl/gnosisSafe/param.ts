@@ -59,3 +59,15 @@ export interface GnosisSafeWalletParams {
    */
   chains?: readonly GnosisSafeChainConfig[];
 }
+
+/**
+ * Get Gnosis Safe contract nonce parameters of {@link GnosisSafeWallet.getNonce}
+ *
+ * @category Smart Wallet Impl
+ */
+export interface GetGnosisSafeNonceParams {
+  /**
+   * Chain ID to get smart wallet nonce on
+   */
+  chainId: string;
+}

@@ -10,8 +10,8 @@ import { SmartWalletError } from '../../error';
 import {
   GetSmartAddressParams,
   GetSmartIsDeployedParams,
-  GetSmartNonceParams,
   GetSmartOwnersParams,
+  GetSmartPermitTransactionParams,
   GetSmartSendTransactionParams,
   GetSmartSignTransactionParams,
   GetSmartSignTypedDataParams,
@@ -21,7 +21,7 @@ import {
 
 import { getNonce } from './getNonce';
 import { isDeployedSafe } from './isDeployedSafe';
-import { GnosisSafeWalletParams } from './param';
+import { GetGnosisSafeNonceParams, GnosisSafeWalletParams } from './param';
 import {
   DEFAULT_SAFE_VERSION,
   KX_SAFE_WALLET_RECVSALT,
@@ -187,7 +187,20 @@ export class GnosisSafeWallet implements ISmartWallet {
     return signParams;
   }
 
-  public async getNonce(params: GetSmartNonceParams): Promise<number> {
+  public async getPermitTransaction(params: GetSmartPermitTransactionParams): Promise<string> {
+    const { encodePermitSafe } = await import('./permitSafe');
+    const transaction = await encodePermitSafe(params.from, params.token, params.amount, params.signature);
+    return transaction;
+  }
+
+  /**
+   * Gets nonce of the smart wallet contract
+   *
+   * @param params Get nonce {@link GetGnosisSafeNonceParams | params}
+   *
+   * @returns Contract nonce of swart wallet
+   */
+  public async getNonce(params: GetGnosisSafeNonceParams): Promise<number> {
     const address = await this.getAddress(params);
     const nonce = await getNonce(address, params.chainId, this.chainProvider);
     return nonce;

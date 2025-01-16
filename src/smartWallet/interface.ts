@@ -13,18 +13,6 @@ export interface GetSmartAddressParams {
 }
 
 /**
- * Get smart wallet nonce parameters of {@link ISmartWallet.getNonce}
- *
- * @category Smart Wallet
- */
-export interface GetSmartNonceParams {
-  /**
-   * Chain ID to get smart wallet nonce on
-   */
-  chainId: string;
-}
-
-/**
  * Get smart wallet deployment status parameters of {@link ISmartWallet.isDeployed}
  *
  * @category Smart Wallet
@@ -114,6 +102,35 @@ export type GetSmartSignTypedDataParams = Omit<SignTypedDataParams, 'chainId'> &
   Required<Pick<SignTypedDataParams, 'chainId'>>;
 
 /**
+ * Get smart wallet permit transaction parameters of {@link ISmartWallet.getPermitTransaction}
+ *
+ * @category Smart Wallet
+ */
+export interface GetSmartPermitTransactionParams {
+  /**
+   * Address of account permit is signed by
+   */
+  from: string;
+
+  /**
+   * Permit token address
+   */
+  token: string;
+
+  /**
+   * Permit token amount
+   *
+   * The `undefined` value designates infinite amount
+   */
+  amount: string | undefined;
+
+  /**
+   * Permit signature by {@link from} address
+   */
+  signature: string;
+}
+
+/**
  * Smart Wallet functionality provider
  *
  * @category Smart Wallet
@@ -184,11 +201,11 @@ export interface ISmartWallet {
   getSignTypedDataParams(params: GetSmartSignTypedDataParams): Promise<SignTypedDataParams>;
 
   /**
-   * Gets nonce of the smart wallet contract
+   * Prepares transaction action for submitting permit
    *
-   * @param params Get nonce {@link GetSmartNonceParams | params}
+   * @param params Get permit transaction {@link GetSmartPermitTransactionParams | params}
    *
-   * @returns Contract nonce of swart wallet
+   * @returns Transaction submittable as swart wallet permit action
    */
-  getNonce(params: GetSmartNonceParams): Promise<number>;
+  getPermitTransaction(params: GetSmartPermitTransactionParams): Promise<string>;
 }

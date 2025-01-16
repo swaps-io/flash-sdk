@@ -36,7 +36,7 @@ export class NeverSmartWallet implements ISmartWallet {
     throw new SmartWalletError('NeverSmartWallet.getSignTypedDataParams called');
   }
 
-  public getNonce(): Promise<number> {
-    throw new SmartWalletError('NeverSmartWallet.getNonce called');
+  public getPermitTransaction(): Promise<string> {
+    throw new SmartWalletError('NeverSmartWallet.getPermitTransaction called');
   }
 }
