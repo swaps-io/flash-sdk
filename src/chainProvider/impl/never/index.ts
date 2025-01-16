@@ -22,4 +22,8 @@ export class NeverChainProvider implements IChainProvider {
   public call(): Promise<string> {
     throw new ChainProviderError('NeverChainProvider.call called');
   }
+
+  public getByteCode(): Promise<string> {
+    throw new ChainProviderError('NeverChainProvider.getByteCode called');
+  }
 }

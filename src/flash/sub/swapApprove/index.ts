@@ -22,9 +22,12 @@ export class SwapApproveSubClient {
     swap: Swap,
     checkOrderData: CheckOrderDataFunc | undefined,
   ): Promise<SwapApproveRequest> {
+    let from = swap.fromActor;
+    let chainId: string | undefined;
+
     const needsCall = isNativeCrypto(swap.fromCrypto) && !isBitcoinCrypto(swap.fromCrypto);
     if (needsCall) {
-      const swapApproveRequest = new SwapApproveRequest(operation, swap.fromActor, '', swap.fromCrypto.chain.id);
+      const swapApproveRequest = new SwapApproveRequest(operation, from, '', chainId);
       return swapApproveRequest;
     }
 
@@ -35,7 +38,14 @@ export class SwapApproveSubClient {
       await checkOrderData(orderData);
     }
 
-    const swapApproveRequest = new SwapApproveRequest(operation, swap.fromActor, orderData, swap.fromCrypto.chain.id);
+    const wallet = await this.wallet.getValue('Wallet must be configured for swap approve prepare');
+    if (isSmartWallet(wallet)) {
+      const ownerWallet = await wallet.getOwnerWallet();
+      from = await ownerWallet.getAddress();
+      chainId = swap.fromCrypto.chain.id;
+    }
+
+    const swapApproveRequest = new SwapApproveRequest(operation, from, orderData, chainId);
     return swapApproveRequest;
   }
 

@@ -182,7 +182,15 @@ export class FlashClient {
    */
   public async getQuote(params: GetQuoteParams): Promise<Quote> {
     await this.crypto.getCryptoData(false);
-    const quote = await this.quote.getQuote(params.fromCrypto, params.toCrypto, params.fromAmount, params.toAmount);
+    const quote = await this.quote.getQuote(
+      params.fromCrypto,
+      params.toCrypto,
+      params.fromAmount,
+      params.toAmount,
+      params.fromActor,
+      params.fromActorReceiver,
+      params.fromActorReceiverWalletOwner,
+    );
     return quote;
   }
 
@@ -290,6 +298,7 @@ export class FlashClient {
       cryptoApprove,
       params.fromActorBitcoin,
       params.fromActorReceiver,
+      params.fromActorReceiverWalletOwner,
     );
     params.onSwapCreated?.(swap);
     return swap;

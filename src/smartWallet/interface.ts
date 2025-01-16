@@ -13,6 +13,18 @@ export interface GetSmartAddressParams {
 }
 
 /**
+ * Get smart wallet deployment status parameters of {@link ISmartWallet.isDeployed}
+ *
+ * @category Smart Wallet
+ */
+export interface GetSmartIsDeployedParams {
+  /**
+   * Chain ID to get smart wallet address on
+   */
+  chainId: string;
+}
+
+/**
  * Get smart wallet owners parameters of {@link ISmartWallet.getOwners}
  *
  * @category Smart Wallet
@@ -90,6 +102,35 @@ export type GetSmartSignTypedDataParams = Omit<SignTypedDataParams, 'chainId'> &
   Required<Pick<SignTypedDataParams, 'chainId'>>;
 
 /**
+ * Get smart wallet permit transaction parameters of {@link ISmartWallet.getPermitTransaction}
+ *
+ * @category Smart Wallet
+ */
+export interface GetSmartPermitTransactionParams {
+  /**
+   * Address of account permit is signed by
+   */
+  from: string;
+
+  /**
+   * Permit token address
+   */
+  token: string;
+
+  /**
+   * Permit token amount
+   *
+   * The `undefined` value designates infinite amount
+   */
+  amount: string | undefined;
+
+  /**
+   * Permit signature by {@link from} address
+   */
+  signature: string;
+}
+
+/**
  * Smart Wallet functionality provider
  *
  * @category Smart Wallet
@@ -112,6 +153,15 @@ export interface ISmartWallet {
    * @returns Addresses of swart wallet owners
    */
   getOwners(params: GetSmartOwnersParams): Promise<ReadonlySet<string>>;
+
+  /**
+   * Gets deployed smart wallet status
+   *
+   * @param params Get owners {@link GetSmartIsDeployedParams | params}
+   *
+   * @returns boolean deployed smart wallet status
+   */
+  isDeployed(params: GetSmartIsDeployedParams): Promise<boolean>;
 
   /**
    * Gets wallet of the owner the smart wallet is managed on behalf of
@@ -149,4 +199,13 @@ export interface ISmartWallet {
    * @returns Sign typed data params usable in regular {@link IWallet | wallet}
    */
   getSignTypedDataParams(params: GetSmartSignTypedDataParams): Promise<SignTypedDataParams>;
+
+  /**
+   * Prepares transaction action for submitting permit
+   *
+   * @param params Get permit transaction {@link GetSmartPermitTransactionParams | params}
+   *
+   * @returns Transaction submittable as swart wallet permit action
+   */
+  getPermitTransaction(params: GetSmartPermitTransactionParams): Promise<string>;
 }

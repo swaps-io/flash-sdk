@@ -1,6 +1,6 @@
 {
   "name": "@swaps-io/flash-sdk",
-  "version": "1.1.0",
+  "version": "1.2.0-rc.0",
   "author": "Swaps.io Team",
   "description": "Swaps.io - Flash SDK",
   "license": "MIT",
@@ -54,7 +54,7 @@
     "prepack": "yarn build"
   },
   "devDependencies": {
-    "@safe-global/protocol-kit": "^4.1.1",
+    "@safe-global/protocol-kit": "5.0.4",
     "@tanstack/react-query": "5.62.3",
     "@trivago/prettier-plugin-sort-imports": "5.2.0",
     "@types/jest": "29.5.14",
@@ -77,7 +77,7 @@
     "wagmi": "2.13.4"
   },
   "peerDependencies": {
-    "@safe-global/protocol-kit": ">=4.0 <5",
+    "@safe-global/protocol-kit": ">=5.0 <6",
     "@tanstack/react-query": ">=5.17 <6",
     "axios": ">=1.6 <2",
     "ethers": ">=6.9 <7",
