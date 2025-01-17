@@ -1,15 +1,14 @@
 import { SignTypedDataParams } from '../../../wallet';
 
+type SwapApproveSignParams = Omit<SignTypedDataParams, 'tag'>;
+
 export class SwapApproveRequest {
   public readonly swapSignParams: SignTypedDataParams;
 
-  public constructor(operation: string | undefined, from: string, data: string, chainId: string | undefined) {
+  public constructor(params: SwapApproveSignParams) {
     this.swapSignParams = {
-      operation,
       tag: 'approve-swap',
-      from,
-      data,
-      chainId,
+      ...params,
     };
   }
 }
