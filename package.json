@@ -1,6 +1,6 @@
 {
   "name": "@swaps-io/flash-sdk",
-  "version": "1.2.0-rc.2",
+  "version": "1.2.0-rc.3",
   "author": "Swaps.io Team",
   "description": "Swaps.io - Flash SDK",
   "license": "MIT",
@@ -17,25 +17,26 @@
   "bugs": {
     "url": "https://github.com/swaps-io/flash-sdk/issues"
   },
-  "main": "dist/lib/index.js",
-  "types": "dist/types/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "package.json"
   ],
+  "module": "./dist/esm/index.js",
+  "main": "./dist/cjs/index.js",
+  "types": "./dist/types/index.d.ts",
   "scripts": {
     "prettify": "yarn prettier --write src",
     "p": "yarn prettify",
     "prettify:test": "yarn prettier --write test",
     "pt": "yarn prettify:test",
-    "clean": "rm -rf ./dist ./lib",
+    "clean": "rm -rf ./dist",
     "c": "yarn clean",
     "lint": "yarn eslint src",
     "l": "yarn lint",
-    "compile": "yarn tsc",
-    "co": "yarn compile",
-    "mv_lib": "mv ./lib ./dist",
-    "cp_src": "cp -r ./src ./dist",
-    "build": "yarn clean && yarn lint && yarn compile && yarn mv_lib && yarn cp_src",
+    "build:types": "tsc",
+    "build:bundle": "yarn node ./bundle.js",
+    "build": "yarn lint && yarn clean && yarn build:types && yarn build:bundle",
     "b": "yarn build",
     "test": "NODE_OPTIONS='--experimental-vm-modules --max-old-space-size=8192' jest --verbose=true --runInBand",
     "t": "yarn test",
@@ -55,7 +56,7 @@
   },
   "devDependencies": {
     "@safe-global/protocol-kit": "5.1.1",
-    "@tanstack/react-query": "5.64.1",
+    "@tanstack/react-query": "5.64.2",
     "@trivago/prettier-plugin-sort-imports": "5.2.1",
     "@types/jest": "29.5.14",
     "@types/qs": "6.9.18",
@@ -63,6 +64,7 @@
     "@typescript-eslint/parser": "7.18.0",
     "axios": "1.7.9",
     "dotenv": "16.4.7",
+    "esbuild": "^0.24.2",
     "eslint": "8.57.1",
     "eslint-config-prettier": "9.1.0",
     "ethers": "6.13.5",
@@ -73,7 +75,7 @@
     "ts-jest": "^29.2.5",
     "typedoc": "0.27.6",
     "typescript": "5.7.3",
-    "viem": "2.22.9",
+    "viem": "2.22.10",
     "wagmi": "2.14.8"
   },
   "peerDependencies": {
