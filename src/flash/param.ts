@@ -281,6 +281,11 @@ export interface GetQuoteParams {
   /**
    * The EOA owner smart wallet (necessary for working with Smart Wallet)
    */
+  fromActorWalletOwner?: string;
+
+  /**
+   * The EOA owner smart wallet (necessary for working with Smart Wallet)
+   */
   fromActorReceiverWalletOwner?: string;
 }
 
@@ -355,6 +360,11 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default No extra check performed for order data
    */
   checkOrderData?: CheckOrderDataFunc;
+
+  /**
+   * The EOA owner smart wallet (necessary for working with Smart Wallet)
+   */
+  fromActorWalletOwner?: string;
 
   /**
    * The EOA owner smart wallet (necessary for working with Smart Wallet)
