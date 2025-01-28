@@ -61,8 +61,8 @@ export type GetQuoteMainV0Params = {
   from_amount?: string | null;
   to_amount?: string | null;
   from_actor?: string | null;
-  from_actor_receiver?: string | null;
   from_actor_wallet_owner?: string | null;
+  from_actor_receiver?: string | null;
   from_actor_receiver_wallet_owner?: string | null;
   permit_transaction?: string | null;
 };
@@ -181,9 +181,9 @@ export type SwapMainV0TimeToLockBitcoin = number | null;
 
 export type SwapMainV0ToActorBitcoin = string | null;
 
-export type SwapMainV0FromActorWalletOwner = string | null;
-
 export type SwapMainV0FromActorReceiverWalletOwner = string | null;
+
+export type SwapMainV0FromActorWalletOwner = string | null;
 
 export type SwapMainV0FromActorBitcoin = string | null;
 
@@ -219,7 +219,7 @@ export interface SwapMainV0 {
   from_fee_estimate: string;
   to_fee_estimate: string;
   amount_source: AmountSourceMainV0;
-  nonce: number;
+  nonce: string;
   state: SwapStateMainV0;
   tx_lock_bitcoin: SwapMainV0TxLockBitcoin;
   tx_receive: SwapMainV0TxReceive;
@@ -267,7 +267,11 @@ export interface ReportNoSendTransactionMainV0 {
   reporter: string;
 }
 
-export type QuoteMainV0FromActorWalletOwner = string | null;
+export type QuotePairsMainV0Pairs = { [key: string]: string[] };
+
+export interface QuotePairsMainV0 {
+  pairs: QuotePairsMainV0Pairs;
+}
 
 export type QuoteMainV0FromActorReceiverWalletOwner = string | null;
 
@@ -297,7 +301,6 @@ export interface QuoteMainV0 {
   amount_source: AmountSourceMainV0;
   from_actor?: QuoteMainV0FromActor;
   from_actor_receiver?: QuoteMainV0FromActorReceiver;
-  from_actor_wallet_owner?: QuoteMainV0FromActorWalletOwner;
   from_actor_receiver_wallet_owner?: QuoteMainV0FromActorReceiverWalletOwner;
 }
 
@@ -342,12 +345,22 @@ export interface EventCreatedMainV0 {
   ok: boolean;
 }
 
-export type CustomExceptionExtraDataMainV0Details = CustomExceptionDetailsMainV0 | null;
+export type ErrorCodeMainV0 = (typeof ErrorCodeMainV0)[keyof typeof ErrorCodeMainV0];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ErrorCodeMainV0 = {
+  route_not_supported: 'route_not_supported',
+  route_unavailable: 'route_unavailable',
+  minimal_swap_size: 'minimal_swap_size',
+  maximal_swap_size: 'maximal_swap_size',
+} as const;
+
+export type CustomExceptionExtraDataMainV0ErrorCode = ErrorCodeMainV0 | string;
 
 export interface CustomExceptionExtraDataMainV0 {
   message: string;
   error_type: string;
-  error_code: string;
+  error_code: CustomExceptionExtraDataMainV0ErrorCode;
   details?: CustomExceptionExtraDataMainV0Details;
 }
 
@@ -359,6 +372,8 @@ export interface CustomExceptionDetailsMainV0 {
   max_size_in_usd?: CustomExceptionDetailsMainV0MaxSizeInUsd;
   max_size_in_token_decimal?: CustomExceptionDetailsMainV0MaxSizeInTokenDecimal;
 }
+
+export type CustomExceptionExtraDataMainV0Details = CustomExceptionDetailsMainV0 | null;
 
 export type CustomExceptionMainV0ExtraData = CustomExceptionExtraDataMainV0 | null;
 
@@ -438,6 +453,8 @@ export const AmountSourceMainV0 = {
   to: 'to',
 } as const;
 
+export type AllowanceInfoMainV0AllowanceUpdatable = boolean | null;
+
 export type AllowanceInfoMainV0AllowanceP2 = string | null;
 
 export type AllowanceInfoMainV0ContractAddress = string | null;
@@ -449,7 +466,7 @@ export interface AllowanceInfoMainV0 {
   contract_address: AllowanceInfoMainV0ContractAddress;
   allowance: string;
   allowance_p2: AllowanceInfoMainV0AllowanceP2;
-  allowance_updatable?: boolean;
+  allowance_updatable: AllowanceInfoMainV0AllowanceUpdatable;
 }
 
 export type AlertMainV0Message = string | null;
@@ -525,6 +542,14 @@ export const getPermitTransactionMainV0 = (
  */
 export const getQuoteMainV0 = (params: GetQuoteMainV0Params, options?: SecondParameter<typeof axiosClientMainV0>) => {
   return axiosClientMainV0<QuoteMainV0>({ url: `/api/v0/quote`, method: 'GET', params }, options);
+};
+
+/**
+ * Returns quote pairs
+ * @summary Get quote pairs
+ */
+export const getQuotePairsMainV0 = (options?: SecondParameter<typeof axiosClientMainV0>) => {
+  return axiosClientMainV0<QuotePairsMainV0>({ url: `/api/v0/quote/pairs`, method: 'GET' }, options);
 };
 
 /**
@@ -796,6 +821,7 @@ export type GetApproveMainV0Result = NonNullable<Awaited<ReturnType<typeof getAp
 export type GetPermitDataMainV0Result = NonNullable<Awaited<ReturnType<typeof getPermitDataMainV0>>>;
 export type GetPermitTransactionMainV0Result = NonNullable<Awaited<ReturnType<typeof getPermitTransactionMainV0>>>;
 export type GetQuoteMainV0Result = NonNullable<Awaited<ReturnType<typeof getQuoteMainV0>>>;
+export type GetQuotePairsMainV0Result = NonNullable<Awaited<ReturnType<typeof getQuotePairsMainV0>>>;
 export type CreateSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof createSwapMainV0>>>;
 export type GetSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof getSwapMainV0>>>;
 export type GetSwapDataMainV0Result = NonNullable<Awaited<ReturnType<typeof getSwapDataMainV0>>>;

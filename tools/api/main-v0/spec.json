@@ -502,6 +502,22 @@
                         }
                     },
                     {
+                        "name": "from_actor_wallet_owner",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "From Actor Wallet Owner"
+                        }
+                    },
+                    {
                         "name": "from_actor_receiver",
                         "in": "query",
                         "required": false,
@@ -577,6 +593,38 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/quote/pairs": {
+            "get": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get quote pairs",
+                "description": "Returns quote pairs",
+                "operationId": "get_quote_pairs",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuotePairs"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomException"
                                 }
                             }
                         }
@@ -1759,7 +1807,14 @@
                         "title": "Allowance P2"
                     },
                     "allowance_updatable": {
-                        "type": "boolean",
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
                         "title": "Allowance Updatable"
                     }
                 },
@@ -1770,7 +1825,8 @@
                     "actor_address",
                     "contract_address",
                     "allowance",
-                    "allowance_p2"
+                    "allowance_p2",
+                    "allowance_updatable"
                 ],
                 "title": "AllowanceInfo"
             },
@@ -1937,6 +1993,17 @@
                         ],
                         "title": "From Actor Receiver"
                     },
+                    "from_actor_wallet_owner": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor Wallet Owner"
+                    },
                     "from_actor_receiver_wallet_owner": {
                         "anyOf": [
                             {
@@ -2078,7 +2145,14 @@
                         "title": "Error Type"
                     },
                     "error_code": {
-                        "type": "string",
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ErrorCode"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ],
                         "title": "Error Code"
                     },
                     "details": {
@@ -2099,6 +2173,16 @@
                     "error_code"
                 ],
                 "title": "CustomExceptionExtraData"
+            },
+            "ErrorCode": {
+                "type": "string",
+                "enum": [
+                    "route_not_supported",
+                    "route_unavailable",
+                    "minimal_swap_size",
+                    "maximal_swap_size"
+                ],
+                "title": "ErrorCode"
             },
             "EventCreated": {
                 "properties": {
@@ -2366,6 +2450,25 @@
                 ],
                 "title": "Quote"
             },
+            "QuotePairs": {
+                "properties": {
+                    "pairs": {
+                        "additionalProperties": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        "type": "object",
+                        "title": "Pairs"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "pairs"
+                ],
+                "title": "QuotePairs"
+            },
             "ReportNoSendTransaction": {
                 "properties": {
                     "txid": {
@@ -2550,6 +2653,17 @@
                         "type": "string",
                         "title": "From Actor Receiver"
                     },
+                    "from_actor_wallet_owner": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Actor Wallet Owner"
+                    },
                     "from_actor_receiver_wallet_owner": {
                         "anyOf": [
                             {
@@ -2666,7 +2780,7 @@
                         "$ref": "#/components/schemas/AmountSource"
                     },
                     "nonce": {
-                        "type": "integer",
+                        "type": "string",
                         "title": "Nonce"
                     },
                     "state": {
