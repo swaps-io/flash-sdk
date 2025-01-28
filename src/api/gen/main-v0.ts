@@ -62,6 +62,7 @@ export type GetQuoteMainV0Params = {
   to_amount?: string | null;
   from_actor?: string | null;
   from_actor_receiver?: string | null;
+  from_actor_wallet_owner?: string | null;
   from_actor_receiver_wallet_owner?: string | null;
   permit_transaction?: string | null;
 };
@@ -180,6 +181,8 @@ export type SwapMainV0TimeToLockBitcoin = number | null;
 
 export type SwapMainV0ToActorBitcoin = string | null;
 
+export type SwapMainV0FromActorWalletOwner = string | null;
+
 export type SwapMainV0FromActorReceiverWalletOwner = string | null;
 
 export type SwapMainV0FromActorBitcoin = string | null;
@@ -193,6 +196,7 @@ export interface SwapMainV0 {
   from_actor: string;
   from_actor_bitcoin: SwapMainV0FromActorBitcoin;
   from_actor_receiver: string;
+  from_actor_wallet_owner?: SwapMainV0FromActorWalletOwner;
   from_actor_receiver_wallet_owner?: SwapMainV0FromActorReceiverWalletOwner;
   to_chain_id: string;
   to_token_address: string;
@@ -263,6 +267,8 @@ export interface ReportNoSendTransactionMainV0 {
   reporter: string;
 }
 
+export type QuoteMainV0FromActorWalletOwner = string | null;
+
 export type QuoteMainV0FromActorReceiverWalletOwner = string | null;
 
 export type QuoteMainV0FromActorReceiver = string | null;
@@ -291,6 +297,7 @@ export interface QuoteMainV0 {
   amount_source: AmountSourceMainV0;
   from_actor?: QuoteMainV0FromActor;
   from_actor_receiver?: QuoteMainV0FromActorReceiver;
+  from_actor_wallet_owner?: QuoteMainV0FromActorWalletOwner;
   from_actor_receiver_wallet_owner?: QuoteMainV0FromActorReceiverWalletOwner;
 }
 
@@ -372,6 +379,8 @@ export type CreateSwapMainV0CollateralReceiver = string | null;
 
 export type CreateSwapMainV0FromActorReceiverWalletOwner = string | null;
 
+export type CreateSwapMainV0FromActorWalletOwner = string | null;
+
 export type CreateSwapMainV0FromActorReceiver = string | null;
 
 export type CreateSwapMainV0FromActorBitcoin = string | null;
@@ -389,6 +398,7 @@ export interface CreateSwapMainV0 {
   from_actor: string;
   from_actor_bitcoin?: CreateSwapMainV0FromActorBitcoin;
   from_actor_receiver?: CreateSwapMainV0FromActorReceiver;
+  from_actor_wallet_owner?: CreateSwapMainV0FromActorWalletOwner;
   from_actor_receiver_wallet_owner?: CreateSwapMainV0FromActorReceiverWalletOwner;
   collateral_receiver?: CreateSwapMainV0CollateralReceiver;
   to_chain_id: string;

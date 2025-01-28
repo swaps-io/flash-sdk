@@ -189,6 +189,7 @@ export class FlashClient {
       params.toAmount,
       params.fromActor,
       params.fromActorReceiver,
+      params.fromActorWalletOwner,
       params.fromActorReceiverWalletOwner,
     );
     return quote;
@@ -298,6 +299,7 @@ export class FlashClient {
       cryptoApprove,
       params.fromActorBitcoin,
       params.fromActorReceiver,
+      params.fromActorWalletOwner,
       params.fromActorReceiverWalletOwner,
     );
     params.onSwapCreated?.(swap);
