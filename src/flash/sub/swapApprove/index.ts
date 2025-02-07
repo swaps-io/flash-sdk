@@ -22,6 +22,7 @@ export class SwapApproveSubClient {
     operation: string | undefined,
     swap: Swap,
     checkOrderData: CheckOrderDataFunc | undefined,
+    domainChainId: string | undefined,
   ): Promise<SwapApproveRequest> {
     const needsCall = isNativeCrypto(swap.fromCrypto) && !isBitcoinCrypto(swap.fromCrypto);
     if (needsCall) {
@@ -29,7 +30,7 @@ export class SwapApproveSubClient {
       return swapApproveRequest;
     }
 
-    const response = await getSwapDataMainV0(swap.hash);
+    const response = await getSwapDataMainV0(swap.hash, { domain_chain_id: domainChainId });
     const orderData = response.data.data;
 
     if (isNotNull(checkOrderData)) {

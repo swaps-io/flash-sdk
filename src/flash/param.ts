@@ -370,6 +370,16 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * The EOA owner smart wallet (necessary for working with Smart Wallet)
    */
   fromActorReceiverWalletOwner?: string;
+
+  /**
+   * Chain ID to put into chain-agnostic domain data
+   *
+   * Chain-agnostic EIP-712 domains usually don't need chain ID,
+   * but some wallets may require it for correct work
+   *
+   * @default No chain ID put into chain-agnostic domain data
+   */
+  domainChainId?: string;
 }
 
 /**

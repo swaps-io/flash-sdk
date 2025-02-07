@@ -744,6 +744,22 @@
                             "type": "string",
                             "title": "Swap Hash"
                         }
+                    },
+                    {
+                        "name": "domain_chain_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Domain Chain Id"
+                        }
                     }
                 ],
                 "responses": {
