@@ -1,5 +1,5 @@
 import type { SendTransactionParameters, SignMessageParameters, SignTypedDataParameters } from '@wagmi/core';
-import type { Hex } from 'viem';
+import type { Address } from 'viem';
 import type { Config } from 'wagmi';
 
 import { Duration } from '../../..';
@@ -195,7 +195,7 @@ export class WagmiWalletVendor {
     return account.isConnecting;
   }
 
-  private async normalizeAccountAddress(address: string): Promise<Hex> {
+  private async normalizeAccountAddress(address: string): Promise<Address> {
     const viem = await import('viem');
 
     // Account addresses must be checksum variant due to the way Wagmi maps them for connectors
