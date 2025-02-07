@@ -371,10 +371,15 @@ export interface SubmitSwapParams extends WithWalletOperation {
    */
   fromActorReceiverWalletOwner?: string;
 
-  /*
-   * If need to put the chainId in the domain data
+  /**
+   * Chain ID to put into chain-agnostic domain data
+   *
+   * Chain-agnostic EIP-712 domains usually don't need chain ID,
+   * but some wallets may require it for correct work
+   *
+   * @default No chain ID put into chain-agnostic domain data
    */
-  domainChainId: string | null;
+  domainChainId?: string;
 }
 
 /**
