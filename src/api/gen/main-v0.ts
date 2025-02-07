@@ -53,6 +53,10 @@ export type LiqSendMainV0Params = {
   permit_transaction?: string | null;
 };
 
+export type GetSwapDataMainV0Params = {
+  domain_chain_id?: string | null;
+};
+
 export type GetQuoteMainV0Params = {
   from_chain_id: string;
   to_chain_id: string;
@@ -578,8 +582,12 @@ export const getSwapMainV0 = (swapHash: string, options?: SecondParameter<typeof
  * Returns swap data
  * @summary Get swap data
  */
-export const getSwapDataMainV0 = (swapHash: string, options?: SecondParameter<typeof axiosClientMainV0>) => {
-  return axiosClientMainV0<SwapDataMainV0>({ url: `/api/v0/swaps/${swapHash}/data`, method: 'GET' }, options);
+export const getSwapDataMainV0 = (
+  swapHash: string,
+  params?: GetSwapDataMainV0Params,
+  options?: SecondParameter<typeof axiosClientMainV0>,
+) => {
+  return axiosClientMainV0<SwapDataMainV0>({ url: `/api/v0/swaps/${swapHash}/data`, method: 'GET', params }, options);
 };
 
 /**
