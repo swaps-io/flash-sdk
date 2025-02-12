@@ -29,7 +29,7 @@ jobs:
       - name: Deploy Docs to GitBook Branch
         uses: peaceiris/actions-gh-pages@v4
         with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          deploy_key: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
           external_repository: swaps-io/docs
           publish_branch: main
           publish_dir: ./docs
