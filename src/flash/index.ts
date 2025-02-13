@@ -2,9 +2,14 @@ import { setAxiosInstanceCollateralV0 } from '../api/client/axios/collateral-v0'
 import { setRequestProjectId } from '../api/client/axios/core/id';
 import { setAxiosInstanceMainV0 } from '../api/client/axios/main-v0';
 import { CryptoAggregator } from '../cryptoAggregator';
-import { ApiCryptoApproveProvider, CryptoApprover, NoWalletCryptoApproveProvider } from '../cryptoApprove';
+import {
+  ApiCryptoApproveProvider,
+  CryptoApprover,
+  ICryptoApproveProvider,
+  NoWalletCryptoApproveProvider,
+} from '../cryptoApprove';
 import { ApiCryptoDataSource } from '../cryptoDataSource';
-import { isNotNull } from '../helper/null';
+import { isNotNull, isNull } from '../helper/null';
 import { IWalletLike } from '../helper/wallet';
 import {
   Amount,
@@ -74,9 +79,8 @@ export class FlashClient {
     const {
       projectId,
       wallet,
-      cryptoApprove = isNotNull(wallet)
-        ? new ApiCryptoApproveProvider({ projectId, wallet })
-        : new NoWalletCryptoApproveProvider(),
+      cryptoApprove,
+      cryptoAggregator,
       swapToAmountTolerance = Amount.zero(),
       swapFromAmountTolerance = Amount.zero(),
       mainClient = 'https://api.prod.swaps.io',
@@ -92,8 +96,16 @@ export class FlashClient {
     setAxiosInstanceCollateralV0(collateralClient);
 
     this.wallet = new FlashOptionalValue(wallet);
-    this.crypto = new CryptoAggregator(cryptoCacheTtl, cryptoDataSource);
-    this.cryptoApprover = new CryptoApprover(cryptoApprove);
+    this.crypto = cryptoAggregator ?? new CryptoAggregator(cryptoCacheTtl, cryptoDataSource);
+
+    let _cryptoApprove: ICryptoApproveProvider;
+    if (isNotNull(wallet) && isNull(cryptoApprove)) {
+      _cryptoApprove = new ApiCryptoApproveProvider({ projectId, wallet, crypto: this.crypto });
+    } else {
+      _cryptoApprove = new NoWalletCryptoApproveProvider();
+    }
+
+    this.cryptoApprover = new CryptoApprover(cryptoApprove ?? _cryptoApprove, this.wallet);
     this.quote = new QuoteSubClient(this.crypto, onInconsistencyError);
     this.swap = new SwapSubClient(
       this.crypto,
