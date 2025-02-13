@@ -1,4 +1,6 @@
+import { FlashOptionalValue } from '../flash/optional';
 import { isNativeCrypto } from '../helper/native';
+import { IWalletLike, isSmartWallet } from '../helper/wallet';
 import { CryptoApprove, IncompleteCryptoApprove } from '../model';
 
 import { ICryptoApproveProvider, PrepareCryptoApproveParams } from './interface';
@@ -10,9 +12,11 @@ import { ICryptoApproveProvider, PrepareCryptoApproveParams } from './interface'
  */
 export class CryptoApprover {
   private readonly provider: ICryptoApproveProvider;
+  private readonly wallet: FlashOptionalValue<IWalletLike>;
 
-  public constructor(provider: ICryptoApproveProvider) {
+  public constructor(provider: ICryptoApproveProvider, wallet: FlashOptionalValue<IWalletLike>) {
     this.provider = provider;
+    this.wallet = wallet;
   }
 
   /**
@@ -23,7 +27,8 @@ export class CryptoApprover {
    * @returns Complete crypto approve
    */
   public async approve(params: PrepareCryptoApproveParams): Promise<CryptoApprove> {
-    if (isNativeCrypto(params.crypto)) {
+    const wallet = await this.wallet.getValue('Wallet must be configured for swap creation');
+    if (isNativeCrypto(params.crypto) && !isSmartWallet(wallet)) {
       const cryptoApprove = new CryptoApprove(undefined);
       return cryptoApprove;
     }
