@@ -24,7 +24,12 @@ jobs:
         run: yarn install --immutable
 
       - name: Generate Documentation with TypeDoc
-        run: npx typedoc --plugin typedoc-plugin-markdown --theme markdown
+        run: yarn docs:gen-md
+
+      - name: Organize Docs into Version Folder
+        run: |
+          mkdir -p versions/${{ github.event.release.tag_name }}
+          cp -R docs/* versions/${{ github.event.release.tag_name }}
 
       - name: Deploy Docs to GitBook Branch
         uses: peaceiris/actions-gh-pages@v4
@@ -32,4 +37,4 @@ jobs:
           deploy_key: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
           external_repository: swaps-io/docs
           publish_branch: main
-          publish_dir: ./docs
+          publish_dir: ./versions/${{ github.event.release.tag_name }}
