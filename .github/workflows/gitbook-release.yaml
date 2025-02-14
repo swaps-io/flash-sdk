@@ -28,8 +28,8 @@ jobs:
 
       - name: Organize Docs into Version Folder
         run: |
-          mkdir -p versions/${{ github.event.release.tag_name }}
-          cp -R docs/* versions/${{ github.event.release.tag_name }}
+          mkdir -p versions
+          mv docs versions/${{ github.event.release.tag_name }}
 
       - name: Deploy Docs to GitBook Branch
         uses: peaceiris/actions-gh-pages@v4
