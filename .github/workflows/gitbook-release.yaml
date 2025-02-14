@@ -2,7 +2,6 @@ name: Publish Flash SDK and Docs
 run-name: Publish Flash SDK ${{ github.event.release.tag_name }} (by ${{ github.actor }})
 
 on:
-  workflow_dispatch: {}
   release:
     types: [published]
 
