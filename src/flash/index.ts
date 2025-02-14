@@ -182,7 +182,16 @@ export class FlashClient {
    */
   public async getQuote(params: GetQuoteParams): Promise<Quote> {
     await this.crypto.getCryptoData(false);
-    const quote = await this.quote.getQuote(params.fromCrypto, params.toCrypto, params.fromAmount, params.toAmount);
+    const quote = await this.quote.getQuote(
+      params.fromCrypto,
+      params.toCrypto,
+      params.fromAmount,
+      params.toAmount,
+      params.fromActor,
+      params.fromActorReceiver,
+      params.fromActorWalletOwner,
+      params.fromActorReceiverWalletOwner,
+    );
     return quote;
   }
 
@@ -290,6 +299,8 @@ export class FlashClient {
       cryptoApprove,
       params.fromActorBitcoin,
       params.fromActorReceiver,
+      params.fromActorWalletOwner,
+      params.fromActorReceiverWalletOwner,
     );
     params.onSwapCreated?.(swap);
     return swap;
@@ -307,7 +318,12 @@ export class FlashClient {
    * @returns Swap approve
    */
   public async submitSwapManualApproveSwap(params: SubmitSwapParams, swap: Swap): Promise<SwapApprove> {
-    const swapApproveRequest = await this.swapApprove.prepareSwapApprove(params.operation, swap, params.checkOrderData);
+    const swapApproveRequest = await this.swapApprove.prepareSwapApprove(
+      params.operation,
+      swap,
+      params.checkOrderData,
+      params.domainChainId,
+    );
     const swapApprove = await this.swapApprove.approveSwap(swapApproveRequest);
     return swapApprove;
   }

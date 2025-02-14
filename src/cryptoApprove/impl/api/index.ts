@@ -126,8 +126,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
     let owner: string;
     if (isSmartWallet(wallet)) {
-      const ownerWallet = await wallet.getOwnerWallet();
-      owner = await ownerWallet.getAddress();
+      owner = await wallet.getAddress({ chainId: cryptoData.chainId });
     } else {
       owner = await wallet.getAddress();
     }
@@ -594,8 +593,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const chainId = crypto.chainId;
     const actorAddress = owner;
     const tokenAddress = crypto.address;
-    const ownerWallet = await wallet.getOwnerWallet();
-    const ownerAddress = await ownerWallet.getAddress();
+    const smartWalletAddress = await wallet.getAddress({ chainId });
 
     const { encodeErc20Approve } = await import('./erc20');
     const tokenApproveData = await encodeErc20Approve(spender, amount);
@@ -613,7 +611,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       operation,
       tag: 'approve-crypto',
       chainId,
-      from: ownerAddress,
+      from: smartWalletAddress,
       to: tokenAddress,
       data: tokenApproveData,
       pre,
@@ -722,11 +720,18 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     }
 
     const ownerWallet = await wallet.getOwnerWallet();
-    const smartApproveSignature = await ownerWallet.signTypedData(params);
+    const ownerWalletAddress = await ownerWallet.getAddress();
+    const smartApproveSignature = await ownerWallet.signTypedData({ ...params, from: ownerWalletAddress });
+    const smartApproveTransaction = await wallet.getPermitTransaction({
+      from: smartData.actorAddress,
+      token: smartData.tokenAddress,
+      amount: smartData.amount,
+      signature: smartApproveSignature,
+    });
 
     const permit: PermitData = {
       type: 'smart-approve',
-      transaction: `smart-approve|${params.data}|${smartApproveSignature}`,
+      transaction: smartApproveTransaction,
       expiresAt: UNREACHABLE_TIME.data,
       chainId,
       actorAddress: smartData.actorAddress,
@@ -744,7 +749,17 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     }
 
     const sendApprove = async (): Promise<void> => {
-      const txid = await wallet.sendTransaction(params);
+      let txid: string;
+      if (isSmartWallet(wallet)) {
+        const ownerWallet = await wallet.getOwnerWallet();
+        const from = await ownerWallet.getAddress();
+        const signApproveParams = await wallet.getSignTransactionParams({ ...params, from });
+        const ownerSignature = await ownerWallet.signTypedData(signApproveParams);
+        const sendApproveParams = await wallet.getSendTransactionParams({ ...signApproveParams, ownerSignature });
+        txid = await ownerWallet.sendTransaction(sendApproveParams);
+      } else {
+        txid = await wallet.sendTransaction(params);
+      }
       this.onApproveTxidReceived?.(txid);
     };
 

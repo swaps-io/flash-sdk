@@ -80,7 +80,7 @@ export class Explorer implements Data<ExplorerData> {
    *
    * @param address EVM address to get link for
    *
-   * @returns URL link to view the {@link address} in the explorer
+   * @returns URL link to view the `address` in the explorer
    */
   public getAddressLink(address: string): string {
     return this.getLink(`/address/${address}`);
@@ -91,7 +91,7 @@ export class Explorer implements Data<ExplorerData> {
    *
    * @param txid EVM TXID of the transaction to get link for
    *
-   * @returns URL link to view the {@link txid | transaction} in the explorer
+   * @returns URL link to view the `txid` in the explorer
    */
   public getTransactionLink(txid: string): string {
     return this.getLink(`/tx/${txid}`);

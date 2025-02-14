@@ -191,6 +191,23 @@ export interface CallParams {
 }
 
 /**
+ * Call parameters of {@link IChainProvider.getByteCode}
+ *
+ * @category Chain Provider
+ */
+export interface GetByteCodeParams {
+  /**
+   * Chain ID to get bytecode on
+   */
+  chainId: string;
+
+  /**
+   * Contract address to get bytecode of
+   */
+  address: string;
+}
+
+/**
  * Chain data provider
  *
  * @category Chain Provider
@@ -223,4 +240,13 @@ export interface IChainProvider {
    * @param params Call params {@link CallParams | params}
    */
   call(params: CallParams): Promise<string>;
+
+  /**
+   * Retrieve specified contract's deployed bytecode
+   *
+   * May return empty string if no bytecode is associated with the address
+   *
+   * @param params Get contract bytecode {@link GetByteCodeParams | params}
+   */
+  getByteCode(params: GetByteCodeParams): Promise<string>;
 }

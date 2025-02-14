@@ -24,6 +24,7 @@ export const setRequestProjectId = (projectId: string): void => {
 
   const sessionId = generateRandomId(8);
   requestIdPrefix = `${projectId}:${sessionId}`;
+  requestProjectId = projectId;
 };
 
 export const addRequestIdHeader = (code: string, config: AxiosRequestConfig): void => {

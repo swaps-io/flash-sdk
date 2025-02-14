@@ -1,3 +1,4 @@
+import { IChainProvider } from '../../../chainProvider';
 import { IWallet } from '../../../wallet';
 
 /**
@@ -17,16 +18,6 @@ export interface GnosisSafeChainConfig {
    * RPC URL for the chain transport
    */
   rpcUrl: string;
-
-  /**
-   * Gnosis Safe wallet contract address on the chain
-   *
-   * Overrides default `address` configured on higher level.
-   * Must be specified if no default value configured
-   *
-   * @default No address override
-   */
-  address?: string;
 }
 
 /**
@@ -35,6 +26,11 @@ export interface GnosisSafeChainConfig {
  * @category Smart Wallet Impl
  */
 export interface GnosisSafeWalletParams {
+  /**
+   * Chain provider to use for smart wallet functionality
+   */
+  chainProvider: IChainProvider;
+
   /**
    * Owner wallet that is allowed to act on behalf of the smart wallet
    *
@@ -62,4 +58,16 @@ export interface GnosisSafeWalletParams {
    * @default No per-chain config overrides
    */
   chains?: readonly GnosisSafeChainConfig[];
+}
+
+/**
+ * Get Gnosis Safe contract nonce parameters of {@link GnosisSafeWallet.getNonce}
+ *
+ * @category Smart Wallet Impl
+ */
+export interface GetGnosisSafeNonceParams {
+  /**
+   * Chain ID to get smart wallet nonce on
+   */
+  chainId: string;
 }
