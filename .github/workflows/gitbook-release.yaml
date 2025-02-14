@@ -1,5 +1,5 @@
-name: Publish Flash SDK and Docs
-run-name: Publish Flash SDK ${{ github.event.release.tag_name }} (by ${{ github.actor }})
+name: Publish Flash SDK Docs
+run-name: Publish Flash SDK Docs ${{ github.event.release.tag_name }} (by ${{ github.actor }})
 
 on:
   release:
