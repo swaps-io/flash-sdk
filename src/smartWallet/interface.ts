@@ -131,6 +131,43 @@ export interface GetSmartPermitTransactionParams {
 }
 
 /**
+ * Get smart wallet permit transaction parameters of {@link ISmartWallet.getCustomPermitTransaction}
+ *
+ * @category Smart Wallet
+ */
+export interface GetSmartCustomPermitTransactionParams {
+  /**
+   * Chain ID to get custom permit
+   */
+  chainId: string;
+  /**
+   * Address of account permit is signed by
+   */
+  from: string;
+
+  /**
+   * Permit token address
+   */
+  token: string;
+
+  data: string;
+
+  delegateCall: boolean,
+
+  /**
+   * Permit token amount
+   *
+   * The `undefined` value designates infinite amount
+   */
+  amount: string;
+
+  /**
+   * Permit signature by {@link from} address
+   */
+  signature: string;
+}
+
+/**
  * Smart Wallet functionality provider
  *
  * @category Smart Wallet
@@ -208,4 +245,13 @@ export interface ISmartWallet {
    * @returns Transaction submittable as swart wallet permit action
    */
   getPermitTransaction(params: GetSmartPermitTransactionParams): Promise<string>;
+
+  /**
+   * Prepares transaction action for submitting permit
+   *
+   * @param params Get permit transaction {@link GetSmartPermitTransactionParams | params}
+   *
+   * @returns Transaction submittable as swart wallet permit action
+   */
+  getCustomPermitTransaction(params: GetSmartCustomPermitTransactionParams): Promise<string>;
 }

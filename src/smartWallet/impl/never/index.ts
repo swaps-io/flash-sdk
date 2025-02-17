@@ -39,4 +39,8 @@ export class NeverSmartWallet implements ISmartWallet {
   public getPermitTransaction(): Promise<string> {
     throw new SmartWalletError('NeverSmartWallet.getPermitTransaction called');
   }
+
+  public getCustomPermitTransaction(): Promise<string> {
+    throw new SmartWalletError('NeverSmartWallet.getCustomPermitTransaction called');
+  }
 }

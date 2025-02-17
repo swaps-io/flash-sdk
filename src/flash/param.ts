@@ -391,6 +391,11 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default No chain ID put into chain-agnostic domain data
    */
   domainChainId?: string;
+
+  /**
+  * The parameter is needed to perform a swap of the network's native token with turnover in one transaction
+  * */
+  smartWalletNativeSwap?: boolean;
 }
 
 /**
