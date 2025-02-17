@@ -54,7 +54,10 @@ export interface GetSmartOwnersParams {
  *
  * @category Smart Wallet
  */
-export type SmartBatchTransactionParams = Pick<SendTransactionParams, 'to' | 'value' | 'data'>;
+export type SmartBatchTransactionParams = Pick<
+  SendTransactionParams,
+  'to' | 'value' | 'data' | 'smartWalletDelegateCall'
+>;
 
 /**
  * Get smart wallet sign transaction parameters of {@link ISmartWallet.getSignTransactionParams}
@@ -123,6 +126,57 @@ export interface GetSmartPermitTransactionParams {
    * The `undefined` value designates infinite amount
    */
   amount: string | undefined;
+
+  /**
+   * Permit signature by {@link from} address
+   */
+  signature: string;
+}
+
+/**
+ * Get smart wallet permit transaction parameters of {@link ISmartWallet.getCustomPermitTransaction}
+ *
+ * @category Smart Wallet
+ */
+export interface GetSmartCustomPermitTransactionParams {
+  /**
+   * Chain ID to get custom permit
+   */
+  chainId: string;
+  /**
+   * Address of account permit is signed by
+   */
+  from: string;
+
+  /**
+   * Permit token address
+   */
+  token: string;
+
+  /**
+   * Represents a data string that can be used to store or retrieve information.
+   * This variable is expected to hold a value of type string.
+   */
+  data: string;
+
+  /**
+   * Indicates whether the function or operation should be executed as a delegate call.
+   *
+   * A delegate call is a mechanism that allows a contract to execute a function call
+   * in the context of another contract, maintaining the calling contract's state.
+   * This is often used in scenarios involving proxy patterns or library functions.
+   *
+   * When set to true, the operation executes as a delegate call.
+   * When set to false, the operation executes as a normal call.
+   */
+  delegateCall: boolean;
+
+  /**
+   * Permit token amount
+   *
+   * The `undefined` value designates infinite amount
+   */
+  amount: string;
 
   /**
    * Permit signature by {@link from} address
@@ -208,4 +262,13 @@ export interface ISmartWallet {
    * @returns Transaction submittable as swart wallet permit action
    */
   getPermitTransaction(params: GetSmartPermitTransactionParams): Promise<string>;
+
+  /**
+   * Prepares transaction action for submitting permit
+   *
+   * @param params Get permit transaction {@link GetSmartPermitTransactionParams | params}
+   *
+   * @returns Transaction submittable as swart wallet permit action
+   */
+  getCustomPermitTransaction(params: GetSmartCustomPermitTransactionParams): Promise<string>;
 }

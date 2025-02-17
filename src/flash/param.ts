@@ -1,4 +1,5 @@
 import { AxiosInstanceSource } from '../api/client/axios/core/source';
+import { CryptoAggregator } from '../cryptoAggregator';
 import { ICryptoApproveProvider } from '../cryptoApprove';
 import { ICryptoDataSource } from '../cryptoDataSource';
 import { Dynamic } from '../helper/dynamic';
@@ -81,6 +82,16 @@ export interface FlashClientParams {
    * @default ApiCryptoApproveProvider({ wallet }) or NoWalletCryptoApproveProvider()
    */
   cryptoApprove?: ICryptoApproveProvider;
+
+  /**
+   * Represents an optional `CryptoAggregator` instance that provides
+   * functionality to aggregate data or operations related to
+   * cryptocurrencies. It may include methods or attributes for handling
+   * cryptocurrency-related tasks such as pricing, volume, or market data.
+   *
+   * @default CryptoAggregator(1h, cryptoDataSource)
+   */
+  cryptoAggregator?: CryptoAggregator;
 
   /**
    * Tolerance in percent the created swap's "to" amount can be lower than was specified
@@ -380,6 +391,11 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default No chain ID put into chain-agnostic domain data
    */
   domainChainId?: string;
+
+  /**
+   * The parameter is needed to perform a swap of the network's native token with turnover in one transaction
+   * */
+  smartWalletNativeSwap?: boolean;
 }
 
 /**
