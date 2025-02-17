@@ -92,7 +92,7 @@ export interface SendTransactionParams extends WalletBaseParams {
    * execution of external contract code while preserving the original caller's context.
    * When `false` or undefined, delegate calls are either disallowed or not utilized.
    */
-  smartWalletDelegateCall?: boolean
+  smartWalletDelegateCall?: boolean;
 }
 
 /**

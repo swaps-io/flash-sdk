@@ -160,7 +160,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
         params.spender,
         approveVerdict,
         revokeAllowance,
-        allowanceInfo
+        allowanceInfo,
       );
     }
 
@@ -408,7 +408,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     spender: string,
     approveVerdict: ApproveVerdict,
     revoke: boolean,
-    allowanceInfo: AllowanceInfo
+    allowanceInfo: AllowanceInfo,
   ): Promise<CryptoApproveAction[]> {
     switch (approveVerdict) {
       case 'no-action-needed':
@@ -481,7 +481,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
             crypto,
             owner,
             revoke,
-            allowanceInfo
+            allowanceInfo,
           ),
         ];
 
@@ -675,7 +675,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     crypto: CryptoData,
     owner: string,
     revoke: boolean,
-    allowanceInfo: AllowanceInfo
+    allowanceInfo: AllowanceInfo,
   ): Promise<CryptoApproveAction> {
     const wallet = await resolveDynamic(this.wallet);
     if (!isSmartWallet(wallet)) {
@@ -703,19 +703,17 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       );
     };
 
-    const approveAmount = await this.getApproveValue(crypto, amount)
-    const needApprove = allowanceInfo.allowance.is('less', amount)
-    const amountStr = amount.normalizeValue(crypto.decimals)
+    const approveAmount = await this.getApproveValue(crypto, amount);
+    const needApprove = allowanceInfo.allowance.is('less', amount);
+    const amountStr = amount.normalizeValue(crypto.decimals);
 
     const wrapCalldata = await encodeDeposit();
 
-    const multiSendCalls = [
-      encodeMultiSendTransaction(crypto.address, wrapCalldata, BigInt(amountStr)),
-    ]
+    const multiSendCalls = [encodeMultiSendTransaction(crypto.address, wrapCalldata, BigInt(amountStr))];
 
     if (needApprove && isNotNull(approveAmount)) {
       const approveCalldata = await encodeErc20Approve(spender, approveAmount);
-      multiSendCalls.push(encodeMultiSendTransaction(crypto.address, approveCalldata, 0n))
+      multiSendCalls.push(encodeMultiSendTransaction(crypto.address, approveCalldata, 0n));
     }
 
     const multiSendCalldata = await encodeMultiSend(multiSendCalls);

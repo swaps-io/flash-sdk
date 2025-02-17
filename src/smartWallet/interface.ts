@@ -54,7 +54,10 @@ export interface GetSmartOwnersParams {
  *
  * @category Smart Wallet
  */
-export type SmartBatchTransactionParams = Pick<SendTransactionParams, 'to' | 'value' | 'data' | 'smartWalletDelegateCall'>;
+export type SmartBatchTransactionParams = Pick<
+  SendTransactionParams,
+  'to' | 'value' | 'data' | 'smartWalletDelegateCall'
+>;
 
 /**
  * Get smart wallet sign transaction parameters of {@link ISmartWallet.getSignTransactionParams}
