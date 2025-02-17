@@ -22,7 +22,7 @@ export class SwapApproveSubClient {
     operation: string | undefined,
     swap: Swap,
     checkOrderData: CheckOrderDataFunc | undefined,
-    domainChainId: string | undefined
+    domainChainId: string | undefined,
   ): Promise<SwapApproveRequest> {
     const wallet = await this.wallet.getValue('Wallet must be configured for swap approve prepare');
     const needsCall = isNativeCrypto(swap.fromCrypto) && !isBitcoinCrypto(swap.fromCrypto) && !isSmartWallet(wallet);

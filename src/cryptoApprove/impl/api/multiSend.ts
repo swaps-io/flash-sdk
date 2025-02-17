@@ -18,3 +18,5 @@ export const encodeMultiSend = async (multiSendCalls: string[]): Promise<string>
   const multiSendCalldata = await evm.functionDataEncode(MULTI_SEND, 'multiSend', [transactions]);
   return multiSendCalldata;
 };
+
+export const MULTI_SEND_CONTACT_ADDRESS = '0x38869bf66a61cF6bDB996A6aE40D5853Fd43B526';

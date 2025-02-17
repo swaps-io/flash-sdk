@@ -8,7 +8,8 @@ import { isNotNull, isNull } from '../../../helper/null';
 import { IWallet, SendTransactionParams, SignTypedDataParams } from '../../../wallet';
 import { SmartWalletError } from '../../error';
 import {
-  GetSmartAddressParams, GetSmartCustomPermitTransactionParams,
+  GetSmartAddressParams,
+  GetSmartCustomPermitTransactionParams,
   GetSmartIsDeployedParams,
   GetSmartOwnersParams,
   GetSmartPermitTransactionParams,
@@ -107,7 +108,7 @@ export class GnosisSafeWallet implements ISmartWallet {
         to: txp.to,
         data: txp.data ?? '0x',
         value: txp.value ?? '0',
-        operation: 1
+        operation: txp.smartWalletDelegateCall ? 1 : 0,
       };
     };
 
@@ -195,14 +196,14 @@ export class GnosisSafeWallet implements ISmartWallet {
 
   public async getCustomPermitTransaction(params: GetSmartCustomPermitTransactionParams): Promise<string> {
     const { encodePermitSafeCustom } = await import('./permitSafeCustom');
-    const address = await this.getAddress(params)
+    const address = await this.getAddress(params);
     const transaction = await encodePermitSafeCustom(
-        address,
-        params.token,
-        params.amount,
-        params.data,
-        params.delegateCall,
-        params.signature
+      address,
+      params.token,
+      params.amount,
+      params.data,
+      params.delegateCall,
+      params.signature,
     );
     return transaction;
   }

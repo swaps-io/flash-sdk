@@ -54,7 +54,7 @@ export interface GetSmartOwnersParams {
  *
  * @category Smart Wallet
  */
-export type SmartBatchTransactionParams = Pick<SendTransactionParams, 'to' | 'value' | 'data'>;
+export type SmartBatchTransactionParams = Pick<SendTransactionParams, 'to' | 'value' | 'data' | 'smartWalletDelegateCall'>;
 
 /**
  * Get smart wallet sign transaction parameters of {@link ISmartWallet.getSignTransactionParams}
@@ -150,9 +150,23 @@ export interface GetSmartCustomPermitTransactionParams {
    */
   token: string;
 
+  /**
+   * Represents a data string that can be used to store or retrieve information.
+   * This variable is expected to hold a value of type string.
+   */
   data: string;
 
-  delegateCall: boolean,
+  /**
+   * Indicates whether the function or operation should be executed as a delegate call.
+   *
+   * A delegate call is a mechanism that allows a contract to execute a function call
+   * in the context of another contract, maintaining the calling contract's state.
+   * This is often used in scenarios involving proxy patterns or library functions.
+   *
+   * When set to true, the operation executes as a delegate call.
+   * When set to false, the operation executes as a normal call.
+   */
+  delegateCall: boolean;
 
   /**
    * Permit token amount

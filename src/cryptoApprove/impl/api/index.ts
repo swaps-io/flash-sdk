@@ -1,17 +1,40 @@
-import type {Hex} from 'viem';
-
-
+import type { Hex } from 'viem';
 
 import { setRequestProjectId } from '../../../api/client/axios/core/id';
 import { setAxiosInstanceMainV0 } from '../../../api/client/axios/main-v0';
-import { GetAllowanceMainV0Params, GetApproveMainV0Params, GetPermitDataMainV0Params, GetPermitTransactionMainV0Params, PermitDataMainV0, getAllowanceMainV0, getApproveMainV0, getPermitDataMainV0, getPermitTransactionMainV0 } from '../../../api/gen/main-v0';
+import {
+  GetAllowanceMainV0Params,
+  GetApproveMainV0Params,
+  GetPermitDataMainV0Params,
+  GetPermitTransactionMainV0Params,
+  PermitDataMainV0,
+  getAllowanceMainV0,
+  getApproveMainV0,
+  getPermitDataMainV0,
+  getPermitTransactionMainV0,
+} from '../../../api/gen/main-v0';
 import { IChainProvider } from '../../../chainProvider';
 import { CryptoAggregator } from '../../../cryptoAggregator';
 import { Dynamic, resolveDynamic } from '../../../helper/dynamic';
 import { isNotNull, isNull } from '../../../helper/null';
-import {isNativeCrypto} from '../../../helper/public';
+import { isNativeCrypto } from '../../../helper/public';
 import { IWalletLike, isSmartWallet } from '../../../helper/wallet';
-import { Amount, ApproveActionTarget, ApproveAmountPreference, ApproveProviderPreference, CryptoApprove, CryptoApproveAction, CryptoApproveRequest, CryptoData, Duration, FiniteApproveAmountPreference, IncompleteCryptoApprove, Instant, extractData, isFiniteApproveAmountPreference } from '../../../model';
+import {
+  Amount,
+  ApproveActionTarget,
+  ApproveAmountPreference,
+  ApproveProviderPreference,
+  CryptoApprove,
+  CryptoApproveAction,
+  CryptoApproveRequest,
+  CryptoData,
+  Duration,
+  FiniteApproveAmountPreference,
+  IncompleteCryptoApprove,
+  Instant,
+  extractData,
+  isFiniteApproveAmountPreference,
+} from '../../../model';
 import { SmartApproveData } from '../../../model/cryptoApprove/private';
 import { SmartBatchTransactionParams } from '../../../smartWallet';
 import { SendTransactionParams, SignTypedDataParams } from '../../../wallet';
@@ -20,14 +43,13 @@ import { ICryptoApproveProvider, PrepareCryptoApproveParams } from '../../interf
 import { PermitCache, PermitData } from '../../permit';
 import { PERMIT2_ADDRESS } from '../../permit2';
 
-
-
 import { getApproveAmount } from './erc20';
-import { AllowanceSource, ApiCryptoApproveProviderParams, ApproveFinalizationMode, OnApproveTxidReceived } from './param';
-
-
-
-
+import {
+  AllowanceSource,
+  ApiCryptoApproveProviderParams,
+  ApproveFinalizationMode,
+  OnApproveTxidReceived,
+} from './param';
 
 export type * from './param';
 
@@ -119,7 +141,12 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     }
 
     const allowanceInfo = await this.getAllowance(cryptoData, owner, params.spender);
-    const approveVerdict = await this.checkAllowance(cryptoData, params.amount, allowanceInfo, params.smartWalletNativeSwap);
+    const approveVerdict = await this.checkAllowance(
+      cryptoData,
+      params.amount,
+      allowanceInfo,
+      params.smartWalletNativeSwap,
+    );
     const canReusePermit = await this.checkCanReusePermit(cryptoData, params.amount, owner, approveVerdict);
     const revokeAllowance = this.checkShouldRevokeAllowance(allowanceInfo);
 
@@ -133,6 +160,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
         params.spender,
         approveVerdict,
         revokeAllowance,
+        allowanceInfo
       );
     }
 
@@ -249,22 +277,22 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     crypto: CryptoData,
     amount: Amount,
     allowanceInfo: AllowanceInfo,
-    smartWalletNativeSwap?: boolean
+    smartWalletNativeSwap?: boolean,
   ): Promise<ApproveVerdict> {
     const checkSufficient = (allowance: Amount): boolean => {
       const sufficient = allowance.is('greater-or-equal', amount);
       return sufficient;
     };
 
-    const sufficientXSwap = checkSufficient(allowanceInfo.allowance);
-    if (sufficientXSwap) {
-      return 'no-action-needed';
-    }
-
     const wallet = await resolveDynamic(this.wallet);
 
     if (isSmartWallet(wallet) && smartWalletNativeSwap) {
       return 'should-provide-smart-native-approve';
+    }
+
+    const sufficientXSwap = checkSufficient(allowanceInfo.allowance);
+    if (sufficientXSwap) {
+      return 'no-action-needed';
     }
 
     if (isSmartWallet(wallet)) {
@@ -380,6 +408,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     spender: string,
     approveVerdict: ApproveVerdict,
     revoke: boolean,
+    allowanceInfo: AllowanceInfo
   ): Promise<CryptoApproveAction[]> {
     switch (approveVerdict) {
       case 'no-action-needed':
@@ -448,10 +477,11 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
           await this.prepareSmartNativeApproveAndWrapAction(
             operation,
             spender,
-            await this.getApproveValue(crypto, amount),
+            amount,
             crypto,
             owner,
             revoke,
+            allowanceInfo
           ),
         ];
 
@@ -641,10 +671,11 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   private async prepareSmartNativeApproveAndWrapAction(
     operation: string | undefined,
     spender: string,
-    amount: string | undefined,
+    amount: Amount,
     crypto: CryptoData,
     owner: string,
     revoke: boolean,
+    allowanceInfo: AllowanceInfo
   ): Promise<CryptoApproveAction> {
     const wallet = await resolveDynamic(this.wallet);
     if (!isSmartWallet(wallet)) {
@@ -658,27 +689,34 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const tokenAddress = crypto.address;
     const smartWalletAddress = await wallet.getAddress({ chainId });
 
-    const [{ encodeErc20Approve }, { encodeDeposit }, { encodeMultiSend }, { encodePacked, size }] = await Promise.all([
-      import('./erc20'),
-      import('./wrap'),
-      import('./multiSend'),
-      import('viem'),
-    ]);
+    const [
+      { encodeErc20Approve },
+      { encodeDeposit },
+      { encodeMultiSend, MULTI_SEND_CONTACT_ADDRESS },
+      { encodePacked, size },
+    ] = await Promise.all([import('./erc20'), import('./wrap'), import('./multiSend'), import('viem')]);
 
-    const _encodeMultiSend = (target: string, callData: string, value = 0n, delegateCall = false): string => {
+    const encodeMultiSendTransaction = (target: string, callData: string, value = 0n, delegateCall = false): string => {
       return encodePacked(
         ['uint8', 'address', 'uint256', 'uint256', 'bytes'],
         [delegateCall ? 1 : 0, target, value, BigInt(size(callData as Hex)), callData as Hex],
       );
     };
 
-    const approveCalldata = await encodeErc20Approve(spender, amount);
+    const approveAmount = await this.getApproveValue(crypto, amount)
+    const needApprove = allowanceInfo.allowance.is('less', amount)
+    const amountStr = amount.normalizeValue(crypto.decimals)
+
     const wrapCalldata = await encodeDeposit();
 
     const multiSendCalls = [
-      _encodeMultiSend(crypto.address, wrapCalldata, BigInt(getApproveAmount(amount))),
-      _encodeMultiSend(crypto.address, approveCalldata, 0n),
-    ];
+      encodeMultiSendTransaction(crypto.address, wrapCalldata, BigInt(amountStr)),
+    ]
+
+    if (needApprove && isNotNull(approveAmount)) {
+      const approveCalldata = await encodeErc20Approve(spender, approveAmount);
+      multiSendCalls.push(encodeMultiSendTransaction(crypto.address, approveCalldata, 0n))
+    }
 
     const multiSendCalldata = await encodeMultiSend(multiSendCalls);
 
@@ -693,12 +731,13 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
     const signSmartApproveParams = await wallet.getSignTransactionParams({
       operation,
-      tag: 'approve-crypto',
-      chainId,
-      from: smartWalletAddress,
-      to: '0x38869bf66a61cF6bDB996A6aE40D5853Fd43B526',
-      data: multiSendCalldata,
       pre,
+      chainId,
+      tag: 'approve-crypto',
+      from: smartWalletAddress,
+      to: MULTI_SEND_CONTACT_ADDRESS,
+      data: multiSendCalldata,
+      smartWalletDelegateCall: true,
     });
 
     const smartApproveAction: CryptoApproveAction = {
@@ -707,7 +746,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       smartData: {
         actorAddress,
         tokenAddress,
-        amount,
+        amount: amountStr,
       },
     };
     return smartApproveAction;
@@ -830,8 +869,8 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   }
 
   private async performSignSmartNativeApproveTypedData(
-      params: SignTypedDataParams,
-      smartData: SmartApproveData,
+    params: SignTypedDataParams,
+    smartData: SmartApproveData,
   ): Promise<string | undefined> {
     const chainId = params.chainId;
     if (isNull(chainId)) {
@@ -847,7 +886,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const ownerWalletAddress = await ownerWallet.getAddress();
     const smartApproveSignature = await ownerWallet.signTypedData({ ...params, from: ownerWalletAddress });
     const data = (JSON.parse(params.data) as { message: { data: string } }).message.data;
-    const amount = getApproveAmount(smartData.amount)
+    const amount = getApproveAmount(smartData.amount);
 
     const smartApproveTransaction = await wallet.getCustomPermitTransaction({
       from: smartData.actorAddress,
@@ -856,7 +895,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       amount: '0',
       chainId,
       data,
-      delegateCall: true
+      delegateCall: true,
     });
 
     const permit: PermitData = {

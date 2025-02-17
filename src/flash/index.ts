@@ -290,7 +290,7 @@ export class FlashClient {
       amount: params.quote.fromAmount,
       spender: cryptoSpender,
       operation: params.operation,
-      smartWalletNativeSwap: params.smartWalletNativeSwap
+      smartWalletNativeSwap: params.smartWalletNativeSwap,
     });
     return cryptoApprove;
   }
