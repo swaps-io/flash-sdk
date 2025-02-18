@@ -886,9 +886,11 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const data = (JSON.parse(params.data) as { message: { data: string } }).message.data;
     const amount = getApproveAmount(smartData.amount);
 
+    const { MULTI_SEND_CONTACT_ADDRESS } = await import('./multiSend');
+
     const smartApproveTransaction = await wallet.getCustomPermitTransaction({
       from: smartData.actorAddress,
-      token: '0x38869bf66a61cF6bDB996A6aE40D5853Fd43B526',
+      token: MULTI_SEND_CONTACT_ADDRESS,
       signature: smartApproveSignature,
       amount: '0',
       chainId,
