@@ -21,6 +21,11 @@ export interface PrepareCryptoApproveParams extends WithWalletOperation {
    * Address to approve as a spender
    */
   spender: string;
+
+  /**
+   * The parameter is needed to perform a swap of the network's native token with turnover in one transaction
+   * */
+  smartWalletNativeSwap?: boolean;
 }
 
 /**

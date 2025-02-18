@@ -191,8 +191,9 @@ export class SwapSubClient {
       signature: swapApprove.swapSignature,
     };
     await submitSwapMainV0(swap.hash, submitSwapParams);
+    const wallet = await this.wallet.getValue('Wallet must be configured for swap submission');
 
-    const needsCall = isNativeCrypto(swap.fromCrypto) && !isBitcoinCrypto(swap.fromCrypto);
+    const needsCall = isNativeCrypto(swap.fromCrypto) && !isBitcoinCrypto(swap.fromCrypto) && !isSmartWallet(wallet);
     const swapSubmit = new SwapSubmit(swap.hash, needsCall);
     return swapSubmit;
   }
