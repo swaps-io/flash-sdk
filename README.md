@@ -1,30 +1,19 @@
-<!-- omit in toc -->
 # Flash SDK 🧰
 
 ![license](https://img.shields.io/badge/license-MIT-blue.svg)
 [![npm latest package](https://img.shields.io/npm/v/@swaps-io/flash-sdk/latest.svg)](https://www.npmjs.com/package/@swaps-io/flash-sdk)
 [![npm next package](https://img.shields.io/npm/v/@swaps-io/flash-sdk/next.svg)](https://www.npmjs.com/package/@swaps-io/flash-sdk)
 
-Set of tools for interaction with Flash protocol
+Set of tools for interaction with Flash protocol. See:
 
-<!-- omit in toc -->
-### Table of Contents
-
-- [Usage Examples](#usage-examples)
-  - [_Swap one specific crypto to another_](#swap-one-specific-crypto-to-another)
-  - [_Swap cryptos selected from the supported list_](#swap-cryptos-selected-from-the-supported-list)
-  - [_Monitor submitted swap state_](#monitor-submitted-swap-state)
-- [Development](#development)
-  - [Setup Project](#setup-project)
-  - [Peer Dependencies](#peer-dependencies)
-  - [Select EVM Provider](#select-evm-provider)
-  - [Known Issues](#known-issues)
-    - [_Optional dependency not resolved build error_](#optional-dependency-not-resolved-build-error)
-    - [_Axios initialization runtime error_](#axios-initialization-runtime-error)
+- [usage examples](#usage-examples) for a good starting point for working with the SDK
+- [installation](#installation) for instructions on how to setup SDK in a project
+- [reference](reference.md) for all available SDK classes/types/etc in current version
+- [versions](versions/README.md) for historic and _next_ release candidate SDK references
 
 ## Usage Examples
 
-### _Swap one specific crypto to another_
+#### _Swap one specific crypto to another_
 
 ```ts
 import { FlashClient, ViemWallet, Crypto, Amount } from '@swaps-io/flash-sdk';
@@ -36,8 +25,8 @@ const flash = new FlashClient({ projectId, wallet });
 await flash.preload(); // Optional
 
 // Select "from" & "to" cryptos by their chain ID & contract address
-const fromCrypto = await flash.getCrypto({ id: Crypto.makeId('5', '0x7A5c16F8055034A723376f680Cf6666cAd80B864') });
-const toCrypto = await flash.getCrypto({ id: Crypto.makeId('97', '0x0bfc4216C1Fc8ea8b941af6abb70C44dfd7Ee156') });
+const fromCrypto = await flash.getCrypto({ id: Crypto.makeId('1', '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2') });
+const toCrypto = await flash.getCrypto({ id: Crypto.makeId('56', '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c') });
 
 // Get quote & submit swap for the selected cryptos & "from" amount
 const fromAmount = Amount.fromDecimalString('12.34');
@@ -45,26 +34,21 @@ const quote = await flash.getQuote({ fromCrypto, fromAmount, toCrypto });
 const swap = await flash.submitSwap({ quote });
 ```
 
-### _Swap cryptos selected from the supported list_
+#### _Swap cryptos selected from the supported list_
 
 ```ts
-import { FlashClient, ViemWallet, Amount } from '@swaps-io/flash-sdk';
-
-// Initialize FlashClient
-const projectId = 'sdk-example'; // Replace with a meaningful project ID
-const wallet = await ViemWallet.fromPrivateKey('0x13...37');
-const flash = new FlashClient({ projectId, wallet });
-await flash.preload(); // Optional
+// Assuming FlashClient initialized
+const flash: FlashClient = ...;
 
 // Select "from" & "to" chains from supported list
 const chains = await flash.getChains();
-const [fromChain, toChain] = chains; // Example
+const [fromChain, toChain] = chains; // Example of chain selection
 
 // Select "from" & "to" cryptos from supported list for each chain
 const fromCryptos = await flash.getCryptos({ chain: fromChain });
-const [fromCrypto] = fromCryptos; // Example
+const [fromCrypto] = fromCryptos; // Example of crypto selection
 const toCryptos = await flash.getCryptos({ chain: toChain });
-const [toCrypto] = toCryptos; // Example
+const [toCrypto] = toCryptos; // Example of crypto selection
 
 // Get quote & submit swap for the selected cryptos & "from" amount
 const fromAmount = Amount.fromDecimalString('12.34'); // Example
@@ -72,7 +56,7 @@ const quote = await flash.getQuote({ fromCrypto, fromAmount, toCrypto });
 const swap = await flash.submitSwap({ quote });
 ```
 
-### _Monitor submitted swap state_
+#### _Monitor submitted swap state_
 
 ```ts
 // Wait for ~ five seconds before next swap update
@@ -108,10 +92,10 @@ if (swap.completed) {
 
 ## Development
 
-### Setup Project
+### Installation
 
-The SDK setup process assumes that [Node.js](https://nodejs.org/en) (version 22 is recommended) is installed on machine
-and a project where SDK is planned to be integrated is already created.
+The SDK installation process assumes that [Node.js](https://nodejs.org/en) (version 22 is recommended) is installed on
+machine and a project where SDK is planned to be integrated is already created.
 
 1. Install `@swaps-io/flash-sdk` as a usual NPM package dependency of the project
 2. Install [peer dependencies](#peer-dependencies) of SDK according to the needs of the project

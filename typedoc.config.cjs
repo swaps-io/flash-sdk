@@ -49,4 +49,8 @@ module.exports = {
   ],
   excludeExternals: true,
   externalPattern: [],
+
+  // Options of `typedoc-plugin-markdown`
+  modulesFileName: 'reference.md',
+  hidePageTitle: true,
 };
