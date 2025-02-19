@@ -10,10 +10,11 @@ jobs:
     name: Check, Build, Publish
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Read package version
         id: package
