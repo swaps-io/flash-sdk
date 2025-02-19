@@ -1,6 +1,6 @@
 {
   "name": "@swaps-io/flash-sdk",
-  "version": "1.2.0-rc.6",
+  "version": "1.2.0",
   "author": "Swaps.io Team",
   "description": "Swaps.io - Flash SDK",
   "license": "MIT",
