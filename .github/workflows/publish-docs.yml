@@ -40,7 +40,13 @@ jobs:
       - name: Generate docs
         run: yarn docs:gen-md
 
-      - name: Publish docs
+      - name: Select NPM package tag
+        id: npm
+        run: |
+          TAG=$([[ "${{ steps.package.outputs.version }}" =~ ^[0-9]+.[0-9]+.[0-9]+$ ]] && echo "latest" || echo "next")
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Publish docs to versions
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
@@ -48,3 +54,12 @@ jobs:
           publish_branch: main
           publish_dir: docs
           destination_dir: versions/${{ github.event.release.tag_name }}
+
+      - name: Publish latest docs to root
+        uses: peaceiris/actions-gh-pages@v4
+        if: ${{ steps.npm.outputs.tag == 'latest' }}
+        with:
+          personal_token: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
+          external_repository: swaps-io/docs
+          publish_branch: main
+          publish_dir: docs
