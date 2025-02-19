@@ -40,15 +40,11 @@ jobs:
       - name: Generate docs
         run: yarn docs:gen-md
 
-      - name: Organize docs folder
-        run: |
-          mkdir -p versions
-          mv docs versions/${{ github.event.release.tag_name }}
-
       - name: Publish docs
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
           external_repository: swaps-io/docs
           publish_branch: main
-          publish_dir: versions/${{ github.event.release.tag_name }}
+          publish_dir: docs
+          destination_dir: versions/${{ github.event.release.tag_name }}
