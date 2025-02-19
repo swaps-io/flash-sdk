@@ -267,6 +267,26 @@ export interface GetQuoteParams {
    * The "to" ("buy" from user perspective) amount
    */
   toAmount?: Amount;
+
+  /**
+   * The swap initiator (necessary for working with Smart Wallet)
+   */
+  fromActor?: string;
+
+  /**
+   * The recipient of funds (necessary for working with Smart Wallet)
+   */
+  fromActorReceiver?: string;
+
+  /**
+   * The EOA owner smart wallet (necessary for working with Smart Wallet)
+   */
+  fromActorWalletOwner?: string;
+
+  /**
+   * The EOA owner smart wallet (necessary for working with Smart Wallet)
+   */
+  fromActorReceiverWalletOwner?: string;
 }
 
 /**
@@ -340,6 +360,26 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default No extra check performed for order data
    */
   checkOrderData?: CheckOrderDataFunc;
+
+  /**
+   * The EOA owner smart wallet (necessary for working with Smart Wallet)
+   */
+  fromActorWalletOwner?: string;
+
+  /**
+   * The EOA owner smart wallet (necessary for working with Smart Wallet)
+   */
+  fromActorReceiverWalletOwner?: string;
+
+  /**
+   * Chain ID to put into chain-agnostic domain data
+   *
+   * Chain-agnostic EIP-712 domains usually don't need chain ID,
+   * but some wallets may require it for correct work
+   *
+   * @default No chain ID put into chain-agnostic domain data
+   */
+  domainChainId?: string;
 }
 
 /**

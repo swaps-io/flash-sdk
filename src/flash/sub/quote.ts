@@ -18,7 +18,16 @@ export class QuoteSubClient {
     this.onInconsistencyError = onInconsistencyError;
   }
 
-  public async getQuote(fromCrypto: Crypto, toCrypto: Crypto, fromAmount?: Amount, toAmount?: Amount): Promise<Quote> {
+  public async getQuote(
+    fromCrypto: Crypto,
+    toCrypto: Crypto,
+    fromAmount?: Amount,
+    toAmount?: Amount,
+    fromActor?: string,
+    fromActorReceiver?: string,
+    fromActorWalletOwner?: string,
+    fromActorReceiverWalletOwner?: string,
+  ): Promise<Quote> {
     if (isNull(fromAmount) === isNull(toAmount)) {
       throw new FlashError('Either "from" or "to" amount must be specified in quote params');
     }
@@ -40,6 +49,10 @@ export class QuoteSubClient {
       to_chain_id: toCrypto.chain.id,
       to_token_address: toCrypto.address,
       to_amount: toAmountValue,
+      from_actor: fromActor,
+      from_actor_receiver: fromActorReceiver,
+      from_actor_wallet_owner: fromActorWalletOwner,
+      from_actor_receiver_wallet_owner: fromActorReceiverWalletOwner,
     });
 
     const inconsistencyErrors: string[] = [];
