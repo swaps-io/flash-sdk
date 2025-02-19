@@ -1,0 +1,54 @@
+name: Publish Flash SDK Docs
+run-name: Publish Flash SDK Docs ${{ github.event.release.tag_name }} (by ${{ github.actor }})
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Generate, Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read package version
+        id: package
+        run: |
+          VERSION=$(awk '/"version":/' package.json | sed 's/.*:.*"\(.*\)",/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check release version
+        run: '[ "v${{ steps.package.outputs.version }}" = "${{ github.event.release.tag_name }}" ]'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Generate docs
+        run: yarn docs:gen-md
+
+      - name: Organize docs folder
+        run: |
+          mkdir -p versions
+          mv docs versions/${{ github.event.release.tag_name }}
+
+      - name: Publish docs
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
+          external_repository: swaps-io/docs
+          publish_branch: main
+          publish_dir: versions/${{ github.event.release.tag_name }}
