@@ -9,7 +9,6 @@ Set of tools for interaction with Flash protocol. See:
 - [usage examples](#usage-examples) for a good starting point for working with the SDK
 - [installation](#installation) for instructions on how to setup SDK in a project
 - [reference](reference.md) for all available SDK classes/types/etc in current version
-- [versions](versions/README.md) for historic and _next_ release candidate SDK references
 
 ## Usage Examples
 
