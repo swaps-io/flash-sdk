@@ -71,16 +71,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.release.tag_name }} ${{ steps.artifact.outputs.name }}
 
-      - name: Publish docs to versions
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          personal_token: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
-          external_repository: swaps-io/docs
-          publish_branch: main
-          publish_dir: docs
-          destination_dir: versions/${{ github.event.release.tag_name }}
-
-      - name: Publish latest docs to root
+      - name: Publish latest docs
         uses: peaceiris/actions-gh-pages@v4
         if: ${{ steps.npm.outputs.tag == 'latest' }}
         with:
