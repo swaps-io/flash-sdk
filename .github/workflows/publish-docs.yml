@@ -48,7 +48,7 @@ jobs:
       - name: Publish docs
         uses: peaceiris/actions-gh-pages@v4
         with:
-          deploy_key: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
+          github_token: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
           external_repository: swaps-io/docs
           publish_branch: main
           publish_dir: versions/${{ github.event.release.tag_name }}
