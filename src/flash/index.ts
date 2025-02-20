@@ -105,7 +105,7 @@ export class FlashClient {
       _cryptoApprove = new NoWalletCryptoApproveProvider();
     }
 
-    this.cryptoApprover = new CryptoApprover(cryptoApprove ?? _cryptoApprove, this.wallet);
+    this.cryptoApprover = new CryptoApprover(cryptoApprove ?? _cryptoApprove);
     this.quote = new QuoteSubClient(this.crypto, onInconsistencyError);
     this.swap = new SwapSubClient(
       this.crypto,

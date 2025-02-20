@@ -1,6 +1,4 @@
-import { FlashOptionalValue } from '../flash/optional';
 import { isNativeCrypto } from '../helper/native';
-import { IWalletLike } from '../helper/wallet';
 import { CryptoApprove, IncompleteCryptoApprove } from '../model';
 
 import { ICryptoApproveProvider, PrepareCryptoApproveParams } from './interface';
@@ -12,11 +10,9 @@ import { ICryptoApproveProvider, PrepareCryptoApproveParams } from './interface'
  */
 export class CryptoApprover {
   private readonly provider: ICryptoApproveProvider;
-  private readonly wallet: FlashOptionalValue<IWalletLike>;
 
-  public constructor(provider: ICryptoApproveProvider, wallet: FlashOptionalValue<IWalletLike>) {
+  public constructor(provider: ICryptoApproveProvider) {
     this.provider = provider;
-    this.wallet = wallet;
   }
 
   /**

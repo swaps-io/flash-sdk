@@ -158,6 +158,7 @@ export interface SignSmartNativeApproveTypedData {
    * Type of the sign smart approve typed data action
    */
   type: 'sign-smart-native-approve-typed-data';
+
   /**
    * @hidden
    */
