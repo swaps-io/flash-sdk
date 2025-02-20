@@ -1,6 +1,6 @@
 {
   "name": "@swaps-io/flash-sdk",
-  "version": "1.2.0-rc.6",
+  "version": "1.3.0-rc.9",
   "author": "Swaps.io Team",
   "description": "Swaps.io - Flash SDK",
   "license": "MIT",
@@ -52,8 +52,6 @@
     "do": "yarn docs:open",
     "docs": "yarn docs:gen && yarn docs:open",
     "d": "yarn docs",
-    "docs:gen-md": "yarn typedoc --plugin typedoc-plugin-markdown",
-    "dgm": "yarn docs:gen-md",
     "prepack": "yarn build"
   },
   "devDependencies": {
@@ -76,7 +74,6 @@
     "qs": "6.14.0",
     "ts-jest": "^29.2.5",
     "typedoc": "0.27.7",
-    "typedoc-plugin-markdown": "4.4.2",
     "typescript": "5.7.3",
     "viem": "2.23.2",
     "wagmi": "2.14.11"

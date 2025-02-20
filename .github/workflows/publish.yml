@@ -13,7 +13,11 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+
+      # Version
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Read package version
         id: package
@@ -23,6 +27,20 @@ jobs:
 
       - name: Check release version
         run: '[ "v${{ steps.package.outputs.version }}" = "${{ github.event.release.tag_name }}" ]'
+
+      - name: Select NPM package tag
+        id: npm
+        run: |
+          TAG=$([[ "${{ steps.package.outputs.version }}" =~ ^[0-9]+.[0-9]+.[0-9]+$ ]] && echo "latest" || echo "next")
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Name artifact
+        id: artifact
+        run: |
+          NAME=flash-sdk-${{ github.event.release.tag_name }}.tgz
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      # Install
 
       - name: Enable Corepack
         run: corepack enable
@@ -38,25 +56,38 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Name artifact
-        id: artifact
-        run: |
-          NAME=flash-sdk-${{ github.event.release.tag_name }}.tgz
-          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+      # Build
 
       - name: Build artifact
         run: yarn pack --filename ${{ steps.artifact.outputs.name }}
+
+      - name: Generate docs
+        if: ${{ steps.npm.outputs.tag == 'latest' }}
+        run: |
+          yarn docs:gen
+          tar -czvf docs.tar.gz docs
+
+      # Publish
 
       - name: Attach artifact to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.release.tag_name }} ${{ steps.artifact.outputs.name }}
 
-      - name: Select NPM package tag
-        id: npm
+      - name: Configure docs SSH
+        if: ${{ steps.npm.outputs.tag == 'latest' }}
         run: |
-          TAG=$([[ "${{ steps.package.outputs.version }}" =~ ^[0-9]+.[0-9]+.[0-9]+$ ]] && echo "latest" || echo "next")
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_DOCS_CONFIG }}" >> ~/.ssh/config
+          echo "${{ secrets.SSH_DOCS_KEY }}" >> ~/.ssh/sdk-docs-key
+          chmod 400 ~/.ssh/sdk-docs-key
+          echo "${{ secrets.SSH_DOCS_KNOWN }}" >> ~/.ssh/known_hosts
+
+      - name: Publish docs
+        if: ${{ steps.npm.outputs.tag == 'latest' }}
+        run: |
+          scp docs.tar.gz sdk-docs:content
+          ssh sdk-docs 'cd content; ./run.sh'
 
       - name: Publish NPM package
         env:
