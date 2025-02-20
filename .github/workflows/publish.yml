@@ -87,7 +87,7 @@ jobs:
         # if: ${{ steps.npm.outputs.tag == 'latest' }} -- temp
         run:
           scp docs.tar.gz sdk-docs:content
-          ssh sdk-docs "cd content; ./run.sh"
+          ssh sdk-docs ${{ 'cd content; ./run.sh' }}
 
       - name: Publish NPM package
         env:
