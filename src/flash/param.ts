@@ -394,7 +394,7 @@ export interface SubmitSwapParams extends WithWalletOperation {
 
   /**
    * The parameter is needed to perform a swap of the network's native token with turnover in one transaction
-   * */
+   */
   smartWalletNativeSwap?: boolean;
 }
 

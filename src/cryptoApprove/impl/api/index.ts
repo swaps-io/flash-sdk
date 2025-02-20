@@ -202,6 +202,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       const chain = this.crypto.getChainById(crypto.chainId);
       crypto = chain.contract.nativeWrapCrypto.data;
     }
+
     const obtainSourceAllowance = async (source: AllowanceSource): Promise<AllowanceInfo | undefined> => {
       try {
         switch (source) {
@@ -279,16 +280,15 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     allowanceInfo: AllowanceInfo,
     smartWalletNativeSwap?: boolean,
   ): Promise<ApproveVerdict> {
+    const wallet = await resolveDynamic(this.wallet);
+    if (isSmartWallet(wallet) && smartWalletNativeSwap) {
+      return 'should-provide-smart-native-approve';
+    }
+
     const checkSufficient = (allowance: Amount): boolean => {
       const sufficient = allowance.is('greater-or-equal', amount);
       return sufficient;
     };
-
-    const wallet = await resolveDynamic(this.wallet);
-
-    if (isSmartWallet(wallet) && smartWalletNativeSwap) {
-      return 'should-provide-smart-native-approve';
-    }
 
     const sufficientXSwap = checkSufficient(allowanceInfo.allowance);
     if (sufficientXSwap) {
@@ -681,9 +681,11 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     if (!isSmartWallet(wallet)) {
       throw new CryptoApproveError('Smart wallet must be configured for smart approve action');
     }
+
     if (!crypto.isNativeWrap) {
       throw new CryptoApproveError('Crypto is not NativeWrap Wrap');
     }
+
     const chainId = crypto.chainId;
     const actorAddress = owner;
     const tokenAddress = crypto.address;

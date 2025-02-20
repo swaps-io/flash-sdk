@@ -143,6 +143,7 @@ export interface GetSmartCustomPermitTransactionParams {
    * Chain ID to get custom permit
    */
   chainId: string;
+
   /**
    * Address of account permit is signed by
    */
