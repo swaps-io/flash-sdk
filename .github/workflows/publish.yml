@@ -62,7 +62,7 @@ jobs:
         run: yarn pack --filename ${{ steps.artifact.outputs.name }}
 
       - name: Generate docs
-        # if: ${{ steps.npm.outputs.tag == 'latest' }} -- temp
+        if: ${{ steps.npm.outputs.tag == 'latest' }}
         run: |
           yarn docs:gen
           tar -czvf docs.tar.gz docs
@@ -75,7 +75,7 @@ jobs:
         run: gh release upload ${{ github.event.release.tag_name }} ${{ steps.artifact.outputs.name }}
 
       - name: Configure docs SSH
-        # if: ${{ steps.npm.outputs.tag == 'latest' }} -- temp
+        if: ${{ steps.npm.outputs.tag == 'latest' }}
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_DOCS_CONFIG }}" >> ~/.ssh/config
@@ -84,7 +84,7 @@ jobs:
           echo "${{ secrets.SSH_DOCS_KNOWN }}" >> ~/.ssh/known_hosts
 
       - name: Publish docs
-        # if: ${{ steps.npm.outputs.tag == 'latest' }} -- temp
+        if: ${{ steps.npm.outputs.tag == 'latest' }}
         run: |
           scp docs.tar.gz sdk-docs:content
           ssh sdk-docs 'cd content; ./run.sh'
