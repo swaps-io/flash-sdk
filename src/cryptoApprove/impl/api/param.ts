@@ -1,6 +1,5 @@
 import { AxiosInstanceSource } from '../../../api/client/axios/core/source';
 import { IChainProvider } from '../../../chainProvider';
-import { CryptoAggregator } from '../../../cryptoAggregator';
 import { Dynamic } from '../../../helper/dynamic';
 import { IWalletLike } from '../../../helper/wallet';
 import { ApproveAmountPreference, ApproveProviderPreference, Duration } from '../../../model';
@@ -43,11 +42,6 @@ export interface ApiCryptoApproveProviderParams {
    * Wallet provider to use for signing permits & sending approve transactions
    */
   wallet: Dynamic<IWalletLike>;
-
-  /**
-   *
-   */
-  crypto: CryptoAggregator;
 
   /**
    * Client for Flash Main API access

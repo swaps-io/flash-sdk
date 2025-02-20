@@ -1,4 +1,5 @@
 import { isNativeCrypto } from '../helper/native';
+import { isNull } from '../helper/null';
 import { CryptoApprove, IncompleteCryptoApprove } from '../model';
 
 import { ICryptoApproveProvider, PrepareCryptoApproveParams } from './interface';
@@ -23,7 +24,7 @@ export class CryptoApprover {
    * @returns Complete crypto approve
    */
   public async approve(params: PrepareCryptoApproveParams): Promise<CryptoApprove> {
-    if (isNativeCrypto(params.crypto) && !params.smartWalletNativeSwap) {
+    if (isNativeCrypto(params.crypto) && isNull(params.nativeWrapTarget)) {
       const cryptoApprove = new CryptoApprove(undefined);
       return cryptoApprove;
     }

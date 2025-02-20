@@ -14,7 +14,6 @@ import {
   getPermitTransactionMainV0,
 } from '../../../api/gen/main-v0';
 import { IChainProvider } from '../../../chainProvider';
-import { CryptoAggregator } from '../../../cryptoAggregator';
 import { Dynamic, resolveDynamic } from '../../../helper/dynamic';
 import { isNotNull, isNull } from '../../../helper/null';
 import { isNativeCrypto } from '../../../helper/public';
@@ -77,7 +76,6 @@ const UNREACHABLE_TIME = Instant.fromEpochDuration(Duration.fromDays(10_000_000)
  */
 export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   private readonly wallet: Dynamic<IWalletLike>;
-  private readonly crypto: CryptoAggregator;
   private readonly providerPreference: Dynamic<ApproveProviderPreference>;
   private readonly amountPreference: Dynamic<ApproveAmountPreference>;
   private readonly allowanceSources: readonly AllowanceSource[];
@@ -93,7 +91,6 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const {
       projectId,
       wallet,
-      crypto,
       mainClient = 'https://api.prod.swaps.io',
       providerPreference = 'permit-permit2-approve',
       amountPreference = 'exact',
@@ -110,7 +107,6 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     setAxiosInstanceMainV0(mainClient);
 
     this.wallet = wallet;
-    this.crypto = crypto;
     this.providerPreference = providerPreference;
     this.amountPreference = amountPreference;
     this.allowanceSources = allowanceSources;
@@ -140,12 +136,14 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       owner = await wallet.getAddress();
     }
 
+    const shouldWrapNativeCrypto = isNativeCrypto(cryptoData) && isNotNull(params.nativeWrapTarget);
+
     const allowanceInfo = await this.getAllowance(cryptoData, owner, params.spender);
     const approveVerdict = await this.checkAllowance(
       cryptoData,
       params.amount,
       allowanceInfo,
-      params.smartWalletNativeSwap,
+      shouldWrapNativeCrypto,
     );
     const canReusePermit = await this.checkCanReusePermit(cryptoData, params.amount, owner, approveVerdict);
     const revokeAllowance = this.checkShouldRevokeAllowance(allowanceInfo);
@@ -196,13 +194,18 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     return cryptoApprove;
   }
 
-  private async getAllowance(crypto: CryptoData, owner: string, spender: string): Promise<AllowanceInfo> {
+  private async shouldWrapNativeCrypto(crypto: CryptoData, nativeWrapTarget: CryptoData | undefined): Promise<boolean> {
     const wallet = await resolveDynamic(this.wallet);
-    if (isSmartWallet(wallet) && isNativeCrypto(crypto)) {
-      const chain = this.crypto.getChainById(crypto.chainId);
-      crypto = chain.contract.nativeWrapCrypto.data;
-    }
+    const shouldWrap = isSmartWallet(wallet) && isNativeCrypto(crypto) && isNotNull(nativeWrapTarget);
+    return shouldWrap;
+  }
 
+  private async getAllowanceCrypto(crypto: CryptoData, nativeWrapTarget: CryptoData | undefined): Promise<CryptoData> {
+    const shouldWrap = await this.shouldWrapNativeCrypto(crypto, nativeWrapTarget);
+    return shouldWrap && isNotNull(nativeWrapTarget) ? nativeWrapTarget : crypto;
+  }
+
+  private async getAllowance(crypto: CryptoData, owner: string, spender: string): Promise<AllowanceInfo> {
     const obtainSourceAllowance = async (source: AllowanceSource): Promise<AllowanceInfo | undefined> => {
       try {
         switch (source) {
@@ -278,10 +281,10 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     crypto: CryptoData,
     amount: Amount,
     allowanceInfo: AllowanceInfo,
-    smartWalletNativeSwap?: boolean,
+    shouldWrapNativeCrypto?: boolean,
   ): Promise<ApproveVerdict> {
     const wallet = await resolveDynamic(this.wallet);
-    if (isSmartWallet(wallet) && smartWalletNativeSwap) {
+    if (isSmartWallet(wallet) && shouldWrapNativeCrypto) {
       return 'should-provide-smart-native-approve';
     }
 

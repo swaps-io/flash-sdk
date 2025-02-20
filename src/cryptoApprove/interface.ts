@@ -23,9 +23,15 @@ export interface PrepareCryptoApproveParams extends WithWalletOperation {
   spender: string;
 
   /**
-   * The parameter is needed to perform a swap of the network's native token with turnover in one transaction
+   * Crypto that native {@link crypto} will be wrapped into as part of approve process
+   *
+   * The native wrap target value is always passed as-is into the underlying
+   * {@link ICryptoApproveProvider.prepareCryptoApprove | provider}, regardless
+   * of whether the {@link crypto} is native or not
+   *
+   * @default Native crypto is not subject to approval process
    */
-  smartWalletNativeSwap?: boolean;
+  nativeWrapTarget?: DataLike<CryptoData>;
 }
 
 /**
