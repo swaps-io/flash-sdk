@@ -153,23 +153,6 @@ export interface SignSmartApproveTypedData {
   smartData: SmartApproveData;
 }
 
-export interface SignSmartNativeApproveTypedData {
-  /**
-   * Type of the sign smart approve native typed data action
-   */
-  type: 'sign-smart-native-approve-typed-data';
-
-  /**
-   * @hidden
-   */
-  params: SignTypedDataParams;
-
-  /**
-   * @hidden
-   */
-  smartData: SmartApproveData;
-}
-
 /**
  * Wait approve finalization type of crypto approve action
  *
@@ -221,7 +204,6 @@ export type CryptoApproveAction =
   | SendApproveTransactionAction
   | SignPermitTypedDataAction
   | SignSmartApproveTypedData
-  | SignSmartNativeApproveTypedData
   | WaitApproveFinalizationAction;
 
 /**

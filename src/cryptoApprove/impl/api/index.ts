@@ -43,7 +43,7 @@ import { ICryptoApproveProvider, PrepareCryptoApproveParams } from '../../interf
 import { PermitCache, PermitData } from '../../permit';
 import { PERMIT2_ADDRESS } from '../../permit2';
 
-import { getApproveAmount } from './erc20';
+import { MULTI_SEND_CONTACT_ADDRESS } from './multiSend';
 import {
   AllowanceSource,
   ApiCryptoApproveProviderParams,
@@ -663,6 +663,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
         actorAddress,
         tokenAddress,
         amount,
+        native: false,
       },
     };
     return smartApproveAction;
@@ -739,14 +740,14 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       data: multiSendCalldata,
       smartWalletDelegateCall: true,
     });
-
     const smartApproveAction: CryptoApproveAction = {
-      type: 'sign-smart-native-approve-typed-data',
+      type: 'sign-smart-approve-typed-data',
       params: signSmartApproveParams,
       smartData: {
         actorAddress,
         tokenAddress,
         amount: amountStr,
+        native: true,
       },
     };
     return smartApproveAction;
@@ -778,8 +779,6 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
         return await this.performSignPermitTypedData(action.params, action.permitData);
       case 'sign-smart-approve-typed-data':
         return await this.performSignSmartApproveTypedData(action.params, action.smartData);
-      case 'sign-smart-native-approve-typed-data':
-        return await this.performSignSmartNativeApproveTypedData(action.params, action.smartData);
       case 'send-approve-transaction':
         return await this.performSendApproveTransaction(action.params);
       case 'wait-approve-finalization':
@@ -848,12 +847,29 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const ownerWallet = await wallet.getOwnerWallet();
     const ownerWalletAddress = await ownerWallet.getAddress();
     const smartApproveSignature = await ownerWallet.signTypedData({ ...params, from: ownerWalletAddress });
-    const smartApproveTransaction = await wallet.getPermitTransaction({
-      from: smartData.actorAddress,
-      token: smartData.tokenAddress,
-      amount: smartData.amount,
-      signature: smartApproveSignature,
-    });
+
+    let smartApproveTransaction: string;
+    if (smartData.native) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const data = JSON.parse(params.data).message.data as string;
+
+      smartApproveTransaction = await wallet.getCustomPermitTransaction({
+        from: smartData.actorAddress,
+        token: MULTI_SEND_CONTACT_ADDRESS,
+        signature: smartApproveSignature,
+        amount: '0',
+        chainId,
+        data,
+        delegateCall: true,
+      });
+    } else {
+      smartApproveTransaction = await wallet.getPermitTransaction({
+        from: smartData.actorAddress,
+        token: smartData.tokenAddress,
+        amount: smartData.amount,
+        signature: smartApproveSignature,
+      });
+    }
 
     const permit: PermitData = {
       type: 'smart-approve',
@@ -864,52 +880,6 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       tokenAddress: smartData.tokenAddress,
       maxAmount: smartData.amount,
     };
-    this.permitCache?.storePermit(permit);
-    return permit.transaction;
-  }
-
-  private async performSignSmartNativeApproveTypedData(
-    params: SignTypedDataParams,
-    smartData: SmartApproveData,
-  ): Promise<string | undefined> {
-    const chainId = params.chainId;
-    if (isNull(chainId)) {
-      throw new CryptoApproveError('Chain ID must be set for sign smart approve typed data');
-    }
-
-    const wallet = await resolveDynamic(this.wallet);
-    if (!isSmartWallet(wallet)) {
-      throw new CryptoApproveError('Smart wallet must be configured for sign smart approve typed data');
-    }
-
-    const ownerWallet = await wallet.getOwnerWallet();
-    const ownerWalletAddress = await ownerWallet.getAddress();
-    const smartApproveSignature = await ownerWallet.signTypedData({ ...params, from: ownerWalletAddress });
-    const data = (JSON.parse(params.data) as { message: { data: string } }).message.data;
-    const amount = getApproveAmount(smartData.amount);
-
-    const { MULTI_SEND_CONTACT_ADDRESS } = await import('./multiSend');
-
-    const smartApproveTransaction = await wallet.getCustomPermitTransaction({
-      from: smartData.actorAddress,
-      token: MULTI_SEND_CONTACT_ADDRESS,
-      signature: smartApproveSignature,
-      amount: '0',
-      chainId,
-      data,
-      delegateCall: true,
-    });
-
-    const permit: PermitData = {
-      type: 'smart-approve',
-      transaction: smartApproveTransaction,
-      expiresAt: UNREACHABLE_TIME.data,
-      chainId,
-      actorAddress: smartData.actorAddress,
-      tokenAddress: smartData.tokenAddress,
-      maxAmount: amount,
-    };
-
     this.permitCache?.storePermit(permit);
     return permit.transaction;
   }

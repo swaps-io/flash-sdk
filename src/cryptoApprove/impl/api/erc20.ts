@@ -51,12 +51,8 @@ const ERC20_APPROVE_ABI = [
   },
 ];
 
-export const getApproveAmount = (amount: string | undefined): string => {
-  return amount ?? ERC20_INFINITE_AMOUNT;
-};
-
 export const encodeErc20Approve = async (spender: string, amount: string | undefined): Promise<string> => {
-  const approveAmount = getApproveAmount(amount);
+  const approveAmount = amount ?? ERC20_INFINITE_AMOUNT;
   const approveData = await evm.functionDataEncode(ERC20_APPROVE_ABI, 'approve', [spender, approveAmount]);
   return approveData;
 };
