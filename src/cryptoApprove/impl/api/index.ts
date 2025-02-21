@@ -40,13 +40,15 @@ import { ICryptoApproveProvider, PrepareCryptoApproveParams } from '../../interf
 import { PermitCache, PermitData } from '../../permit';
 import { PERMIT2_ADDRESS } from '../../permit2';
 
-import { MULTI_SEND_CONTACT_ADDRESS, encodeMultiSendTransaction } from './multiSend';
+import { decodeErc20Allowance, encodeErc20Allowance, encodeErc20Approve } from './erc20';
+import { MULTI_SEND_CONTACT_ADDRESS, encodeMultiSend, encodeMultiSendTransaction } from './multiSend';
 import {
   AllowanceSource,
   ApiCryptoApproveProviderParams,
   ApproveFinalizationMode,
   OnApproveTxidReceived,
 } from './param';
+import { encodeDeposit } from './wrap';
 
 export type * from './param';
 
@@ -249,7 +251,6 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     spender: string,
     chainProvider: IChainProvider,
   ): Promise<AllowanceInfo> {
-    const { encodeErc20Allowance, decodeErc20Allowance } = await import('./erc20');
     const allowanceData = await encodeErc20Allowance(owner, spender);
 
     const callResultData = await chainProvider.call({
@@ -470,15 +471,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
       case 'should-provide-smart-native-approve':
         return [
-          await this.prepareSmartNativeApproveAndWrapAction(
-            operation,
-            spender,
-            amount,
-            crypto,
-            owner,
-            revoke,
-            allowanceInfo,
-          ),
+          await this.prepareSmartNativeApproveAction(operation, spender, amount, crypto, owner, revoke, allowanceInfo),
         ];
 
       case 'should-provide-approve':
@@ -631,7 +624,6 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const tokenAddress = crypto.address;
     const smartWalletAddress = await wallet.getAddress({ chainId });
 
-    const { encodeErc20Approve } = await import('./erc20');
     const tokenApproveData = await encodeErc20Approve(spender, amount);
 
     let pre: SmartBatchTransactionParams | undefined;
@@ -665,7 +657,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     return smartApproveAction;
   }
 
-  private async prepareSmartNativeApproveAndWrapAction(
+  private async prepareSmartNativeApproveAction(
     operation: string | undefined,
     spender: string,
     amount: Amount,
@@ -680,16 +672,13 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     }
 
     if (!crypto.isNativeWrap) {
-      throw new CryptoApproveError('Crypto is not NativeWrap Wrap');
+      throw new CryptoApproveError('Smart wallet approve action crypto is not native wrap');
     }
 
     const chainId = crypto.chainId;
     const actorAddress = owner;
     const tokenAddress = crypto.address;
     const smartWalletAddress = await wallet.getAddress({ chainId });
-
-    const [{ encodeErc20Approve }, { encodeDeposit }, { encodeMultiSend, MULTI_SEND_CONTACT_ADDRESS }] =
-      await Promise.all([import('./erc20'), import('./wrap'), import('./multiSend')]);
 
     const approveAmount = await this.getApproveValue(crypto, amount);
     const needApprove = allowanceInfo.allowance.is('less', amount);
