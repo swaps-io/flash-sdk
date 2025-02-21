@@ -784,7 +784,6 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const smartApproveTransaction = await wallet.getPermitTransaction({
       chainId: params.chainId!,
       data: params.data,
-      from: params.from,
       signature: smartApproveSignature,
     });
 

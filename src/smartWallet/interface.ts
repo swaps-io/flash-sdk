@@ -113,17 +113,12 @@ export interface GetSmartPermitTransactionParams {
   chainId: string;
 
   /**
-   * Address of account permit is signed by
-   */
-  from: string;
-
-  /**
    * Permit transaction data
    */
   data: string;
 
   /**
-   * Permit signature by {@link from} address
+   * Permit data signature
    */
   signature: string;
 }

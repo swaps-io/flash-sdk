@@ -187,7 +187,7 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public async getPermitTransaction(params: GetSmartPermitTransactionParams): Promise<string> {
-    const data = JSON.parse(params.data) as SafeTransactionParams;
+    const data = JSON.parse(params.data) as SafeTransactionParams; // TODO
     const address = await this.getAddress(params);
     const { encodePermitSafeCustom } = await import('./permitSafeCustom');
     const transaction = await encodePermitSafeCustom(

@@ -5,6 +5,7 @@ import { CryptoAggregator } from '../cryptoAggregator';
 import { ApiCryptoApproveProvider, CryptoApprover, NoWalletCryptoApproveProvider } from '../cryptoApprove';
 import { ApiCryptoDataSource } from '../cryptoDataSource';
 import { isNotNull } from '../helper/null';
+import { IWalletLike } from '../helper/wallet';
 import {
   Amount,
   Chain,
@@ -59,7 +60,9 @@ export type * from './error';
  * @category Client
  */
 export class FlashClient {
+  private readonly wallet: FlashOptionalValue<IWalletLike>;
   private readonly crypto: CryptoAggregator;
+  private readonly cryptoApprover: CryptoApprover;
   private readonly quote: QuoteSubClient;
   private readonly swap: SwapSubClient;
   private readonly cryptoApprove: CryptoApproveSubClient;
@@ -90,25 +93,24 @@ export class FlashClient {
     setAxiosInstanceMainV0(mainClient);
     setAxiosInstanceCollateralV0(collateralClient);
 
-    const cryptoApprover = new CryptoApprover(cryptoApprove);
-    const walletValue = new FlashOptionalValue(wallet);
-
+    this.wallet = new FlashOptionalValue(wallet);
     this.crypto = new CryptoAggregator(cryptoCacheTtl, cryptoDataSource);
+    this.cryptoApprover = new CryptoApprover(cryptoApprove);
     this.quote = new QuoteSubClient(this.crypto, onInconsistencyError);
     this.swap = new SwapSubClient(
       this.crypto,
-      cryptoApprover,
-      walletValue,
+      this.cryptoApprover,
+      this.wallet,
       swapToAmountTolerance,
       swapFromAmountTolerance,
       onInconsistencyError,
     );
-    this.cryptoApprove = new CryptoApproveSubClient(cryptoApprover, walletValue);
-    this.swapApprove = new SwapApproveSubClient(walletValue);
-    this.swapCall = new SwapCallSubClient(walletValue);
+    this.cryptoApprove = new CryptoApproveSubClient(this.cryptoApprover, this.wallet);
+    this.swapApprove = new SwapApproveSubClient(this.wallet);
+    this.swapCall = new SwapCallSubClient(this.wallet);
     this.resolver = new ResolverSubClient(this.crypto, resolverCacheTtl);
-    this.nativeWrap = new NativeWrapSubClient(walletValue, this.crypto);
-    this.agreement = new AgreementSubClient(walletValue);
+    this.nativeWrap = new NativeWrapSubClient(this.wallet, this.crypto);
+    this.agreement = new AgreementSubClient(this.wallet);
   }
 
   /**
