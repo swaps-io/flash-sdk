@@ -25,6 +25,7 @@ import {
   CryptoApproveAction,
   CryptoApproveRequest,
   CryptoData,
+  DataLike,
   Duration,
   FiniteApproveAmountPreference,
   IncompleteCryptoApprove,
@@ -41,14 +42,12 @@ import { PermitCache, PermitData } from '../../permit';
 import { PERMIT2_ADDRESS } from '../../permit2';
 
 import { decodeErc20Allowance, encodeErc20Allowance, encodeErc20Approve } from './erc20';
-import { MULTI_SEND_CONTACT_ADDRESS, encodeMultiSend, encodeMultiSendTransaction } from './multiSend';
 import {
   AllowanceSource,
   ApiCryptoApproveProviderParams,
   ApproveFinalizationMode,
   OnApproveTxidReceived,
 } from './param';
-import { encodeDeposit } from './wrap';
 
 export type * from './param';
 
@@ -64,7 +63,6 @@ type ApproveVerdict =
   | 'should-provide-permit'
   | 'should-provide-permit2'
   | 'should-provide-smart-approve'
-  | 'should-provide-smart-native-approve'
   | 'should-provide-approve';
 
 const UNREACHABLE_TIME = Instant.fromEpochDuration(Duration.fromDays(10_000_000));
@@ -126,34 +124,33 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       return cryptoApproveRequest;
     }
 
-    const cryptoData = extractData(params.crypto);
-    const wallet = await resolveDynamic(this.wallet);
+    const crypto = extractData(params.crypto);
+    const cryptoWrapper = await this.resolveCryptoWrapper(crypto, params.nativeWrapCrypto);
 
     let owner: string;
+    const wallet = await resolveDynamic(this.wallet);
     if (isSmartWallet(wallet)) {
-      owner = await wallet.getAddress({ chainId: cryptoData.chainId });
+      owner = await wallet.getAddress({ chainId: crypto.chainId });
     } else {
       owner = await wallet.getAddress();
     }
 
-    const shouldWrapNativeCrypto = isNativeCrypto(cryptoData) && isNotNull(params.nativeWrapTarget);
-
-    const allowanceInfo = await this.getAllowance(cryptoData, owner, params.spender);
-    const approveVerdict = await this.checkAllowance(cryptoData, params.amount, allowanceInfo, shouldWrapNativeCrypto);
-    const canReusePermit = await this.checkCanReusePermit(cryptoData, params.amount, owner, approveVerdict);
+    const allowanceInfo = await this.getAllowance(crypto, owner, params.spender);
+    const approveVerdict = await this.checkAllowance(crypto, params.amount, allowanceInfo);
+    const canReusePermit = await this.checkCanReusePermit(crypto, params.amount, owner, approveVerdict);
     const revokeAllowance = this.checkShouldRevokeAllowance(allowanceInfo);
 
     let actions: CryptoApproveAction[] = [];
     if (!canReusePermit) {
       actions = await this.collectApproveActions(
         params.operation,
-        cryptoData,
+        crypto,
+        cryptoWrapper,
         params.amount,
         owner,
         params.spender,
         approveVerdict,
         revokeAllowance,
-        allowanceInfo,
       );
     }
 
@@ -190,6 +187,14 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   }
 
   private async getAllowance(crypto: CryptoData, owner: string, spender: string): Promise<AllowanceInfo> {
+    if (isNativeCrypto(crypto)) {
+      return {
+        allowance: Amount.zero(),
+        allowanceP2: undefined,
+        allowanceUpdatable: false,
+      };
+    }
+
     const obtainSourceAllowance = async (source: AllowanceSource): Promise<AllowanceInfo | undefined> => {
       try {
         switch (source) {
@@ -212,6 +217,36 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       }
     }
     throw new CryptoApproveError(`No allowance info provided by ${this.allowanceSources.length} data sources`);
+  }
+
+  private async resolveCryptoWrapper(
+    crypto: CryptoData,
+    nativeWrapCrypto: DataLike<CryptoData> | undefined,
+  ): Promise<CryptoData | undefined> {
+    // Native `crypto` usually does not require approve - so the approve provider is not triggered at all.
+    // But if approve is requested for native crypto, it means the crypto should be wrapped into the
+    // provided `nativeWrapCrypto` first, and then approve can be performed on the wrapped token.
+    // Smart wallet is required for this flow in order to execute these operations in a single transaction.
+
+    if (!isNativeCrypto(crypto)) {
+      return undefined;
+    }
+
+    if (isNull(nativeWrapCrypto)) {
+      throw new CryptoApproveError('Native wrap crypto must be provided for native crypto approve');
+    }
+
+    const cryptoWrapper = extractData(nativeWrapCrypto);
+    if (!cryptoWrapper.isNativeWrap || cryptoWrapper.chainId !== crypto.chainId) {
+      throw new CryptoApproveError('Crypto must be a native wrap on same chain for native crypto approve');
+    }
+
+    const wallet = await resolveDynamic(this.wallet);
+    if (!isSmartWallet(wallet)) {
+      throw new CryptoApproveError('Native crypto approve can only be provided with a smart wallet');
+    }
+
+    return cryptoWrapper;
   }
 
   private async getAllowanceViaApi(crypto: CryptoData, owner: string, spender: string): Promise<AllowanceInfo> {
@@ -264,13 +299,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     crypto: CryptoData,
     amount: Amount,
     allowanceInfo: AllowanceInfo,
-    shouldWrapNativeCrypto?: boolean,
   ): Promise<ApproveVerdict> {
-    const wallet = await resolveDynamic(this.wallet);
-    if (isSmartWallet(wallet) && shouldWrapNativeCrypto) {
-      return 'should-provide-smart-native-approve';
-    }
-
     const checkSufficient = (allowance: Amount): boolean => {
       const sufficient = allowance.is('greater-or-equal', amount);
       return sufficient;
@@ -281,6 +310,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       return 'no-action-needed';
     }
 
+    const wallet = await resolveDynamic(this.wallet);
     if (isSmartWallet(wallet)) {
       return 'should-provide-smart-approve';
     }
@@ -389,12 +419,12 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   private async collectApproveActions(
     operation: string | undefined,
     crypto: CryptoData,
+    cryptoWrapper: CryptoData | undefined,
     amount: Amount,
     owner: string,
     spender: string,
     approveVerdict: ApproveVerdict,
     revoke: boolean,
-    allowanceInfo: AllowanceInfo,
   ): Promise<CryptoApproveAction[]> {
     switch (approveVerdict) {
       case 'no-action-needed':
@@ -453,14 +483,10 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
             spender,
             await this.getApproveValue(crypto, amount),
             crypto,
+            cryptoWrapper,
             owner,
             revoke,
           ),
-        ];
-
-      case 'should-provide-smart-native-approve':
-        return [
-          await this.prepareSmartNativeApproveAction(operation, spender, amount, crypto, owner, revoke, allowanceInfo),
         ];
 
       case 'should-provide-approve':
@@ -600,6 +626,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     spender: string,
     amount: string | undefined,
     crypto: CryptoData,
+    cryptoWrapper: CryptoData | undefined,
     owner: string,
     revoke: boolean,
   ): Promise<CryptoApproveAction> {
@@ -609,108 +636,52 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     }
 
     const chainId = crypto.chainId;
-    const actorAddress = owner;
-    const tokenAddress = crypto.address;
     const smartWalletAddress = await wallet.getAddress({ chainId });
+    const deposit = isNotNull(cryptoWrapper);
+    const tokenAddress = (cryptoWrapper ?? crypto).address;
 
-    const tokenApproveData = await encodeErc20Approve(spender, amount);
+    const pre: SmartBatchTransactionParams[] = [];
+    if (deposit) {
+      if (isNull(amount)) {
+        throw new CryptoApproveError('TODO - handle deposit `undefined` amount');
+      }
 
-    let pre: SmartBatchTransactionParams | undefined;
-    if (revoke) {
-      const tokenRevokeData = await encodeErc20Approve(spender, '0'); // Revoke by approving 0 value
-      pre = {
+      const depositTransaction: SmartBatchTransactionParams = {
         to: tokenAddress,
-        data: tokenRevokeData,
+        data: '0xd0e30db0', // 'deposit()'
+        value: amount,
       };
+      pre.push(depositTransaction);
     }
+
+    if (revoke) {
+      const revokeTransaction: SmartBatchTransactionParams = {
+        to: tokenAddress,
+        data: await encodeErc20Approve(spender, '0'), // Revoke by approving 0 value
+      };
+      pre.push(revokeTransaction);
+    }
+
+    const approveTransaction: SmartBatchTransactionParams = {
+      to: tokenAddress,
+      data: await encodeErc20Approve(spender, amount),
+    };
 
     const signSmartApproveParams = await wallet.getSignTransactionParams({
       operation,
       tag: 'approve-crypto',
       chainId,
       from: smartWalletAddress,
-      to: tokenAddress,
-      data: tokenApproveData,
       pre,
+      ...approveTransaction,
     });
     const smartApproveAction: CryptoApproveAction = {
       type: 'sign-smart-approve-typed-data',
       params: signSmartApproveParams,
       smartData: {
-        actorAddress,
+        actorAddress: owner,
         tokenAddress,
         amount,
-        native: false,
-      },
-    };
-    return smartApproveAction;
-  }
-
-  private async prepareSmartNativeApproveAction(
-    operation: string | undefined,
-    spender: string,
-    amount: Amount,
-    crypto: CryptoData,
-    owner: string,
-    revoke: boolean,
-    allowanceInfo: AllowanceInfo,
-  ): Promise<CryptoApproveAction> {
-    const wallet = await resolveDynamic(this.wallet);
-    if (!isSmartWallet(wallet)) {
-      throw new CryptoApproveError('Smart wallet must be configured for smart approve action');
-    }
-
-    if (!crypto.isNativeWrap) {
-      throw new CryptoApproveError('Smart wallet approve action crypto is not native wrap');
-    }
-
-    const chainId = crypto.chainId;
-    const actorAddress = owner;
-    const tokenAddress = crypto.address;
-    const smartWalletAddress = await wallet.getAddress({ chainId });
-
-    const approveAmount = await this.getApproveValue(crypto, amount);
-    const needApprove = allowanceInfo.allowance.is('less', amount);
-    const amountStr = amount.normalizeValue(crypto.decimals);
-
-    const wrapCalldata = await encodeDeposit();
-
-    const multiSendCalls = [await encodeMultiSendTransaction(crypto.address, wrapCalldata, BigInt(amountStr))];
-
-    if (needApprove && isNotNull(approveAmount)) {
-      const approveCalldata = await encodeErc20Approve(spender, approveAmount);
-      multiSendCalls.push(await encodeMultiSendTransaction(crypto.address, approveCalldata, 0n));
-    }
-
-    const multiSendCalldata = await encodeMultiSend(multiSendCalls);
-
-    let pre: SmartBatchTransactionParams | undefined;
-    if (revoke) {
-      const tokenRevokeData = await encodeErc20Approve(spender, '0'); // Revoke by approving 0 value
-      pre = {
-        to: tokenAddress,
-        data: tokenRevokeData,
-      };
-    }
-
-    const signSmartApproveParams = await wallet.getSignTransactionParams({
-      operation,
-      pre,
-      chainId,
-      tag: 'approve-crypto',
-      from: smartWalletAddress,
-      to: MULTI_SEND_CONTACT_ADDRESS,
-      data: multiSendCalldata,
-      smartWalletDelegateCall: true,
-    });
-    const smartApproveAction: CryptoApproveAction = {
-      type: 'sign-smart-approve-typed-data',
-      params: signSmartApproveParams,
-      smartData: {
-        actorAddress,
-        tokenAddress,
-        amount: amountStr,
-        native: true,
       },
     };
     return smartApproveAction;
@@ -810,29 +781,12 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const ownerWallet = await wallet.getOwnerWallet();
     const ownerWalletAddress = await ownerWallet.getAddress();
     const smartApproveSignature = await ownerWallet.signTypedData({ ...params, from: ownerWalletAddress });
-
-    let smartApproveTransaction: string;
-    if (smartData.native) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const data = JSON.parse(params.data).message.data as string;
-
-      smartApproveTransaction = await wallet.getCustomPermitTransaction({
-        from: smartData.actorAddress,
-        token: MULTI_SEND_CONTACT_ADDRESS,
-        signature: smartApproveSignature,
-        amount: '0',
-        chainId,
-        data,
-        delegateCall: true,
-      });
-    } else {
-      smartApproveTransaction = await wallet.getPermitTransaction({
-        from: smartData.actorAddress,
-        token: smartData.tokenAddress,
-        amount: smartData.amount,
-        signature: smartApproveSignature,
-      });
-    }
+    const smartApproveTransaction = await wallet.getPermitTransaction({
+      chainId: params.chainId!,
+      data: params.data,
+      from: params.from,
+      signature: smartApproveSignature,
+    });
 
     const permit: PermitData = {
       type: 'smart-approve',

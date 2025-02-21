@@ -380,13 +380,6 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default No chain ID put into chain-agnostic domain data
    */
   domainChainId?: string;
-
-  /**
-   * Crypto that native "from" crypto will be wrapped into as part of the swap
-   *
-   * @default Native "from" crypto is used as-is
-   */
-  nativeWrapTarget?: Crypto;
 }
 
 /**

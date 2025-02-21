@@ -85,14 +85,6 @@ export interface SendTransactionParams extends WalletBaseParams {
    * @default Native token transfer transaction
    */
   data?: string;
-
-  /**
-   * Indicates whether delegate calls are allowed or utilized within the smart wallet.
-   * When set to `true`, the smart wallet can execute delegate calls, enabling the
-   * execution of external contract code while preserving the original caller's context.
-   * When `false` or undefined, delegate calls are either disallowed or not utilized.
-   */
-  smartWalletDelegateCall?: boolean;
 }
 
 /**

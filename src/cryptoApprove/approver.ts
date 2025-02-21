@@ -24,7 +24,7 @@ export class CryptoApprover {
    * @returns Complete crypto approve
    */
   public async approve(params: PrepareCryptoApproveParams): Promise<CryptoApprove> {
-    if (isNativeCrypto(params.crypto) && isNull(params.nativeWrapTarget)) {
+    if (isNativeCrypto(params.crypto) && isNull(params.nativeWrapCrypto)) {
       const cryptoApprove = new CryptoApprove(undefined);
       return cryptoApprove;
     }

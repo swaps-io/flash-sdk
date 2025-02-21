@@ -5,7 +5,6 @@ import { CryptoAggregator } from '../cryptoAggregator';
 import { ApiCryptoApproveProvider, CryptoApprover, NoWalletCryptoApproveProvider } from '../cryptoApprove';
 import { ApiCryptoDataSource } from '../cryptoDataSource';
 import { isNotNull } from '../helper/null';
-import { IWalletLike } from '../helper/wallet';
 import {
   Amount,
   Chain,
@@ -43,6 +42,7 @@ import {
   WrapNativeParams,
 } from './param';
 import { AgreementSubClient } from './sub/agreement';
+import { CryptoApproveSubClient } from './sub/cryptoApprove';
 import { NativeWrapSubClient } from './sub/nativeWrap';
 import { QuoteSubClient } from './sub/quote';
 import { ResolverSubClient } from './sub/resolver';
@@ -59,11 +59,10 @@ export type * from './error';
  * @category Client
  */
 export class FlashClient {
-  private readonly wallet: FlashOptionalValue<IWalletLike>;
   private readonly crypto: CryptoAggregator;
-  private readonly cryptoApprover: CryptoApprover;
   private readonly quote: QuoteSubClient;
   private readonly swap: SwapSubClient;
+  private readonly cryptoApprove: CryptoApproveSubClient;
   private readonly swapApprove: SwapApproveSubClient;
   private readonly swapCall: SwapCallSubClient;
   private readonly resolver: ResolverSubClient;
@@ -91,23 +90,25 @@ export class FlashClient {
     setAxiosInstanceMainV0(mainClient);
     setAxiosInstanceCollateralV0(collateralClient);
 
-    this.wallet = new FlashOptionalValue(wallet);
+    const cryptoApprover = new CryptoApprover(cryptoApprove);
+    const walletValue = new FlashOptionalValue(wallet);
+
     this.crypto = new CryptoAggregator(cryptoCacheTtl, cryptoDataSource);
-    this.cryptoApprover = new CryptoApprover(cryptoApprove);
     this.quote = new QuoteSubClient(this.crypto, onInconsistencyError);
     this.swap = new SwapSubClient(
       this.crypto,
-      this.cryptoApprover,
-      this.wallet,
+      cryptoApprover,
+      walletValue,
       swapToAmountTolerance,
       swapFromAmountTolerance,
       onInconsistencyError,
     );
-    this.swapApprove = new SwapApproveSubClient(this.wallet);
-    this.swapCall = new SwapCallSubClient(this.wallet);
+    this.cryptoApprove = new CryptoApproveSubClient(cryptoApprover, walletValue);
+    this.swapApprove = new SwapApproveSubClient(walletValue);
+    this.swapCall = new SwapCallSubClient(walletValue);
     this.resolver = new ResolverSubClient(this.crypto, resolverCacheTtl);
-    this.nativeWrap = new NativeWrapSubClient(this.wallet, this.crypto);
-    this.agreement = new AgreementSubClient(this.wallet);
+    this.nativeWrap = new NativeWrapSubClient(walletValue, this.crypto);
+    this.agreement = new AgreementSubClient(walletValue);
   }
 
   /**
@@ -272,14 +273,11 @@ export class FlashClient {
    * @returns Crypto approve
    */
   public async submitSwapManualApproveCrypto(params: SubmitSwapParams): Promise<CryptoApprove> {
-    const cryptoSpender = params.quote.fromCrypto.chain.contract.address;
-    const cryptoApprove = await this.cryptoApprover.approve({
-      crypto: params.quote.fromCrypto,
-      amount: params.quote.fromAmount,
-      spender: cryptoSpender,
-      operation: params.operation,
-      nativeWrapTarget: params.nativeWrapTarget,
-    });
+    const cryptoApprove = await this.cryptoApprove.approveCrypto(
+      params.operation,
+      params.quote.fromCrypto,
+      params.quote.fromAmount,
+    );
     return cryptoApprove;
   }
 

@@ -9,7 +9,6 @@ import { IWallet, SendTransactionParams, SignTypedDataParams } from '../../../wa
 import { SmartWalletError } from '../../error';
 import {
   GetSmartAddressParams,
-  GetSmartCustomPermitTransactionParams,
   GetSmartIsDeployedParams,
   GetSmartOwnersParams,
   GetSmartPermitTransactionParams,
@@ -108,7 +107,6 @@ export class GnosisSafeWallet implements ISmartWallet {
         to: txp.to,
         data: txp.data ?? '0x',
         value: txp.value ?? '0',
-        operation: txp.smartWalletDelegateCall ? 1 : 0,
       };
     };
 
@@ -189,20 +187,15 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public async getPermitTransaction(params: GetSmartPermitTransactionParams): Promise<string> {
-    const { encodePermitSafe } = await import('./permitSafe');
-    const transaction = await encodePermitSafe(params.from, params.token, params.amount, params.signature);
-    return transaction;
-  }
-
-  public async getCustomPermitTransaction(params: GetSmartCustomPermitTransactionParams): Promise<string> {
-    const { encodePermitSafeCustom } = await import('./permitSafeCustom');
+    const data = JSON.parse(params.data) as SafeTransactionParams;
     const address = await this.getAddress(params);
+    const { encodePermitSafeCustom } = await import('./permitSafeCustom');
     const transaction = await encodePermitSafeCustom(
       address,
-      params.token,
-      params.amount,
-      params.data,
-      params.delegateCall,
+      data.to,
+      data.value,
+      data.data,
+      data.operation ?? 0,
       params.signature,
     );
     return transaction;

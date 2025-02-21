@@ -1,6 +1,6 @@
 import { evm } from '../../../lib/evm';
 
-const PERMIT_SAFE_CUSTOM = [
+const PERMIT_SAFE_CUSTOM_ABI = [
   {
     constant: false,
     inputs: [
@@ -41,15 +41,15 @@ export async function encodePermitSafeCustom(
   to: string,
   value: string,
   data: string,
-  delegateCall: boolean,
+  operation: number,
   signatures: string,
 ): Promise<string> {
-  const permitSafeCustomData = await evm.functionDataEncode(PERMIT_SAFE_CUSTOM, 'permitSafeCustom', [
+  const permitSafeCustomData = await evm.functionDataEncode(PERMIT_SAFE_CUSTOM_ABI, 'permitSafeCustom', [
     safeWalletAddress,
     to,
     value,
     data,
-    delegateCall ? 1 : 0,
+    operation,
     signatures,
   ]);
   return permitSafeCustomData;
