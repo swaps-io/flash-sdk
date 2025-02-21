@@ -1,5 +1,3 @@
-import type { Hex } from 'viem';
-
 import { setRequestProjectId } from '../../../api/client/axios/core/id';
 import { setAxiosInstanceMainV0 } from '../../../api/client/axios/main-v0';
 import {
@@ -42,7 +40,7 @@ import { ICryptoApproveProvider, PrepareCryptoApproveParams } from '../../interf
 import { PermitCache, PermitData } from '../../permit';
 import { PERMIT2_ADDRESS } from '../../permit2';
 
-import { MULTI_SEND_CONTACT_ADDRESS } from './multiSend';
+import { MULTI_SEND_CONTACT_ADDRESS, encodeMultiSendTransaction } from './multiSend';
 import {
   AllowanceSource,
   ApiCryptoApproveProviderParams,
@@ -139,12 +137,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const shouldWrapNativeCrypto = isNativeCrypto(cryptoData) && isNotNull(params.nativeWrapTarget);
 
     const allowanceInfo = await this.getAllowance(cryptoData, owner, params.spender);
-    const approveVerdict = await this.checkAllowance(
-      cryptoData,
-      params.amount,
-      allowanceInfo,
-      shouldWrapNativeCrypto,
-    );
+    const approveVerdict = await this.checkAllowance(cryptoData, params.amount, allowanceInfo, shouldWrapNativeCrypto);
     const canReusePermit = await this.checkCanReusePermit(cryptoData, params.amount, owner, approveVerdict);
     const revokeAllowance = this.checkShouldRevokeAllowance(allowanceInfo);
 
@@ -695,19 +688,8 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     const tokenAddress = crypto.address;
     const smartWalletAddress = await wallet.getAddress({ chainId });
 
-    const [
-      { encodeErc20Approve },
-      { encodeDeposit },
-      { encodeMultiSend, MULTI_SEND_CONTACT_ADDRESS },
-      { encodePacked, size },
-    ] = await Promise.all([import('./erc20'), import('./wrap'), import('./multiSend'), import('viem')]);
-
-    const encodeMultiSendTransaction = (target: string, callData: string, value = 0n, delegateCall = false): string => {
-      return encodePacked(
-        ['uint8', 'address', 'uint256', 'uint256', 'bytes'],
-        [delegateCall ? 1 : 0, target, value, BigInt(size(callData as Hex)), callData as Hex],
-      );
-    };
+    const [{ encodeErc20Approve }, { encodeDeposit }, { encodeMultiSend, MULTI_SEND_CONTACT_ADDRESS }] =
+      await Promise.all([import('./erc20'), import('./wrap'), import('./multiSend')]);
 
     const approveAmount = await this.getApproveValue(crypto, amount);
     const needApprove = allowanceInfo.allowance.is('less', amount);
@@ -715,11 +697,11 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
     const wrapCalldata = await encodeDeposit();
 
-    const multiSendCalls = [encodeMultiSendTransaction(crypto.address, wrapCalldata, BigInt(amountStr))];
+    const multiSendCalls = [await encodeMultiSendTransaction(crypto.address, wrapCalldata, BigInt(amountStr))];
 
     if (needApprove && isNotNull(approveAmount)) {
       const approveCalldata = await encodeErc20Approve(spender, approveAmount);
-      multiSendCalls.push(encodeMultiSendTransaction(crypto.address, approveCalldata, 0n));
+      multiSendCalls.push(await encodeMultiSendTransaction(crypto.address, approveCalldata, 0n));
     }
 
     const multiSendCalldata = await encodeMultiSend(multiSendCalls);
