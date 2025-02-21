@@ -189,17 +189,6 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     return cryptoApprove;
   }
 
-  private async shouldWrapNativeCrypto(crypto: CryptoData, nativeWrapTarget: CryptoData | undefined): Promise<boolean> {
-    const wallet = await resolveDynamic(this.wallet);
-    const shouldWrap = isSmartWallet(wallet) && isNativeCrypto(crypto) && isNotNull(nativeWrapTarget);
-    return shouldWrap;
-  }
-
-  private async getAllowanceCrypto(crypto: CryptoData, nativeWrapTarget: CryptoData | undefined): Promise<CryptoData> {
-    const shouldWrap = await this.shouldWrapNativeCrypto(crypto, nativeWrapTarget);
-    return shouldWrap && isNotNull(nativeWrapTarget) ? nativeWrapTarget : crypto;
-  }
-
   private async getAllowance(crypto: CryptoData, owner: string, spender: string): Promise<AllowanceInfo> {
     const obtainSourceAllowance = async (source: AllowanceSource): Promise<AllowanceInfo | undefined> => {
       try {
