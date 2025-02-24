@@ -268,18 +268,22 @@ export class GnosisSafeWallet implements ISmartWallet {
         switch (args.method) {
           case 'eth_chainId':
             return `0x${Number(chainId).toString(16)}`;
+
           case 'eth_accounts':
             return [];
+
           case 'eth_call':
             if (!isArray(args.params)) {
               throw new SmartWalletError('Unexpected EIP-1193 provider "eth_call" params');
             }
             return await ethCall(args.params[0] as EthCallParams);
+
           case 'eth_getCode':
             if (!isArray(args.params)) {
               throw new SmartWalletError('Unexpected EIP-1193 provider "eth_getCode" params');
             }
             return await ethGetCode(args.params[0] as string);
+
           default:
             throw new SmartWalletError(`Unexpected EIP-1193 provider request of "${args.method}" method`);
         }
