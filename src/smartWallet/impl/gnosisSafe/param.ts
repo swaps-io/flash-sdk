@@ -2,25 +2,6 @@ import { IChainProvider } from '../../../chainProvider';
 import { IWallet } from '../../../wallet';
 
 /**
- * Gnosis Safe configuration on specific chain
- *
- * @category Smart Wallet Impl
- */
-export interface GnosisSafeChainConfig {
-  /**
-   * Chain ID this configuration is for
-   *
-   * Note that it must be unique in the configuration array
-   */
-  chainId: string;
-
-  /**
-   * RPC URL for the chain transport
-   */
-  rpcUrl: string;
-}
-
-/**
  * Params for {@link GnosisSafeWallet} constructor
  *
  * @category Smart Wallet Impl
@@ -38,26 +19,7 @@ export interface GnosisSafeWalletParams {
    * and be able to single-handedly approve any transaction (i.e. threshold
    * of 1 is mandatory, however there can be multiple owners)
    */
-  ownerWallet?: IWallet;
-
-  /**
-   * Gnosis Safe wallet contract address
-   *
-   * This value is default that can be overwritten by
-   * {@link GnosisSafeWalletParams.chains | chains}.
-   * At least one of the values must be specified
-   *
-   * @default No default address
-   */
-  address?: string;
-
-  /**
-   * List of per-chain Gnosis Safe configurations.
-   * Values from the list override values provided on current level
-   *
-   * @default No per-chain config overrides
-   */
-  chains?: readonly GnosisSafeChainConfig[];
+  ownerWallet: IWallet;
 }
 
 /**
