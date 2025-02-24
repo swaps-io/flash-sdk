@@ -179,7 +179,7 @@ export class GnosisSafeWallet implements ISmartWallet {
       data.value,
       data.data,
       data.operation,
-      params.signature,
+      params.ownerSignature,
     );
     return transaction;
   }

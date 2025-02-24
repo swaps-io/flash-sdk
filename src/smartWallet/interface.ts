@@ -78,6 +78,19 @@ export interface GetSmartSignTransactionParams extends SendTransactionParams {
 }
 
 /**
+ * Smart wallet owner signature provider
+ *
+ * @category Smart Wallet
+ */
+export interface WithSmartOwnerSignature {
+  /**
+   * Smart wallet transaction signature obtained from signing
+   * {@link ISmartWallet.getSignTransactionParams | data} by owner wallet address
+   */
+  ownerSignature: string;
+}
+
+/**
  * Get smart wallet send transaction parameters of {@link ISmartWallet.getSendTransactionParams}
  *
  * Consumes sign typed data returned by {@link ISmartWallet.getSignTransactionParams}
@@ -85,13 +98,7 @@ export interface GetSmartSignTransactionParams extends SendTransactionParams {
  *
  * @category Smart Wallet
  */
-export interface GetSmartSendTransactionParams extends SignTypedDataParams {
-  /**
-   * Smart wallet transaction signature obtained from signing
-   * {@link ISmartWallet.getSignTransactionParams | data} by owner wallet address
-   */
-  ownerSignature: string;
-}
+export interface GetSmartSendTransactionParams extends SignTypedDataParams, WithSmartOwnerSignature {}
 
 /**
  * Get smart wallet sign typed data parameters of {@link ISmartWallet.getSignTypedDataParams}
@@ -106,7 +113,7 @@ export type GetSmartSignTypedDataParams = Omit<SignTypedDataParams, 'chainId'> &
  *
  * @category Smart Wallet
  */
-export interface GetSmartPermitTransactionParams {
+export interface GetSmartPermitTransactionParams extends WithSmartOwnerSignature {
   /**
    * Chain ID for smart wallet address
    */
@@ -116,11 +123,6 @@ export interface GetSmartPermitTransactionParams {
    * Permit transaction data
    */
   data: string;
-
-  /**
-   * Permit data signature
-   */
-  signature: string;
 }
 
 /**

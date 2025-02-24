@@ -51,7 +51,7 @@ test(
     const permitTransaction = await safeWallet.getPermitTransaction({
       chainId: smartTransactionParams.chainId!,
       data: smartTransactionParams.data,
-      signature: smartTransactionSignature,
+      ownerSignature: smartTransactionSignature,
     });
 
     expect(permitTransaction.length).toEqual(778);
@@ -101,7 +101,7 @@ test(
     const permitTransaction = await safeWallet.getPermitTransaction({
       chainId: smartTransactionParams.chainId!,
       data: smartTransactionParams.data,
-      signature: smartTransactionSignature,
+      ownerSignature: smartTransactionSignature,
     });
 
     expect(permitTransaction.length).toEqual(1290);
