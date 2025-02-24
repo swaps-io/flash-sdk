@@ -9,7 +9,7 @@ let flash: FlashClient;
 
 beforeAll(async () => {
   const wallet = new NeverWallet();
-  flash = new FlashClient({ wallet });
+  flash = new FlashClient({ wallet, projectId: 'sdk-test' });
 
   if (!SKIP_API_DEPS) {
     await flash.preload();

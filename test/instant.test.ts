@@ -1,4 +1,4 @@
-import { Duration, Instant } from '../src';
+import { Instant } from '../src';
 
 test('Creates instant from data', async () => {
   const instant = new Instant({ atMilliseconds: 7_355_608 });
