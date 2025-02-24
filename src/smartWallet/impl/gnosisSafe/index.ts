@@ -131,11 +131,7 @@ export class GnosisSafeWallet implements ISmartWallet {
       throw new SmartWalletError('No chain ID provided for Gnosis Safe wallet send transaction params');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const signData = JSON.parse(params.data);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const transactionData = signData.message as SafeTransaction['data'];
+    const transactionData = this.parseTransactionData(params.data);
 
     const protocolKit = await this.importProtocolKit();
 
@@ -174,7 +170,7 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public async getPermitTransaction(params: GetSmartPermitTransactionParams): Promise<string> {
-    const data = JSON.parse(params.data) as SafeTransactionParams; // TODO
+    const data = this.parseTransactionData(params.data);
     const address = await this.getAddress(params);
     const { encodePermitSafeCustom } = await import('./permitSafeCustom');
     const transaction = await encodePermitSafeCustom(
@@ -182,7 +178,7 @@ export class GnosisSafeWallet implements ISmartWallet {
       data.to,
       data.value,
       data.data,
-      data.operation ?? 0,
+      data.operation,
       params.signature,
     );
     return transaction;
@@ -290,6 +286,11 @@ export class GnosisSafeWallet implements ISmartWallet {
       },
     };
     return provider;
+  }
+
+  private parseTransactionData(data: string): SafeTransaction['data'] {
+    const transactionData = (JSON.parse(data) as { message: SafeTransaction['data'] }).message;
+    return transactionData;
   }
 
   private async initOwners(chainId: string): Promise<ReadonlySet<string>> {
