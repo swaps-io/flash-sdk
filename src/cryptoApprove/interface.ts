@@ -21,6 +21,17 @@ export interface PrepareCryptoApproveParams extends WithWalletOperation {
    * Address to approve as a spender
    */
   spender: string;
+
+  /**
+   * Crypto that native {@link crypto} will be wrapped into as part of approve process
+   *
+   * The native wrap crypto value is always passed as-is into the underlying
+   * {@link ICryptoApproveProvider.prepareCryptoApprove | provider}, regardless
+   * of whether the {@link crypto} is native or not
+   *
+   * @default Native crypto is not subject to approval process
+   */
+  nativeWrapCrypto?: DataLike<CryptoData>;
 }
 
 /**

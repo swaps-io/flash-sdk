@@ -3,7 +3,7 @@ import { SendTransactionParams, SignTypedDataParams } from '../../wallet';
 import { Amount } from '../amount';
 import { CryptoData } from '../crypto';
 
-import { SmartApproveData } from './private';
+import { SmartApprovePermitData } from './private';
 
 /**
  * Preference of how crypto allowance provider should be selected:
@@ -150,7 +150,7 @@ export interface SignSmartApproveTypedData {
   /**
    * @hidden
    */
-  smartData: SmartApproveData;
+  smartPermit: SmartApprovePermitData | undefined;
 }
 
 /**

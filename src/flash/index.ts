@@ -43,6 +43,7 @@ import {
   WrapNativeParams,
 } from './param';
 import { AgreementSubClient } from './sub/agreement';
+import { CryptoApproveSubClient } from './sub/cryptoApprove';
 import { NativeWrapSubClient } from './sub/nativeWrap';
 import { QuoteSubClient } from './sub/quote';
 import { ResolverSubClient } from './sub/resolver';
@@ -64,6 +65,7 @@ export class FlashClient {
   private readonly cryptoApprover: CryptoApprover;
   private readonly quote: QuoteSubClient;
   private readonly swap: SwapSubClient;
+  private readonly cryptoApprove: CryptoApproveSubClient;
   private readonly swapApprove: SwapApproveSubClient;
   private readonly swapCall: SwapCallSubClient;
   private readonly resolver: ResolverSubClient;
@@ -103,6 +105,7 @@ export class FlashClient {
       swapFromAmountTolerance,
       onInconsistencyError,
     );
+    this.cryptoApprove = new CryptoApproveSubClient(this.cryptoApprover, this.wallet);
     this.swapApprove = new SwapApproveSubClient(this.wallet);
     this.swapCall = new SwapCallSubClient(this.wallet);
     this.resolver = new ResolverSubClient(this.crypto, resolverCacheTtl);
@@ -272,13 +275,11 @@ export class FlashClient {
    * @returns Crypto approve
    */
   public async submitSwapManualApproveCrypto(params: SubmitSwapParams): Promise<CryptoApprove> {
-    const cryptoSpender = params.quote.fromCrypto.chain.contract.address;
-    const cryptoApprove = await this.cryptoApprover.approve({
-      crypto: params.quote.fromCrypto,
-      amount: params.quote.fromAmount,
-      spender: cryptoSpender,
-      operation: params.operation,
-    });
+    const cryptoApprove = await this.cryptoApprove.approveCrypto(
+      params.operation,
+      params.quote.fromCrypto,
+      params.quote.fromAmount,
+    );
     return cryptoApprove;
   }
 
