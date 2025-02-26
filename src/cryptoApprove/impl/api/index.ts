@@ -25,7 +25,6 @@ import {
   CryptoApproveAction,
   CryptoApproveRequest,
   CryptoData,
-  DataLike,
   Duration,
   FiniteApproveAmountPreference,
   IncompleteCryptoApprove,
@@ -119,13 +118,13 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   }
 
   public async prepareCryptoApprove(params: PrepareCryptoApproveParams): Promise<CryptoApproveRequest> {
-    if (params.amount.is('less-or-equal', Amount.zero())) {
+    if (params.amount.is('less-or-equal', Amount.zero()) || isNativeCrypto(params.crypto)) {
       const cryptoApproveRequest = new CryptoApproveRequest([]);
       return cryptoApproveRequest;
     }
 
     const crypto = extractData(params.crypto);
-    const cryptoWrapper = await this.resolveCryptoWrapper(crypto, params.nativeWrapCrypto);
+    const preWrap = await this.resolvePreWrap(crypto, params.preWrap);
 
     let owner: string;
     const wallet = await resolveDynamic(this.wallet);
@@ -135,15 +134,10 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       owner = await wallet.getAddress();
     }
 
-    let allowanceInfo: AllowanceInfo;
-    let approveVerdict: ApproveVerdict;
-    if (isNotNull(cryptoWrapper)) {
-      allowanceInfo = await this.getAllowance(cryptoWrapper, owner, params.spender);
-      approveVerdict = 'should-provide-smart-approve';
-    } else {
-      allowanceInfo = await this.getAllowance(crypto, owner, params.spender);
-      approveVerdict = await this.checkAllowance(crypto, params.amount, allowanceInfo);
-    }
+    const allowanceInfo = await this.getAllowance(crypto, owner, params.spender);
+    const approveVerdict = preWrap
+      ? 'should-provide-smart-approve'
+      : await this.checkAllowance(crypto, params.amount, allowanceInfo);
 
     let actions: CryptoApproveAction[] = [];
     const canReusePermit = await this.checkCanReusePermit(crypto, params.amount, owner, approveVerdict);
@@ -152,7 +146,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       actions = await this.collectApproveActions(
         params.operation,
         crypto,
-        cryptoWrapper,
+        preWrap,
         params.amount,
         owner,
         params.spender,
@@ -218,26 +212,16 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     throw new CryptoApproveError(`No allowance info provided by ${this.allowanceSources.length} data sources`);
   }
 
-  private async resolveCryptoWrapper(
-    crypto: CryptoData,
-    nativeWrapCrypto: DataLike<CryptoData> | undefined,
-  ): Promise<CryptoData | undefined> {
-    // Native `crypto` usually does not require approve - so the approve provider is not triggered at all.
-    // But if approve is requested for native crypto, it means the crypto should be wrapped into the
-    // provided `nativeWrapCrypto` first, and then approve can be performed on the wrapped token.
+  private async resolvePreWrap(crypto: CryptoData, preWrap: boolean | undefined): Promise<boolean> {
+    // Pre-wrap is only relevant as pre-operation to approve of passed native wrap crypto.
     // Smart wallet is required for this flow in order to execute these operations in a single transaction.
 
-    if (!isNativeCrypto(crypto)) {
-      return undefined;
+    if (!preWrap) {
+      return false;
     }
 
-    if (isNull(nativeWrapCrypto)) {
-      throw new CryptoApproveError('Native wrap crypto must be provided for native crypto approve');
-    }
-
-    const cryptoWrapper = extractData(nativeWrapCrypto);
-    if (!cryptoWrapper.isNativeWrap || cryptoWrapper.chainId !== crypto.chainId) {
-      throw new CryptoApproveError('Crypto must be a native wrap on same chain for native crypto approve');
+    if (!crypto.isNativeWrap) {
+      return false;
     }
 
     const wallet = await resolveDynamic(this.wallet);
@@ -245,7 +229,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
       throw new CryptoApproveError('Native crypto approve can only be provided with a smart wallet');
     }
 
-    return cryptoWrapper;
+    return true;
   }
 
   private async getAllowanceViaApi(crypto: CryptoData, owner: string, spender: string): Promise<AllowanceInfo> {
@@ -422,7 +406,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
   private async collectApproveActions(
     operation: string | undefined,
     crypto: CryptoData,
-    cryptoWrapper: CryptoData | undefined,
+    preWrap: boolean,
     amount: Amount,
     owner: string,
     spender: string,
@@ -487,7 +471,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
             await this.getApproveValue(crypto, amount),
             amount.normalizeValue(crypto.decimals),
             crypto,
-            cryptoWrapper,
+            preWrap,
             owner,
             revoke,
           ),
@@ -631,7 +615,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
     amount: string | undefined,
     originalAmount: string,
     crypto: CryptoData,
-    cryptoWrapper: CryptoData | undefined,
+    preWrap: boolean,
     owner: string, // Smart wallet
     revoke: boolean,
   ): Promise<CryptoApproveAction> {
@@ -642,12 +626,10 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
     const ownerWallet = await wallet.getOwnerWallet();
     const ownerAddress = await ownerWallet.getAddress();
-
-    const deposit = isNotNull(cryptoWrapper);
-    const tokenAddress = (cryptoWrapper ?? crypto).address;
+    const tokenAddress = crypto.address;
 
     const pre: SmartBatchTransactionParams[] = [];
-    if (deposit) {
+    if (preWrap) {
       const depositTransaction: SmartBatchTransactionParams = {
         to: tokenAddress,
         data: '0xd0e30db0', // 'deposit()' signature
@@ -671,7 +653,7 @@ export class ApiCryptoApproveProvider implements ICryptoApproveProvider {
 
     // Never re-use permit with deposit action - this may wrap more native than user expects
     let smartPermit: SmartApprovePermitData | undefined;
-    if (!deposit) {
+    if (!preWrap) {
       smartPermit = {
         actorAddress: owner, // Smart wallet
         tokenAddress: crypto.address,
