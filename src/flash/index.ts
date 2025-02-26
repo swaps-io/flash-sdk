@@ -105,7 +105,7 @@ export class FlashClient {
       swapFromAmountTolerance,
       onInconsistencyError,
     );
-    this.cryptoApprove = new CryptoApproveSubClient(this.cryptoApprover, this.wallet);
+    this.cryptoApprove = new CryptoApproveSubClient(this.cryptoApprover);
     this.swapApprove = new SwapApproveSubClient(this.wallet);
     this.swapCall = new SwapCallSubClient(this.wallet);
     this.resolver = new ResolverSubClient(this.crypto, resolverCacheTtl);
@@ -279,6 +279,7 @@ export class FlashClient {
       params.operation,
       params.quote.fromCrypto,
       params.quote.fromAmount,
+      params.fromPreWrap ?? false,
     );
     return cryptoApprove;
   }
