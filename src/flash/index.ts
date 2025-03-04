@@ -303,6 +303,7 @@ export class FlashClient {
       params.fromActorReceiver,
       params.fromActorWalletOwner,
       params.fromActorReceiverWalletOwner,
+      params.customPostHook,
     );
     params.onSwapCreated?.(swap);
     return swap;

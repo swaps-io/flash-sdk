@@ -380,6 +380,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
+                            "maxLength": 4096,
                             "title": "Permit Signature"
                         }
                     }
@@ -556,7 +557,8 @@
                         "schema": {
                             "anyOf": [
                                 {
-                                    "type": "string"
+                                    "type": "string",
+                                    "maxLength": 4096
                                 },
                                 {
                                     "type": "null"
@@ -608,6 +610,38 @@
                 "summary": "Get quote pairs",
                 "description": "Returns quote pairs",
                 "operationId": "get_quote_pairs",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuotePairs"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomException"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/quote/pairs_blacklist": {
+            "get": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get quote pairs blacklist",
+                "description": "Returns quote pairs blacklist",
+                "operationId": "get_quote_pairs_blacklist",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
@@ -916,7 +950,8 @@
                         "schema": {
                             "anyOf": [
                                 {
-                                    "type": "string"
+                                    "type": "string",
+                                    "maxLength": 4096
                                 },
                                 {
                                     "type": "null"
@@ -1939,6 +1974,7 @@
                     },
                     "signature": {
                         "type": "string",
+                        "maxLength": 4096,
                         "title": "Signature"
                     }
                 },
@@ -2054,13 +2090,26 @@
                     "permit_transaction": {
                         "anyOf": [
                             {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                             },
                             {
                                 "type": "null"
                             }
                         ],
                         "title": "Permit Transaction"
+                    },
+                    "custom_post_hook": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 4096
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Custom Post Hook"
                     }
                 },
                 "type": "object",
@@ -2611,7 +2660,8 @@
                     "signature": {
                         "anyOf": [
                             {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                             },
                             {
                                 "type": "null"

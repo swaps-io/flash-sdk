@@ -70,6 +70,7 @@ export interface CollateralInfoMainV0 {
 export interface CreateAgreementUserMainV0 {
   /** @pattern ^(0x)[a-fA-F0-9]{40}$ */
   address: string;
+  /** @maxLength 4096 */
   signature: string;
 }
 
@@ -89,6 +90,8 @@ export type CreateSwapMainV0CollateralReceiver = string | null;
 
 export type CreateSwapMainV0PermitTransaction = string | null;
 
+export type CreateSwapMainV0CustomPostHook = string | null;
+
 export interface CreateSwapMainV0 {
   from_chain_id: string;
   from_token_address: string;
@@ -104,6 +107,7 @@ export interface CreateSwapMainV0 {
   to_chain_id: string;
   to_token_address: string;
   permit_transaction?: CreateSwapMainV0PermitTransaction;
+  custom_post_hook?: CreateSwapMainV0CustomPostHook;
 }
 
 export interface CreateTMMainV0 {
@@ -557,6 +561,14 @@ export const getQuotePairsMainV0 = (options?: SecondParameter<typeof axiosClient
 };
 
 /**
+ * Returns quote pairs blacklist
+ * @summary Get quote pairs blacklist
+ */
+export const getQuotePairsBlacklistMainV0 = (options?: SecondParameter<typeof axiosClientMainV0>) => {
+  return axiosClientMainV0<QuotePairsMainV0>({ url: `/api/v0/quote/pairs_blacklist`, method: 'GET' }, options);
+};
+
+/**
  * Creates swap
  * @summary Create swap
  */
@@ -830,6 +842,7 @@ export type GetPermitDataMainV0Result = NonNullable<Awaited<ReturnType<typeof ge
 export type GetPermitTransactionMainV0Result = NonNullable<Awaited<ReturnType<typeof getPermitTransactionMainV0>>>;
 export type GetQuoteMainV0Result = NonNullable<Awaited<ReturnType<typeof getQuoteMainV0>>>;
 export type GetQuotePairsMainV0Result = NonNullable<Awaited<ReturnType<typeof getQuotePairsMainV0>>>;
+export type GetQuotePairsBlacklistMainV0Result = NonNullable<Awaited<ReturnType<typeof getQuotePairsBlacklistMainV0>>>;
 export type CreateSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof createSwapMainV0>>>;
 export type GetSwapMainV0Result = NonNullable<Awaited<ReturnType<typeof getSwapMainV0>>>;
 export type GetSwapDataMainV0Result = NonNullable<Awaited<ReturnType<typeof getSwapDataMainV0>>>;
