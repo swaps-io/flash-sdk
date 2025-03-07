@@ -566,6 +566,23 @@
                             ],
                             "title": "Permit Transaction"
                         }
+                    },
+                    {
+                        "name": "custom_post_hook",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "maxLength": 4096
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Custom Post Hook"
+                        }
                     }
                 ],
                 "responses": {

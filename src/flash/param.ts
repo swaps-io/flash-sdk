@@ -287,6 +287,11 @@ export interface GetQuoteParams {
    * The EOA owner smart wallet (necessary for working with Smart Wallet)
    */
   fromActorReceiverWalletOwner?: string;
+
+  /**
+   * Custom post hook to call after swap is created for smart wallet
+   */
+  customPostHook?: string;
 }
 
 /**

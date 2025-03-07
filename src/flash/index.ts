@@ -194,6 +194,7 @@ export class FlashClient {
       params.fromActorReceiver,
       params.fromActorWalletOwner,
       params.fromActorReceiverWalletOwner,
+      params.customPostHook,
     );
     return quote;
   }

@@ -443,6 +443,7 @@ export type GetQuoteMainV0Params = {
   from_actor_receiver?: string | null;
   from_actor_receiver_wallet_owner?: string | null;
   permit_transaction?: string | null;
+  custom_post_hook?: string | null;
 };
 
 export type GetSwapDataMainV0Params = {
