@@ -380,6 +380,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
+                            "maxLength": 4096,
                             "title": "Permit Signature"
                         }
                     }
@@ -556,13 +557,48 @@
                         "schema": {
                             "anyOf": [
                                 {
-                                    "type": "string"
+                                    "type": "string",
+                                    "maxLength": 4096
                                 },
                                 {
                                     "type": "null"
                                 }
                             ],
                             "title": "Permit Transaction"
+                        }
+                    },
+                    {
+                        "name": "max_slippage_pct",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ],
+                            "default": "0",
+                            "title": "Max Slippage Pct"
+                        }
+                    },
+                    {
+                        "name": "custom_post_hook",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "maxLength": 4096
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "title": "Custom Post Hook"
                         }
                     }
                 ],
@@ -608,6 +644,38 @@
                 "summary": "Get quote pairs",
                 "description": "Returns quote pairs",
                 "operationId": "get_quote_pairs",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuotePairs"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomException"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v0/quote/pairs_blacklist": {
+            "get": {
+                "tags": [
+                    "Quote"
+                ],
+                "summary": "Get quote pairs blacklist",
+                "description": "Returns quote pairs blacklist",
+                "operationId": "get_quote_pairs_blacklist",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
@@ -916,7 +984,8 @@
                         "schema": {
                             "anyOf": [
                                 {
-                                    "type": "string"
+                                    "type": "string",
+                                    "maxLength": 4096
                                 },
                                 {
                                     "type": "null"
@@ -1939,6 +2008,7 @@
                     },
                     "signature": {
                         "type": "string",
+                        "maxLength": 4096,
                         "title": "Signature"
                     }
                 },
@@ -2054,13 +2124,38 @@
                     "permit_transaction": {
                         "anyOf": [
                             {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                             },
                             {
                                 "type": "null"
                             }
                         ],
                         "title": "Permit Transaction"
+                    },
+                    "max_slippage_pct": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "title": "Max Slippage Pct",
+                        "default": "0"
+                    },
+                    "custom_post_hook": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 4096
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Custom Post Hook"
                     }
                 },
                 "type": "object",
@@ -2360,6 +2455,14 @@
                         "type": "string",
                         "title": "To Amount"
                     },
+                    "to_amount_expected": {
+                        "type": "string",
+                        "title": "To Amount Expected"
+                    },
+                    "to_amount_min": {
+                        "type": "string",
+                        "title": "To Amount Min"
+                    },
                     "collateral_chain_id": {
                         "type": "string",
                         "title": "Collateral Chain Id"
@@ -2452,6 +2555,8 @@
                     "to_chain_id",
                     "to_token_address",
                     "to_amount",
+                    "to_amount_expected",
+                    "to_amount_min",
                     "collateral_chain_id",
                     "collateral_amount",
                     "time_estimate",
@@ -2611,7 +2716,8 @@
                     "signature": {
                         "anyOf": [
                             {
-                                "type": "string"
+                                "type": "string",
+                                "maxLength": 4096
                             },
                             {
                                 "type": "null"
@@ -2702,6 +2808,25 @@
                     "to_amount": {
                         "type": "string",
                         "title": "To Amount"
+                    },
+                    "to_amount_expected": {
+                        "type": "string",
+                        "title": "To Amount Expected"
+                    },
+                    "to_amount_min": {
+                        "type": "string",
+                        "title": "To Amount Min"
+                    },
+                    "to_amount_final": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "To Amount Final"
                     },
                     "to_actor": {
                         "type": "string",
@@ -2883,6 +3008,9 @@
                     "to_chain_id",
                     "to_token_address",
                     "to_amount",
+                    "to_amount_expected",
+                    "to_amount_min",
+                    "to_amount_final",
                     "to_actor",
                     "to_actor_bitcoin",
                     "collateral_chain_id",

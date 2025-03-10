@@ -194,6 +194,7 @@ export class FlashClient {
       params.fromActorReceiver,
       params.fromActorWalletOwner,
       params.fromActorReceiverWalletOwner,
+      params.maxSlippagePct,
     );
     return quote;
   }
@@ -303,6 +304,7 @@ export class FlashClient {
       params.fromActorReceiver,
       params.fromActorWalletOwner,
       params.fromActorReceiverWalletOwner,
+      params.maxSlippagePct,
     );
     params.onSwapCreated?.(swap);
     return swap;
