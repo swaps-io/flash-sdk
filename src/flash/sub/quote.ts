@@ -28,6 +28,7 @@ export class QuoteSubClient {
     fromActorWalletOwner?: string,
     fromActorReceiverWalletOwner?: string,
     customPostHook?: string,
+    maxSlippage?: number,
   ): Promise<Quote> {
     if (isNull(fromAmount) === isNull(toAmount)) {
       throw new FlashError('Either "from" or "to" amount must be specified in quote params');
@@ -55,6 +56,7 @@ export class QuoteSubClient {
       from_actor_wallet_owner: fromActorWalletOwner,
       from_actor_receiver_wallet_owner: fromActorReceiverWalletOwner,
       custom_post_hook: customPostHook,
+      max_slippage_pct: maxSlippage,
     });
 
     const inconsistencyErrors: string[] = [];
@@ -110,6 +112,8 @@ export class QuoteSubClient {
         : makeNativeAmount(q.from_fee_estimate);
 
     const toAmount = new Amount({ value: q.to_amount, decimals: toCrypto.decimals });
+    const toAmountExpected = new Amount({ value: q.to_amount_expected, decimals: toCrypto.decimals });
+    const toAmountMin = new Amount({ value: q.to_amount_min, decimals: toCrypto.decimals });
     const toFeeEstimate =
       q.to_chain_id === BITCOIN_CHAIN_ID ? makeBitcoinAmount(q.to_fee_estimate) : makeNativeAmount(q.to_fee_estimate);
 
@@ -138,6 +142,8 @@ export class QuoteSubClient {
       fromFeeEstimate: fromFeeEstimate.data,
       toFeeEstimate: toFeeEstimate.data,
       amountSource: amountSource,
+      toAmountExpected: toAmountExpected.data,
+      toAmountMin: toAmountMin.data,
     };
     const quote = new Quote(
       data,

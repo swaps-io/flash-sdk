@@ -416,4 +416,24 @@ export class Swap implements Data<SwapData>, WithData<SwapData, Swap> {
   public get slashable(): boolean {
     return this.state === SwapState.CancelledAwaitingSlash;
   }
+  /**
+   * The Expected "to" ("buy" from user perspective) amount of the swap if slippage not zero
+   */
+  public get toAmountExpected(): Amount {
+    return new Amount(this.data.toAmountExpected);
+  }
+
+  /**
+   * The Minimal "to" ("buy" from user perspective) amount of the swap if slippage not zero
+   */
+  public get toAmountMin(): Amount {
+    return new Amount(this.data.toAmountMin);
+  }
+
+  /**
+   * The Final "to" ("buy" from user perspective) amount of the swap if slippage not zero
+   */
+  public get toAmountFinal(): Amount | undefined {
+    return this.data.toAmountFinal ? new Amount(this.data.toAmountMin) : undefined;
+  }
 }

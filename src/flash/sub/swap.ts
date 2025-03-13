@@ -85,6 +85,7 @@ export class SwapSubClient {
     fromActorWalletOwner?: string,
     fromActorReceiverWalletOwner?: string,
     customPostHook?: string,
+    maxSlippage?: number,
   ): Promise<Swap> {
     const wallet = await this.wallet.getValue('Wallet must be configured for swap creation');
 
@@ -117,6 +118,7 @@ export class SwapSubClient {
       from_actor_wallet_owner: fromActorWalletOwner,
       from_actor_receiver_wallet_owner: fromActorReceiverWalletOwner,
       custom_post_hook: customPostHook,
+      max_slippage_pct: maxSlippage,
     };
     const { data: responseSwap } = await createSwapMainV0(createSwapParams);
 
@@ -240,6 +242,12 @@ export class SwapSubClient {
         : makeNativeAmount(s.from_fee_estimate);
 
     const toAmount = new Amount({ value: s.to_amount, decimals: q.toCrypto.decimals });
+    const toAmountExpected = new Amount({ value: s.to_amount_expected, decimals: q.toCrypto.decimals });
+    const toAmountMin = new Amount({ value: s.to_amount_min, decimals: q.toCrypto.decimals });
+    const toAmountFinal = s.to_amount_final
+      ? new Amount({ value: s.to_amount_final, decimals: q.toCrypto.decimals })
+      : undefined;
+
     const toFeeEstimate =
       s.to_chain_id === BITCOIN_CHAIN_ID ? makeBitcoinAmount(s.to_fee_estimate) : makeNativeAmount(s.to_fee_estimate);
 
@@ -280,6 +288,9 @@ export class SwapSubClient {
       fromActorReceiver: s.from_actor_receiver,
       toCryptoId: q.toCrypto.id,
       toAmount: toAmount.data,
+      toAmountExpected: toAmountExpected.data,
+      toAmountMin: toAmountMin.data,
+      toAmountFinal: toAmountFinal?.data,
       collateralChainId: q.collateralChain.id,
       collateralAmount: collateralAmount.data,
       timeEstimate: timeEstimate.data,

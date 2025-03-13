@@ -568,6 +568,23 @@
                         }
                     },
                     {
+                        "name": "max_slippage_pct",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "string"
+                                }
+                            ],
+                            "default": "0",
+                            "title": "Max Slippage Pct"
+                        }
+                    },
+                    {
                         "name": "custom_post_hook",
                         "in": "query",
                         "required": false,
@@ -2116,6 +2133,18 @@
                         ],
                         "title": "Permit Transaction"
                     },
+                    "max_slippage_pct": {
+                        "anyOf": [
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ],
+                        "title": "Max Slippage Pct",
+                        "default": "0"
+                    },
                     "custom_post_hook": {
                         "anyOf": [
                             {
@@ -2426,6 +2455,14 @@
                         "type": "string",
                         "title": "To Amount"
                     },
+                    "to_amount_expected": {
+                        "type": "string",
+                        "title": "To Amount Expected"
+                    },
+                    "to_amount_min": {
+                        "type": "string",
+                        "title": "To Amount Min"
+                    },
                     "collateral_chain_id": {
                         "type": "string",
                         "title": "Collateral Chain Id"
@@ -2518,6 +2555,8 @@
                     "to_chain_id",
                     "to_token_address",
                     "to_amount",
+                    "to_amount_expected",
+                    "to_amount_min",
                     "collateral_chain_id",
                     "collateral_amount",
                     "time_estimate",
@@ -2770,6 +2809,25 @@
                         "type": "string",
                         "title": "To Amount"
                     },
+                    "to_amount_expected": {
+                        "type": "string",
+                        "title": "To Amount Expected"
+                    },
+                    "to_amount_min": {
+                        "type": "string",
+                        "title": "To Amount Min"
+                    },
+                    "to_amount_final": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "To Amount Final"
+                    },
                     "to_actor": {
                         "type": "string",
                         "title": "To Actor"
@@ -2950,6 +3008,9 @@
                     "to_chain_id",
                     "to_token_address",
                     "to_amount",
+                    "to_amount_expected",
+                    "to_amount_min",
+                    "to_amount_final",
                     "to_actor",
                     "to_actor_bitcoin",
                     "collateral_chain_id",

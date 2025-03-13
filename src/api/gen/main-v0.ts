@@ -90,6 +90,8 @@ export type CreateSwapMainV0CollateralReceiver = string | null;
 
 export type CreateSwapMainV0PermitTransaction = string | null;
 
+export type CreateSwapMainV0MaxSlippagePct = number | string;
+
 export type CreateSwapMainV0CustomPostHook = string | null;
 
 export interface CreateSwapMainV0 {
@@ -107,6 +109,7 @@ export interface CreateSwapMainV0 {
   to_chain_id: string;
   to_token_address: string;
   permit_transaction?: CreateSwapMainV0PermitTransaction;
+  max_slippage_pct?: CreateSwapMainV0MaxSlippagePct;
   custom_post_hook?: CreateSwapMainV0CustomPostHook;
 }
 
@@ -209,6 +212,8 @@ export interface QuoteMainV0 {
   to_chain_id: string;
   to_token_address: string;
   to_amount: string;
+  to_amount_expected: string;
+  to_amount_min: string;
   collateral_chain_id: string;
   collateral_amount: string;
   time_estimate: number;
@@ -274,6 +279,8 @@ export type SwapMainV0FromActorWalletOwner = string | null;
 
 export type SwapMainV0FromActorReceiverWalletOwner = string | null;
 
+export type SwapMainV0ToAmountFinal = string | null;
+
 export type SwapMainV0ToActorBitcoin = string | null;
 
 export type SwapMainV0TimeToLockBitcoin = number | null;
@@ -306,6 +313,9 @@ export interface SwapMainV0 {
   to_chain_id: string;
   to_token_address: string;
   to_amount: string;
+  to_amount_expected: string;
+  to_amount_min: string;
+  to_amount_final: SwapMainV0ToAmountFinal;
   to_actor: string;
   to_actor_bitcoin: SwapMainV0ToActorBitcoin;
   collateral_chain_id: string;
@@ -443,6 +453,7 @@ export type GetQuoteMainV0Params = {
   from_actor_receiver?: string | null;
   from_actor_receiver_wallet_owner?: string | null;
   permit_transaction?: string | null;
+  max_slippage_pct?: number | string;
   custom_post_hook?: string | null;
 };
 
