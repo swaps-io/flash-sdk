@@ -291,7 +291,7 @@ export interface GetQuoteParams {
   /**
    * Max slippage for the swap in percentage
    *
-   * @default 0
+   * @default Amount.zero()
    */
   maxSlippage?: Amount;
 }
@@ -403,7 +403,7 @@ export interface SubmitSwapParams extends WithWalletOperation {
   /**
    * Max slippage for the swap in percentage
    *
-   * @default 0
+   * @default Amount.zero()
    */
   maxSlippage?: Amount;
 }
