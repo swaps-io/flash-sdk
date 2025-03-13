@@ -287,6 +287,13 @@ export interface GetQuoteParams {
    * The EOA owner smart wallet (necessary for working with Smart Wallet)
    */
   fromActorReceiverWalletOwner?: string;
+
+  /**
+   * Max slippage for the swap in percentage
+   *
+   * @default Amount.zero()
+   */
+  maxSlippage?: Amount;
 }
 
 /**
@@ -392,6 +399,13 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default false
    */
   fromPreWrap?: boolean;
+
+  /**
+   * Max slippage for the swap in percentage
+   *
+   * @default Amount.zero()
+   */
+  maxSlippage?: Amount;
 }
 
 /**
