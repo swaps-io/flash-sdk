@@ -293,7 +293,7 @@ export interface GetQuoteParams {
    *
    * @default 0
    */
-  maxSlippagePct?: number;
+  maxSlippage?: Amount;
 }
 
 /**
@@ -405,7 +405,7 @@ export interface SubmitSwapParams extends WithWalletOperation {
    *
    * @default 0
    */
-  maxSlippagePct?: number;
+  maxSlippage?: Amount;
 }
 
 /**

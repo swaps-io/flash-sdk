@@ -84,7 +84,7 @@ export class SwapSubClient {
     fromActorReceiver: string | undefined,
     fromActorWalletOwner?: string,
     fromActorReceiverWalletOwner?: string,
-    maxSlippagePct?: number,
+    maxSlippage?: number,
   ): Promise<Swap> {
     const wallet = await this.wallet.getValue('Wallet must be configured for swap creation');
 
@@ -116,7 +116,7 @@ export class SwapSubClient {
       permit_transaction: cryptoApprove.permitTransaction,
       from_actor_wallet_owner: fromActorWalletOwner,
       from_actor_receiver_wallet_owner: fromActorReceiverWalletOwner,
-      max_slippage_pct: maxSlippagePct,
+      max_slippage_pct: maxSlippage,
     };
     const { data: responseSwap } = await createSwapMainV0(createSwapParams);
 

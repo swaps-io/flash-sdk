@@ -27,7 +27,7 @@ export class QuoteSubClient {
     fromActorReceiver?: string,
     fromActorWalletOwner?: string,
     fromActorReceiverWalletOwner?: string,
-    maxSlippagePct?: number,
+    maxSlippage?: number,
   ): Promise<Quote> {
     if (isNull(fromAmount) === isNull(toAmount)) {
       throw new FlashError('Either "from" or "to" amount must be specified in quote params');
@@ -54,7 +54,7 @@ export class QuoteSubClient {
       from_actor_receiver: fromActorReceiver,
       from_actor_wallet_owner: fromActorWalletOwner,
       from_actor_receiver_wallet_owner: fromActorReceiverWalletOwner,
-      max_slippage_pct: maxSlippagePct,
+      max_slippage_pct: maxSlippage,
     });
 
     const inconsistencyErrors: string[] = [];
