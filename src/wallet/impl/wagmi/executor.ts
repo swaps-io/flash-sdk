@@ -17,5 +17,5 @@ export interface WagmiWalletExecutor {
   /**
    * Terminates executor, i.e. disposes it along with action cancellation
    */
-  terminate: () => void;
+  terminate: (reason?: string) => void;
 }
