@@ -2,7 +2,7 @@ import type { SendTransactionParameters, SignMessageParameters, SignTypedDataPar
 import type { Address } from 'viem';
 import type { Config } from 'wagmi';
 
-import { Duration } from '../../..';
+import { Amount, Duration } from '../../..';
 import { isNull } from '../../../helper/null';
 import { WalletError } from '../../error';
 import { SendTransactionParams, SignMessageParams, SignTypedDataParams } from '../../interface';
@@ -14,7 +14,9 @@ import {
   normalizeValue,
 } from '../viem/normalization';
 
-export type WagmiSendTransactionParams = Pick<SendTransactionParams, 'chainId' | 'from' | 'to' | 'value' | 'data'>;
+export type WagmiSendTransactionParams = Pick<SendTransactionParams, 'chainId' | 'from' | 'to' | 'value' | 'data'> & {
+  gasMultiplier?: Amount;
+};
 export type WagmiSignTypedDataParams = Pick<SignTypedDataParams, 'from' | 'data'>;
 export type WagmiSignMessageParams = Pick<SignMessageParams, 'from' | 'message'>;
 
@@ -108,6 +110,19 @@ export class WagmiWalletVendor {
     const wagmiCore = await import('@wagmi/core');
 
     const args = await this.sendTransactionParamsToArgs(params);
+    if (params.gasMultiplier) {
+      const gasEstimate = await wagmiCore.estimateGas(this.config, {
+        chainId: normalizeChainId(params.chainId),
+        account: await this.normalizeAccountAddress(params.from),
+        to: normalizeAddress(params.to),
+        value: normalizeValue(params.value),
+        data: normalizeData(params.data),
+      });
+      args.gas = BigInt(
+        Amount.fromDecimalString(gasEstimate.toString()).mul(params.gasMultiplier).normalize(0).toDecimalString(),
+      );
+    }
+
     try {
       const txid = await wagmiCore.sendTransaction(this.config, args);
       return txid;

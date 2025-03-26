@@ -406,6 +406,11 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default Amount.zero()
    */
   maxSlippage?: Amount;
+
+  /**
+   * Gas multiplier only for native tokens swap
+   */
+  gasMultiplier?: Amount;
 }
 
 /**
