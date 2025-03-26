@@ -1,3 +1,5 @@
+import { Amount } from '../model';
+
 /**
  * Operation identifier provider
  *
@@ -85,6 +87,13 @@ export interface SendTransactionParams extends WalletBaseParams {
    * @default Native token transfer transaction
    */
   data?: string;
+
+  /**
+   * Gas limit multiplier
+   *
+   * @default Use default gas estimate from wallet provider
+   */
+  gasMultiplier?: Amount;
 }
 
 /**

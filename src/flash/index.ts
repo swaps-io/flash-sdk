@@ -363,6 +363,9 @@ export class FlashClient {
    */
   public async submitSwapManualCallSwap(params: SubmitSwapParams, swapSubmit: SwapSubmit): Promise<string> {
     const callRequest = await this.swapCall.prepareSwapCall(params.operation, swapSubmit);
+    if (isNotNull(params.gasMultiplier) && isNotNull(callRequest.callParams)) {
+      callRequest.callParams.gasMultiplier = params.gasMultiplier;
+    }
     const txid = await this.swapCall.callSwap(callRequest);
     params.onSwapCalled?.(txid);
     return txid;

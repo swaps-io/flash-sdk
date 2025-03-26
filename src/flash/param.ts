@@ -406,6 +406,13 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default Amount.zero()
    */
   maxSlippage?: Amount;
+
+  /**
+   * Gas limit multiplier
+   *
+   * @default Use default gas estimate from wallet provider
+   */
+  gasMultiplier?: Amount;
 }
 
 /**

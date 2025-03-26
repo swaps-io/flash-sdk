@@ -2,7 +2,7 @@ import { getApiErrorDetail } from '../../../helper/api';
 import { ExclusivePool } from '../../../helper/exclusive';
 import { isNotNull, isNull } from '../../../helper/null';
 import { generateRandomId } from '../../../helper/random';
-import { Duration } from '../../../model';
+import { Amount, Duration } from '../../../model';
 import { WalletError } from '../../error';
 import {
   IWallet,
@@ -29,7 +29,7 @@ type InactiveChainPolicy = 'plan-switch' | 'plan-switch-with-error-now';
 type WithRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 type WithOperation<T extends WithWalletOperation> = WithRequired<T, 'operation'>;
 type SignTypedDataOperationParams = WithOperation<SignTypedDataParams>;
-type SendTransactionOperationParams = WithOperation<SendTransactionParams>;
+type SendTransactionOperationParams = WithOperation<SendTransactionParams> & { gasMultiplier?: Amount };
 type SignMessageOperationParams = WithOperation<SignMessageParams>;
 
 /**
