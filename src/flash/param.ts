@@ -410,7 +410,7 @@ export interface SubmitSwapParams extends WithWalletOperation {
   /**
    * Gas limit multiplier
    *
-   * @default use default gas from wallet provider
+   * @default Use default gas estimate from wallet provider
    */
   gasMultiplier?: Amount;
 }
