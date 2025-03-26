@@ -90,7 +90,8 @@ export interface SendTransactionParams extends WalletBaseParams {
 
   /**
    * Gas limit multiplier
-   * Applies only for native tokens swap
+   *
+   * @default use default gas from wallet provider
    */
   gasMultiplier?: Amount;
 }

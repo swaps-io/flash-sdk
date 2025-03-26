@@ -408,7 +408,9 @@ export interface SubmitSwapParams extends WithWalletOperation {
   maxSlippage?: Amount;
 
   /**
-   * Gas multiplier only for native tokens swap
+   * Gas limit multiplier
+   *
+   * @default use default gas from wallet provider
    */
   gasMultiplier?: Amount;
 }

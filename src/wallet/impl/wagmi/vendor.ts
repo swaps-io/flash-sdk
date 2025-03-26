@@ -3,7 +3,7 @@ import type { Address } from 'viem';
 import type { Config } from 'wagmi';
 
 import { Amount, Duration } from '../../..';
-import { isNull } from '../../../helper/null';
+import { isNotNull, isNull } from '../../../helper/null';
 import { WalletError } from '../../error';
 import { SendTransactionParams, SignMessageParams, SignTypedDataParams } from '../../interface';
 import {
@@ -110,17 +110,17 @@ export class WagmiWalletVendor {
     const wagmiCore = await import('@wagmi/core');
 
     const args = await this.sendTransactionParamsToArgs(params);
-    if (params.gasMultiplier) {
+    if (params.gasMultiplier && isNotNull(args.chainId) && isNotNull(args.account)) {
       const gasEstimate = await wagmiCore.estimateGas(this.config, {
-        chainId: normalizeChainId(params.chainId),
-        account: await this.normalizeAccountAddress(params.from),
-        to: normalizeAddress(params.to),
-        value: normalizeValue(params.value),
-        data: normalizeData(params.data),
+        chainId: args.chainId,
+        account: args.account,
+        to: args.to,
+        value: args.value,
+        data: args.data,
       });
-      args.gas = BigInt(
-        Amount.fromDecimalString(gasEstimate.toString()).mul(params.gasMultiplier).normalize(0).toDecimalString(),
-      );
+      let gas = new Amount({ value: gasEstimate.toString(), decimals: 0 });
+      gas = gas.mul(params.gasMultiplier);
+      args.gas = BigInt(gas.normalizeValue(0));
     }
 
     try {
