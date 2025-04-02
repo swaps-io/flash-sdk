@@ -1,11 +1,12 @@
 /** @type {import('typedoc').TypeDocOptions} */
-module.exports = {
+const options = {
   // readme
   entryPoints: ['./src/index.ts'],
   out: 'docs',
   validation: {
     notDocumented: true,
   },
+  treatWarningsAsErrors: true,
   excludePrivate: true,
   categoryOrder: [
     'Client',
@@ -50,3 +51,4 @@ module.exports = {
   excludeExternals: true,
   externalPattern: [],
 };
+export default options;
