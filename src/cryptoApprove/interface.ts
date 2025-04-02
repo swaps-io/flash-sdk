@@ -9,8 +9,25 @@ import { Amount, CryptoApprove, CryptoApproveRequest, CryptoData, DataLike, Inco
 export interface PrepareCryptoApproveParams extends WithWalletOperation {
   /**
    * Crypto to approve
+   *
+   * Note:
+   * - only ERC-20 tokens can be approved
+   * - passing a native crypto will result in noop approve
+   * - native cryptos can be {@link preWrap | pre-wrapped}
    */
   crypto: DataLike<CryptoData>;
+
+  /**
+   * Should native wrap be performed first to get the {@link crypto} to approve
+   *
+   * Note:
+   * - this flag is only used when {@link crypto} is native wrap
+   * - flag is passes as-is into the underlying approve provider
+   * - smart wallet capabilities may be required for pre-wrap operation
+   *
+   * @default false
+   */
+  preWrap?: boolean;
 
   /**
    * Amount of crypto to approve

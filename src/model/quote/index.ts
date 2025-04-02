@@ -207,4 +207,18 @@ export class Quote implements Data<QuoteData>, WithData<QuoteData, Quote> {
   public get amountSource(): AmountSource {
     return this.data.amountSource;
   }
+
+  /**
+   * The expected "to" ("buy" from user perspective) amount of the quote if slippage is not zero
+   */
+  public get toAmountExpected(): Amount {
+    return new Amount(this.data.toAmountExpected);
+  }
+
+  /**
+   * The minimal "to" ("buy" from user perspective) amount of the quote if slippage is not zero
+   */
+  public get toAmountMin(): Amount {
+    return new Amount(this.data.toAmountMin);
+  }
 }

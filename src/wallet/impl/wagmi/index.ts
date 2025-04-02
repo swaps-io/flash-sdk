@@ -2,7 +2,7 @@ import { getApiErrorDetail } from '../../../helper/api';
 import { ExclusivePool } from '../../../helper/exclusive';
 import { isNotNull, isNull } from '../../../helper/null';
 import { generateRandomId } from '../../../helper/random';
-import { Duration } from '../../../model';
+import { Amount, Duration } from '../../../model';
 import { WalletError } from '../../error';
 import {
   IWallet,
@@ -29,7 +29,7 @@ type InactiveChainPolicy = 'plan-switch' | 'plan-switch-with-error-now';
 type WithRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
 type WithOperation<T extends WithWalletOperation> = WithRequired<T, 'operation'>;
 type SignTypedDataOperationParams = WithOperation<SignTypedDataParams>;
-type SendTransactionOperationParams = WithOperation<SendTransactionParams>;
+type SendTransactionOperationParams = WithOperation<SendTransactionParams> & { gasMultiplier?: Amount };
 type SignMessageOperationParams = WithOperation<SignMessageParams>;
 
 /**
@@ -110,6 +110,7 @@ export class WagmiWallet implements IWallet {
     let activeAction: (() => Promise<void>) | undefined;
     let executingActionId: string | undefined;
     let terminated = false;
+    let terminatedReason: string | undefined;
 
     const next = (): void => {
       void activeAction?.();
@@ -119,14 +120,15 @@ export class WagmiWallet implements IWallet {
       executingActionId = undefined;
     };
 
-    const terminate = (): void => {
+    const terminate = (reason?: string): void => {
       cancel();
       terminated = true;
+      terminatedReason = reason;
     };
 
     const tryTerminate = (): void => {
       if (terminated) {
-        throw new WalletError('Wallet execution has been terminated');
+        throw new WalletError(terminatedReason ?? 'Wallet execution has been terminated');
       }
     };
 

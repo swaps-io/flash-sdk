@@ -287,6 +287,13 @@ export interface GetQuoteParams {
    * The EOA owner smart wallet (necessary for working with Smart Wallet)
    */
   fromActorReceiverWalletOwner?: string;
+
+  /**
+   * Max slippage for the swap in percentage
+   *
+   * @default Amount.zero()
+   */
+  maxSlippage?: Amount;
 }
 
 /**
@@ -380,6 +387,32 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default No chain ID put into chain-agnostic domain data
    */
   domainChainId?: string;
+
+  /**
+   * Should native wrap be performed first on "from" crypto as part of the
+   * crypto approve process
+   *
+   * Note:
+   * - this flag is only used when the "from" crypto is a native wrap
+   * - smart wallet capabilities may be required for pre-wrap operation
+   *
+   * @default false
+   */
+  fromPreWrap?: boolean;
+
+  /**
+   * Max slippage for the swap in percentage
+   *
+   * @default Amount.zero()
+   */
+  maxSlippage?: Amount;
+
+  /**
+   * Gas limit multiplier
+   *
+   * @default Use default gas estimate from wallet provider
+   */
+  gasMultiplier?: Amount;
 }
 
 /**

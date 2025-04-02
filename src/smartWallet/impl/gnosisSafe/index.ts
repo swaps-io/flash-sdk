@@ -1,4 +1,5 @@
-import type { PredictedSafeProps } from '@safe-global/protocol-kit';
+import type { Eip1193Provider, PredictedSafeProps } from '@safe-global/protocol-kit';
+import type { ExactPartial, TransactionRequest } from 'viem';
 
 import { IChainProvider } from '../../../chainProvider';
 import { ZERO_ADDRESS } from '../../../helper/address';
@@ -38,8 +39,7 @@ export * from './param';
  */
 export class GnosisSafeWallet implements ISmartWallet {
   private readonly chainProvider: IChainProvider;
-  private readonly ownerWallet: IWallet | undefined;
-  private readonly perChainRpcUrls: Map<string, string>;
+  private readonly ownerWallet: IWallet;
   private readonly perChainSafeInit: Map<string, ExclusiveInit<SafeBundle>>;
   private readonly perChainOwnersInit: Map<string, ExclusiveInit<ReadonlySet<string>>>;
   private readonly safeSdkIsInit: Map<string, boolean | undefined>;
@@ -47,15 +47,6 @@ export class GnosisSafeWallet implements ISmartWallet {
   public constructor(params: GnosisSafeWalletParams) {
     this.chainProvider = params.chainProvider;
     this.ownerWallet = params.ownerWallet;
-
-    this.perChainRpcUrls = new Map();
-    const chainConfigs = params.chains ?? [];
-    for (const chainConfig of chainConfigs) {
-      this.perChainRpcUrls.set(chainConfig.chainId, chainConfig.rpcUrl);
-    }
-    if (this.perChainRpcUrls.size < chainConfigs.length) {
-      throw new SmartWalletError('Duplicate Gnosis Safe wallet chain config detected');
-    }
 
     this.perChainSafeInit = new Map();
     this.perChainOwnersInit = new Map();
@@ -79,16 +70,12 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public getOwnerWallet(): Promise<IWallet> {
-    if (isNull(this.ownerWallet)) {
-      throw new SmartWalletError('No Gnosis Safe owner wallet configured');
-    }
-
     return Promise.resolve(this.ownerWallet);
   }
 
   public async getAddress(params: GetSmartAddressParams): Promise<string> {
     const safeInit = this.safeSdkIsInit.get(params.chainId);
-    if (isNull(safeInit) && isNotNull(this.ownerWallet)) {
+    if (isNull(safeInit)) {
       const address = await this.ownerWallet.getAddress();
       this.getSafe(params.chainId).catch(console.error);
       return await predictSafeAddress(address);
@@ -144,11 +131,7 @@ export class GnosisSafeWallet implements ISmartWallet {
       throw new SmartWalletError('No chain ID provided for Gnosis Safe wallet send transaction params');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const signData = JSON.parse(params.data);
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const transactionData = signData.message as SafeTransaction['data'];
+    const transactionData = this.parseTransactionData(params.data);
 
     const protocolKit = await this.importProtocolKit();
 
@@ -187,8 +170,17 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   public async getPermitTransaction(params: GetSmartPermitTransactionParams): Promise<string> {
-    const { encodePermitSafe } = await import('./permitSafe');
-    const transaction = await encodePermitSafe(params.from, params.token, params.amount, params.signature);
+    const data = this.parseTransactionData(params.data);
+    const address = await this.getAddress(params);
+    const { encodePermitSafeCustom } = await import('./permitSafeCustom');
+    const transaction = await encodePermitSafeCustom(
+      address,
+      data.to,
+      data.value,
+      data.data,
+      data.operation,
+      params.ownerSignature,
+    );
     return transaction;
   }
 
@@ -217,12 +209,9 @@ export class GnosisSafeWallet implements ISmartWallet {
   }
 
   private async initSafe(chainId: string): Promise<SafeBundle> {
-    const provider = this.getRpcUrl(chainId);
-    const ownerAddress = await this.ownerWallet?.getAddress();
+    const provider = this.getProvider(chainId);
 
-    if (isNull(ownerAddress)) {
-      throw new SmartWalletError('No Gnosis Safe owner wallet configured');
-    }
+    const ownerAddress = await this.ownerWallet.getAddress();
 
     const protocolKit = await this.importProtocolKit();
     const Safe = protocolKit.default;
@@ -257,6 +246,57 @@ export class GnosisSafeWallet implements ISmartWallet {
     return safe;
   }
 
+  private getProvider(chainId: string): Eip1193Provider {
+    type EthCallParams = ExactPartial<TransactionRequest>;
+
+    const ethCall = async (params: EthCallParams): Promise<string> => {
+      return await this.chainProvider.call({
+        chainId,
+        to: params.to!,
+        data: params.data!,
+        address: params.from,
+        value: params.value,
+      });
+    };
+
+    const ethGetCode = async (address: string): Promise<string> => {
+      return await this.chainProvider.getByteCode({ chainId, address });
+    };
+
+    const provider: Eip1193Provider = {
+      request: async (args) => {
+        switch (args.method) {
+          case 'eth_chainId':
+            return `0x${Number(chainId).toString(16)}`;
+
+          case 'eth_accounts':
+            return [];
+
+          case 'eth_call':
+            if (!isArray(args.params)) {
+              throw new SmartWalletError('Unexpected EIP-1193 provider "eth_call" params');
+            }
+            return await ethCall(args.params[0] as EthCallParams);
+
+          case 'eth_getCode':
+            if (!isArray(args.params)) {
+              throw new SmartWalletError('Unexpected EIP-1193 provider "eth_getCode" params');
+            }
+            return await ethGetCode(args.params[0] as string);
+
+          default:
+            throw new SmartWalletError(`Unexpected EIP-1193 provider request of "${args.method}" method`);
+        }
+      },
+    };
+    return provider;
+  }
+
+  private parseTransactionData(data: string): SafeTransaction['data'] {
+    const transactionData = (JSON.parse(data) as { message: SafeTransaction['data'] }).message;
+    return transactionData;
+  }
+
   private async initOwners(chainId: string): Promise<ReadonlySet<string>> {
     const safe = await this.getSafe(chainId);
     const safeOwners = await safe.instance.getOwners();
@@ -283,15 +323,6 @@ export class GnosisSafeWallet implements ISmartWallet {
       mod = { ...mod.default, default: (mod.default as any).default } as unknown as T;
     }
     return mod;
-  }
-
-  private getRpcUrl(chainId: string): string {
-    const rpcUrl = this.perChainRpcUrls.get(chainId);
-    if (isNull(rpcUrl)) {
-      throw new SmartWalletError(`No Gnosis Safe wallet RPC URL configured for chain "${chainId}"`);
-    }
-
-    return rpcUrl;
   }
 
   private async prepareSignParams(

@@ -189,4 +189,19 @@ export interface SwapData {
    * Source of the amount
    */
   amountSource: AmountSource;
+
+  /**
+   * Expected Data of "to" {@link Amount} of the quote if slippage is not zero
+   */
+  toAmountExpected: AmountData;
+
+  /**
+   * Minimal Data of "to" {@link Amount} of the quote if slippage is not zero
+   */
+  toAmountMin: AmountData;
+
+  /**
+   * Final Data of "to" {@link Amount} of the quote if slippage is not zero
+   */
+  toAmountFinal: AmountData | undefined;
 }

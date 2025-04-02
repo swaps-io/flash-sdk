@@ -11,11 +11,6 @@ export const isArray = <I, O>(items: readonly I[] | O): items is readonly I[] =>
   return Array.isArray(items);
 };
 
-interface NewArrayFunc {
-  (length: number): undefined[];
-  <I>(length: number, fill: I): I[];
-}
-
 /**
  * Creates new filled array with specified item type
  *
@@ -26,6 +21,9 @@ interface NewArrayFunc {
  *
  * @category Util
  */
-export const newArray: NewArrayFunc = <I>(length: number, fill?: I): I[] => {
+export const newArray: {
+  (length: number): undefined[];
+  <I>(length: number, fill: I): I[];
+} = <I>(length: number, fill?: I): I[] => {
   return new Array(length).fill(fill) as I[];
 };

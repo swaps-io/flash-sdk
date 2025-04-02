@@ -62,7 +62,10 @@ jobs:
         run: yarn pack --filename ${{ steps.artifact.outputs.name }}
 
       - name: Generate docs
-        run: yarn docs:gen-md
+        if: ${{ steps.npm.outputs.tag == 'latest' }}
+        run: |
+          yarn docs:gen
+          tar -czvf docs.tar.gz docs
 
       # Publish
 
@@ -71,23 +74,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.release.tag_name }} ${{ steps.artifact.outputs.name }}
 
-      - name: Publish docs to versions
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          personal_token: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
-          external_repository: swaps-io/docs
-          publish_branch: main
-          publish_dir: docs
-          destination_dir: versions/${{ github.event.release.tag_name }}
-
-      - name: Publish latest docs to root
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Configure docs SSH
         if: ${{ steps.npm.outputs.tag == 'latest' }}
-        with:
-          personal_token: ${{ secrets.DOCS_SERVICE_GITHUB_TOKEN }}
-          external_repository: swaps-io/docs
-          publish_branch: main
-          publish_dir: docs
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_DOCS_CONFIG }}" >> ~/.ssh/config
+          echo "${{ secrets.SSH_DOCS_KEY }}" >> ~/.ssh/sdk-docs-key
+          chmod 400 ~/.ssh/sdk-docs-key
+          echo "${{ secrets.SSH_DOCS_KNOWN }}" >> ~/.ssh/known_hosts
+
+      - name: Publish docs
+        if: ${{ steps.npm.outputs.tag == 'latest' }}
+        run: |
+          scp docs.tar.gz sdk-docs:content
+          ssh sdk-docs 'cd content; ./run.sh'
 
       - name: Publish NPM package
         env:

@@ -1,5 +1,5 @@
-export interface SmartApproveData {
+export interface SmartApprovePermitData {
   actorAddress: string;
   tokenAddress: string;
-  amount: string | undefined;
+  maxAmount: string | undefined;
 }

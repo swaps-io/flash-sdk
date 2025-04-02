@@ -8,8 +8,7 @@ Set of tools for interaction with Flash protocol. See:
 
 - [usage examples](#usage-examples) for a good starting point for working with the SDK
 - [installation](#installation) for instructions on how to setup SDK in a project
-- [reference](reference.md) for all available SDK classes/types/etc in current version
-- [versions](versions/README.md) for historic and _next_ release candidate SDK references
+- [modules](link://modules) for all available SDK classes/types/etc
 
 ## Usage Examples
 
@@ -70,23 +69,23 @@ let swap = await flash.submitSwap({ quote });
 // It's possible to handle "swap.state" manually,
 // but easier with some helper getters, provided by "Swap"
 while (swap.awaiting) {
-    await swapUpdatePeriod.sleep();
-    swap = await flash.getSwap({ swap });
+  await swapUpdatePeriod.sleep();
+  swap = await flash.getSwap({ swap });
 }
 
 // Check the result swap state
 if (swap.completed) {
-    // Swap completed - "from" crypto taken, "to" crypto received
-    console.log(`Swap "${swap.hash}" completed`);
+  // Swap completed - "from" crypto taken, "to" crypto received
+  console.log(`Swap "${swap.hash}" completed`);
 } else if (swap.slashable) {
-    // Swap cancelled & slashable - "from" crypto taken, "to" crypto not received
-    // The "to" actor's collateral should be taken to compensate the "from" crypto
-    // This requires two transactions - in "to" & in "collateral" network (can be helped by liquidators)
-    console.log(`Swap "${swap.hash}" cancelled and waiting for slash`);
+  // Swap cancelled & slashable - "from" crypto taken, "to" crypto not received
+  // The "to" actor's collateral should be taken to compensate the "from" crypto
+  // This requires two transactions - in "to" & in "collateral" network (can be helped by liquidators)
+  console.log(`Swap "${swap.hash}" cancelled and waiting for slash`);
 } else {
-    // Swap cancelled & not slashable - "from" crypto not taken, "to" crypto not received
-    // Since nothing taken from the "from" actor, new swap can be created (even for the same quote)
-    console.log(`Swap "${swap.hash}" cancelled`);
+  // Swap cancelled & not slashable - "from" crypto not taken, "to" crypto not received
+  // Since nothing taken from the "from" actor, new swap can be created (even for the same quote)
+  console.log(`Swap "${swap.hash}" cancelled`);
 }
 ```
 
