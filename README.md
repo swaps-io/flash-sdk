@@ -8,7 +8,7 @@ Set of tools for interaction with Flash protocol. See:
 
 - [usage examples](#usage-examples) for a good starting point for working with the SDK
 - [installation](#installation) for instructions on how to setup SDK in a project
-- [modules](./modules.html) for all available SDK classes/types/etc
+- [modules](link://modules) for all available SDK classes/types/etc
 
 ## Usage Examples
 
