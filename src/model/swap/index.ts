@@ -434,6 +434,6 @@ export class Swap implements Data<SwapData>, WithData<SwapData, Swap> {
    * The Final "to" ("buy" from user perspective) amount of the swap if slippage not zero
    */
   public get toAmountFinal(): Amount | undefined {
-    return this.data.toAmountFinal ? new Amount(this.data.toAmountMin) : undefined;
+    return this.data.toAmountFinal ? new Amount(this.data.toAmountFinal) : undefined;
   }
 }
