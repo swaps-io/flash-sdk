@@ -6,9 +6,9 @@ const external = Object.keys(pkg.dependencies ?? {}).concat(Object.keys(pkg.peer
 const sharedConfig = {
   entryPoints: ['./src/index.ts'],
   bundle: true,
-  minify: true,
+  minify: false,
   external,
-  sourcemap: 'external',
+  sourcemap: 'inline',
 };
 
 build({

@@ -289,6 +289,11 @@ export interface GetQuoteParams {
   fromActorReceiverWalletOwner?: string;
 
   /**
+   * Custom post hook to call after swap is created for smart wallet
+   */
+  customPostHook?: string;
+
+  /**
    * Max slippage for the swap in percentage
    *
    * @default Amount.zero()
@@ -399,6 +404,11 @@ export interface SubmitSwapParams extends WithWalletOperation {
    * @default false
    */
   fromPreWrap?: boolean;
+
+  /**
+   * Custom post hook to call after swap is created for smart wallet
+   */
+  customPostHook?: string;
 
   /**
    * Max slippage for the swap in percentage
