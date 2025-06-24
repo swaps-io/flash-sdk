@@ -142,6 +142,8 @@ export class QuoteSubClient {
       amountSource: amountSource,
       toAmountExpected: toAmountExpected.data,
       toAmountMin: toAmountMin.data,
+      fromOcsProvider: q.from_ocs_provider ?? undefined,
+      toOcsProvider: q.to_ocs_provider ?? undefined,
     };
     const quote = new Quote(
       data,

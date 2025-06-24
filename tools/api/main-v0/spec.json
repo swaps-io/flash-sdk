@@ -592,7 +592,7 @@
                             "anyOf": [
                                 {
                                     "type": "string",
-                                    "maxLength": 4096
+                                    "maxLength": 16384
                                 },
                                 {
                                     "type": "null"
@@ -664,6 +664,16 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -693,6 +703,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/CustomException"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
                                 }
                             }
                         }
@@ -1423,6 +1443,16 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2149,7 +2179,7 @@
                         "anyOf": [
                             {
                                 "type": "string",
-                                "maxLength": 4096
+                                "maxLength": 16384
                             },
                             {
                                 "type": "null"
@@ -2222,7 +2252,7 @@
                     "max_size_in_usd": {
                         "anyOf": [
                             {
-                                "type": "number"
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -2233,7 +2263,7 @@
                     "max_size_in_token_decimal": {
                         "anyOf": [
                             {
-                                "type": "number"
+                                "type": "string"
                             },
                             {
                                 "type": "null"
@@ -2545,6 +2575,28 @@
                             }
                         ],
                         "title": "From Actor Receiver Wallet Owner"
+                    },
+                    "from_ocs_provider": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "From Ocs Provider"
+                    },
+                    "to_ocs_provider": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "To Ocs Provider"
                     }
                 },
                 "type": "object",
@@ -2645,6 +2697,15 @@
                     "icon"
                 ],
                 "title": "Resolver"
+            },
+            "ResolverEnvVariableType": {
+                "type": "string",
+                "enum": [
+                    "DEV",
+                    "STAGING",
+                    "PROD"
+                ],
+                "title": "ResolverEnvVariableType"
             },
             "ResolverList": {
                 "properties": {
