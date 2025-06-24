@@ -93,4 +93,14 @@ export interface QuoteData {
    * Minimal Data of "to" {@link Amount} of the quote if slippage is not zero
    */
   toAmountMin: AmountData;
+
+  /**
+   * "From" OCS provider
+   */
+  fromOcsProvider: string | undefined;
+
+  /**
+   * "To" OCS provider
+   */
+  toOcsProvider: string | undefined;
 }
