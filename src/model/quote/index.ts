@@ -225,14 +225,14 @@ export class Quote implements Data<QuoteData>, WithData<QuoteData, Quote> {
   /**
    * "From" OCS provider
    */
-  public fromOcsProvider(): string | undefined {
+  public get fromOcsProvider(): string | undefined {
     return this.data.fromOcsProvider;
   }
 
   /**
    * "To" OCS provider
    */
-  public toOcsProvider(): string | undefined {
+  public get toOcsProvider(): string | undefined {
     return this.data.toOcsProvider;
   }
 }
