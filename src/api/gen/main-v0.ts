@@ -126,9 +126,9 @@ export interface CustomExceptionMainV0 {
   extra_data?: CustomExceptionMainV0ExtraData;
 }
 
-export type CustomExceptionDetailsMainV0MaxSizeInUsd = number | null;
+export type CustomExceptionDetailsMainV0MaxSizeInUsd = string | null;
 
-export type CustomExceptionDetailsMainV0MaxSizeInTokenDecimal = number | null;
+export type CustomExceptionDetailsMainV0MaxSizeInTokenDecimal = string | null;
 
 export interface CustomExceptionDetailsMainV0 {
   max_size_in_usd?: CustomExceptionDetailsMainV0MaxSizeInUsd;
@@ -205,6 +205,10 @@ export type QuoteMainV0FromActorReceiver = string | null;
 
 export type QuoteMainV0FromActorReceiverWalletOwner = string | null;
 
+export type QuoteMainV0FromOcsProvider = string | null;
+
+export type QuoteMainV0ToOcsProvider = string | null;
+
 export interface QuoteMainV0 {
   from_chain_id: string;
   from_token_address: string;
@@ -228,6 +232,8 @@ export interface QuoteMainV0 {
   from_actor?: QuoteMainV0FromActor;
   from_actor_receiver?: QuoteMainV0FromActorReceiver;
   from_actor_receiver_wallet_owner?: QuoteMainV0FromActorReceiverWalletOwner;
+  from_ocs_provider?: QuoteMainV0FromOcsProvider;
+  to_ocs_provider?: QuoteMainV0ToOcsProvider;
 }
 
 export type QuotePairsMainV0Pairs = { [key: string]: string[] };
@@ -249,6 +255,16 @@ export interface ResolverMainV0 {
   name: string;
   icon: string;
 }
+
+export type ResolverEnvVariableTypeMainV0 =
+  (typeof ResolverEnvVariableTypeMainV0)[keyof typeof ResolverEnvVariableTypeMainV0];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ResolverEnvVariableTypeMainV0 = {
+  DEV: 'DEV',
+  STAGING: 'STAGING',
+  PROD: 'PROD',
+} as const;
 
 export interface ResolverListMainV0 {
   resolvers: ResolverMainV0[];

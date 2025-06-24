@@ -221,4 +221,18 @@ export class Quote implements Data<QuoteData>, WithData<QuoteData, Quote> {
   public get toAmountMin(): Amount {
     return new Amount(this.data.toAmountMin);
   }
+
+  /**
+   * "From" OCS provider
+   */
+  public fromOcsProvider(): string | undefined {
+    return this.data.fromOcsProvider;
+  }
+
+  /**
+   * "To" OCS provider
+   */
+  public toOcsProvider(): string | undefined {
+    return this.data.toOcsProvider;
+  }
 }
