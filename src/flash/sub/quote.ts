@@ -27,6 +27,7 @@ export class QuoteSubClient {
     fromActorReceiver?: string,
     fromActorWalletOwner?: string,
     fromActorReceiverWalletOwner?: string,
+    customPostHook?: string,
     maxSlippage?: number,
   ): Promise<Quote> {
     if (isNull(fromAmount) === isNull(toAmount)) {
@@ -54,6 +55,7 @@ export class QuoteSubClient {
       from_actor_receiver: fromActorReceiver,
       from_actor_wallet_owner: fromActorWalletOwner,
       from_actor_receiver_wallet_owner: fromActorReceiverWalletOwner,
+      custom_post_hook: customPostHook,
       max_slippage_pct: maxSlippage,
     });
 
